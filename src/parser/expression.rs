@@ -1,19 +1,33 @@
-#[derive(Debug, PartialEq)]
+use crate::lexer::token::Token;
+
+#[derive(Debug, PartialEq, Clone)]
 pub enum BinaryOp {
     Number(Number),
     BinaryOp {
-        left: Box<BinaryOp>,
         op: Operator,
+        left: Box<BinaryOp>,
         right: Box<BinaryOp>,
     },
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Operator {
     Plus,
     Minus,
     Multiply,
     Divide,
+}
+
+impl Operator {
+    pub fn from_token(token: &Token) -> Option<Operator> {
+        match token {
+            Token::Plus => Some(Operator::Plus),
+            Token::Minus => Some(Operator::Minus),
+            Token::Multiply => Some(Operator::Multiply),
+            Token::Divide => Some(Operator::Divide),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -57,6 +71,26 @@ impl BinaryOp {
                     },
                 }
             }
+        }
+    }
+}
+impl Number {
+    pub fn as_float(&self) -> f64 {
+        match self {
+            Number::Int(n) => *n as f64,
+            Number::Float(n) => *n,
+        }
+    }
+    pub fn is_int(&self) -> bool {
+        match self {
+            Number::Int(_) => true,
+            Number::Float(_) => false,
+        }
+    }
+    pub fn as_int(&self) -> i64 {
+        match self {
+            Number::Int(n) => *n,
+            Number::Float(n) => *n as i64,
         }
     }
 }
