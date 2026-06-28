@@ -1,9 +1,6 @@
+
 build:
-  @gcc main.c -o ./tmp/zyn
+  @clang ./file.c ./lexer.c main.c -o ./tmp/zyn -Wall -Wextra
 
 run *args: build 
   @./tmp/zyn {{args}}
-
-test:
-  @./test_generator.sh
-  @./test_runner.sh
