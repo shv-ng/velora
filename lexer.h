@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #define TOKEN_KINDS                                                            \
   X(TOK_EOF)                                                                   \
+  X(TOK_SEMICOLON)                                                                   \
   X(TOK_ERROR)                                                                 \
   X(TOK_COLON)                                                                 \
   X(TOK_LPARAN)                                                                \
@@ -11,6 +12,7 @@
   X(TOK_LBRACE)                                                                \
   X(TOK_RBRACE)                                                                \
   X(TOK_STR_LIT)                                                               \
+  X(TOK_IDENTIFIER)                                                            \
   X(TOK_INT_LIT)                                                               \
   X(TOK_KW_RETURN)
 
@@ -20,15 +22,10 @@ typedef enum {
 #undef X
 } TokenKind;
 
-typedef union {
-  long long int_val;
-  char *str_val;
-} TokenVal;
-
 typedef struct {
   char *file_name;
 
-  TokenVal val;
+  char *val;
   TokenKind kind;
 
   int line;

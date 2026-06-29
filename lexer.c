@@ -25,13 +25,18 @@ static char peek(Lexer *l) { return l->src[l->pos]; };
 static char peek_next(Lexer *l) { return l->src[l->pos + 1]; };
 
 static char advance(Lexer *l) {
-  char c = l->src[l->pos++];
-  if (c == '\n') {
+  char c = peek(l);
+  if (c == '\n' || c == '\r') {
     l->line++;
     l->col = 1;
+    if (c == '\r' && peek_next(l) == '\n') {
+      l->pos++;
+    }
   } else {
     l->col++;
   }
+
+  l->pos++;
   return c;
 };
 
@@ -55,6 +60,9 @@ Token next_token(Lexer *l) {
   switch (c) {
   case '\0':
     return make_tok(l, TOK_EOF);
+  case ';':
+    advance(l);
+    return make_tok(l, TOK_SEMICOLON);
   case ':':
     advance(l);
     return make_tok(l, TOK_COLON);
@@ -73,22 +81,26 @@ Token next_token(Lexer *l) {
   }
 
   if (isdigit(c)) {
-    long long val = 0;
+    int start = l->pos;
     while (isdigit(peek(l))) {
-      val = val * 10 + (advance(l) - '0');
+      advance(l);
     }
+    int length = l->pos - start;
+
     Token t = make_tok(l, TOK_INT_LIT);
-    t.val.int_val = val;
+    t.val = strndup(l->src + start, length);
     return t;
   }
 
   if (isalpha(c) || c == '_') {
-    char buf[128];
-    int i = 0;
-    while (isalpha(peek(l)) || peek(l) == '_') {
-      buf[i++] = advance(l);
+    int start = l->pos;
+    while (isalpha(peek(l)) || isdigit(peek(l)) || peek(l) == '_') {
+      advance(l);
     }
-    buf[i] = '\0';
+    int length = l->pos - start;
+
+    Token t = make_tok(l, TOK_IDENTIFIER);
+    t.val = strndup(l->src + start, length);
 
     static Keyword keywords[] = {
         {"return", TOK_KW_RETURN},
@@ -96,12 +108,11 @@ Token next_token(Lexer *l) {
     };
 
     for (int k = 0; keywords[k].word; k++) {
-      if (strcmp(buf, keywords[k].word) == 0)
-        return make_tok(l, keywords[k].kind);
+      if (strcmp(t.val, keywords[k].word) == 0) {
+        t.kind = keywords[k].kind;
+        break;
+      }
     }
-
-    Token t = make_tok(l, TOK_STR_LIT);
-    t.val.str_val = buf;
     return t;
   }
 

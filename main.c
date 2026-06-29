@@ -19,10 +19,15 @@ int main(int argc, char *argv[]) {
   if (contents == NULL)
     return 1;
 
+  printf("%s\n\n", contents);
+
   Lexer l = lexer_init(file_name, contents);
   Token t;
   while ((t = next_token(&l)).kind != TOK_EOF) {
-    printf("line %d | kind %s | \n", t.line, kind_str(t.kind));
+    printf("line %d | kind %s | val %s | \n", t.line, kind_str(t.kind), t.val);
+    if (t.val) {
+      free(t.val);
+    }
   }
 
   free(contents);
