@@ -35,7 +35,7 @@ char *kind_str(TokenKind kind) {
   case TOK_KW_RETURN:
     return "'return' Keyword";
   case TOK_KW_FUNC:
-    return "'return' Keyword";
+    return "'fn' Keyword";
   }
 }
 
@@ -126,7 +126,7 @@ Token next_token(Lexer *l) {
 
     static Keyword keywords[] = {
         {"return", TOK_KW_RETURN},
-        {"fn", TOK_KW_RETURN},
+        {"fn", TOK_KW_FUNC},
         {NULL, 0},
     };
 
