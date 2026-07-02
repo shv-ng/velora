@@ -9,12 +9,34 @@ static void skip_whitespace(Lexer *l);
 static Token make_tok(Lexer *l, TokenKind kind);
 
 char *kind_str(TokenKind kind) {
-  static const char *names[] = {
-#define X(name) #name,
-      TOKEN_KINDS
-#undef X
-  };
-  return (char *)names[kind];
+  switch (kind) {
+  case TOK_EOF:
+    return "End of file";
+  case TOK_SEMICOLON:
+    return "';'";
+  case TOK_ERROR:
+    return "Unknown token";
+  case TOK_COLON:
+    return "':'";
+  case TOK_LPARAN:
+    return "'('";
+  case TOK_RPARAN:
+    return "')'";
+  case TOK_LBRACE:
+    return "'{'";
+  case TOK_RBRACE:
+    return "'}'";
+  case TOK_STR_LIT:
+    return "str literal";
+  case TOK_IDENTIFIER:
+    return "identifier";
+  case TOK_INT_LIT:
+    return "int literal";
+  case TOK_KW_RETURN:
+    return "'return' Keyword";
+  case TOK_KW_FUNC:
+    return "'return' Keyword";
+  }
 }
 
 Lexer lexer_init(char *file, char *src) {
@@ -104,6 +126,7 @@ Token next_token(Lexer *l) {
 
     static Keyword keywords[] = {
         {"return", TOK_KW_RETURN},
+        {"fn", TOK_KW_RETURN},
         {NULL, 0},
     };
 

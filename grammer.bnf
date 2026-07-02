@@ -1,0 +1,170 @@
+program             = package_decl import_decl* declaration*
+
+package_decl        = 'package' identifier ';'
+
+import_decl         = identifier '=' 'import' string_lit ';'
+
+(* Top level declarations *)
+declaration         = func_decl
+                    | const_decl
+                    | var_decl
+                    | struct_decl
+                    | enum_decl
+                    | union_decl
+                    | extern_decl
+
+visibility          = 'pub'?
+
+(* Functions *)
+func_decl           = visibility identifier ':' 'fn'
+                      '(' param_list ')' return_type block
+
+param_list          = ''
+                    | param (',' param)*
+param               = identifier ':' type
+
+return_type         = type
+                    | '(' type (',' type)+ ')'    (* multi return *)
+
+(* Constants *)
+const_decl          = visibility identifier ':' 'const' type '=' expr ';'
+
+(* Variables *)
+var_decl            = visibility identifier ':' type '=' expr ';'
+
+(* Multi assign — from multi return *)
+multi_assign        = identifier (',' identifier)+ ':' type '=' expr ';'
+                    | identifier (',' identifier)+ ':' '(' type (',' type)+ ')' '=' expr ';'
+
+(* Structs *)
+struct_decl         = visibility identifier ':' 'struct' '{' struct_field* '}'
+struct_field        = visibility identifier ':' type ','?
+
+(* Enums *)
+enum_decl           = visibility identifier ':' 'enum' '{' enum_variant* '}'
+enum_variant        = identifier ','?
+
+(* Unions *)
+union_decl          = visibility identifier ':' 'union' '{' union_variant* '}'
+union_variant       = identifier (':' '{' struct_field* '}')?
+
+(* Statements *)
+statement           = var_decl
+                    | multi_assign
+                    | const_decl
+                    | assign_stmt
+                    | return_stmt
+                    | break_stmt
+                    | defer_stmt
+                    | expr_stmt
+                    | unsafe_block
+
+assign_stmt         = expr '=' expr ';'
+return_stmt         = 'return' expr_list? ';'
+expr_list           = expr (',' expr)*
+break_stmt          = 'break' identifier expr? ';'
+defer_stmt          = 'defer' identifier block
+expr_stmt           = expr ';'
+unsafe_block        = 'unsafe' block
+
+(* Block — is an expression *)
+block               = '{' statement* expr? '}'
+                    (* last expr is the value, no semicolon *)
+
+(* Scope kinds — all expressions *)
+scope_expr          = identifier ':' scope_kind block
+
+scope_kind          = 'scope'
+                    | 'loop'
+                    | 'loop' '(' expr ')'
+                    | 'arena'
+
+(* If — expression *)
+if_expr             = 'if' '(' expr ')' block
+                      ('else' 'if' '(' expr ')' block)*
+                      ('else' block)?
+
+(* Match — expression *)
+match_expr          = 'match' expr '{' match_arm+ '}'
+match_arm           = match_pattern '=>' match_body ','?
+match_body          = block
+                    | expr
+match_pattern       = '_'
+                    | identifier '.' identifier
+                    | identifier '.' identifier '{' capture_list '}'
+capture_list        = identifier (',' identifier)*
+
+(* Expressions *)
+expr                = literal
+                    | identifier
+                    | binary_expr
+                    | unary_expr
+                    | call_expr
+                    | index_expr
+                    | field_expr
+                    | if_expr
+                    | match_expr
+                    | scope_expr
+                    | block
+                    | grouped_expr
+
+binary_expr         = expr binary_op expr
+binary_op           = '+' | '-' | '*' | '/' | '%' 
+                    | '%+' | '%-' | '%*' | '%/'   (* wrap in same type range *)
+                    | '==' | '!=' | '<' | '>' | '<=' | '>='
+                    | '&&' | '||'
+
+unary_expr          = unary_op expr
+unary_op            = '-' | '!'
+
+call_expr           = expr '(' arg_list ')'
+arg_list            = ''
+                    | arg (',' arg)*
+arg                 = ('move' | 'copy')? expr
+
+index_expr          = expr '[' expr ']'
+field_expr          = expr '.' identifier
+grouped_expr        = '(' expr ')'
+
+(* Literals *)
+literal             = int_lit
+                    | float_lit
+                    | bool_lit
+                    | string_lit
+                    | struct_lit
+                    | tuple_lit
+
+int_lit             = [0-9]+
+                    | '0x' [0-9A-Fa-f]+
+float_lit           = [0-9]+ '.' [0-9]+
+bool_lit            = 'true' | 'false'
+string_lit          = '"' [^"]* '"'
+
+struct_lit          = identifier '{' field_init* '}'
+field_init          = identifier ':' expr ','?
+
+tuple_lit           = '(' expr ',' expr (',' expr)* ')'
+
+(* Types *)
+type                = primitive_type
+                    | '[' type ']'
+                    | '*' type           (* raw pointer, unsafe only *)
+                    | '(' type (',' type)+ ')'   (* tuple type *)
+                    | identifier
+
+primitive_type      = 'i8'  | 'i16' | 'i32' | 'i64'
+                    | 'u8'  | 'u16' | 'u32' | 'u64'
+                    | 'f32' | 'f64'
+                    | 'bool'
+                    | 'str'
+                    | 'void'
+
+(* FFI *)
+extern_decl         = 'extern' string_lit identifier ':' 'fn'
+                      '(' extern_param_list ')' type ';'
+
+extern_param_list   = ''
+                    | type (',' type)* (',' '...')?
+
+(* Identifiers *)
+identifier          = [A-Za-z_] [A-Za-z0-9_]*
