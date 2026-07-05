@@ -66,7 +66,7 @@ struct Parser {
   struct Lexer *lexer;
   struct Token current_token;
   struct Token next_token;
-  bool has_error;
+  int error_count;
 };
 
 struct Parser parser_init(struct Lexer *l);

@@ -21,9 +21,10 @@ int main(int argc, char *argv[]) {
     return 1;
 
   printf("%s\n\n", contents);
+
   struct Lexer l = lexer_init(file_name, contents);
 
-  // Token t;
+  // struct Token t;
   // while ((t = next_token(&l)).kind != TOK_EOF) {
   //   printf("line %d | kind %s | val %s | \n", t.line, kind_str(t.kind),
   //   t.val); if (t.val) {
@@ -34,7 +35,11 @@ int main(int argc, char *argv[]) {
   struct Parser p = parser_init(&l);
 
   struct AstNode *program = parse_program(&p);
-  print_ast(program, 0);
+  if (p.error_count == 0) {
+    print_ast(program, 0);
+  } else {
+    fprintf(stderr, "%d error generated\n", p.error_count);
+  }
 
   free(contents);
 

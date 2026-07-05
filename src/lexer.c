@@ -11,11 +11,11 @@ static struct Token make_tok(struct Lexer *l, enum TokenKind kind);
 char *kind_str(enum TokenKind kind) {
   switch (kind) {
   case TOK_EOF:
-    return "End of file";
+    return "end of file";
   case TOK_SEMICOLON:
     return "';'";
   case TOK_ERROR:
-    return "Unknown token";
+    return "unknown token";
   case TOK_COLON:
     return "':'";
   case TOK_LPARAN:
@@ -39,9 +39,25 @@ char *kind_str(enum TokenKind kind) {
   }
 }
 
+inline struct Span merge_span(struct Span s1, struct Span s2) {
+  struct Span span;
+  span.start_col = s1.start_col < s2.start_col ? s1.start_col : s2.start_col;
+  span.end_col = s1.end_col > s2.end_col ? s1.end_col : s2.end_col;
+
+  span.start_line =
+      s1.start_line < s2.start_line ? s1.start_line : s2.start_line;
+  span.end_line = s1.end_line > s2.end_line ? s1.end_line : s2.end_line;
+
+  return span;
+}
+
 struct Lexer lexer_init(char *file, char *src) {
   return (struct Lexer){
-      .file = file, .src = src, .pos = 0, .line = 1, .col = 1};
+      .file = file,
+      .src = src,
+      .pos = 0,
+      .current_span = (struct Span){
+          .start_col = 1, .end_col = 1, .start_line = 1, .end_line = 1}};
 }
 
 static char peek(struct Lexer *l) { return l->src[l->pos]; };
@@ -50,13 +66,15 @@ static char peek_next(struct Lexer *l) { return l->src[l->pos + 1]; };
 static char advance(struct Lexer *l) {
   char c = peek(l);
   if (c == '\n' || c == '\r') {
-    l->line++;
-    l->col = 1;
+
+    l->current_span.end_line++;
+    l->current_span.end_col = 1;
+
     if (c == '\r' && peek_next(l) == '\n') {
       l->pos++;
     }
   } else {
-    l->col++;
+    l->current_span.end_col++;
   }
 
   l->pos++;
@@ -72,11 +90,15 @@ static void skip_whitespace(struct Lexer *l) {
 
 static struct Token make_tok(struct Lexer *l, enum TokenKind kind) {
   return (struct Token){
-      .file_name = l->file, .col = l->col, .line = l->line, .kind = kind};
+      .file_name = l->file, .span = l->current_span, .kind = kind};
 }
 
 struct Token next_token(struct Lexer *l) {
   skip_whitespace(l);
+
+  // new token start when whitespace get skipped and old token ends
+  l->current_span.start_col = l->current_span.end_col;
+  l->current_span.start_line = l->current_span.end_line;
 
   char c = peek(l);
 

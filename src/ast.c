@@ -1,5 +1,6 @@
 
 #include "ast.h"
+#include "error.h"
 #include "lexer.h"
 #include <stdbool.h>
 #include <stdio.h>
@@ -10,15 +11,19 @@ static void advance(struct Parser *p) {
   p->next_token = next_token(p->lexer);
 }
 
-static void synchronise(struct Parser *p, enum TokenKind kind) {
-  // error recovery
+static void synchronise(struct Parser *p) {
+  // dumber error recovery
+
   while (p->current_token.kind != TOK_EOF) {
-    if (p->current_token.kind == kind ||
-        p->current_token.kind == TOK_SEMICOLON) {
+    switch (p->current_token.kind) {
+    case TOK_EOF:
+    case TOK_SEMICOLON:
+    case TOK_LBRACE:
+    case TOK_RBRACE:
+      return;
+    default:
       advance(p);
-      break;
     }
-    advance(p);
   }
 }
 static void expect(struct Parser *p, enum TokenKind kind) {
@@ -27,12 +32,17 @@ static void expect(struct Parser *p, enum TokenKind kind) {
     return;
   }
 
-  fprintf(stderr, "Syntax error at %d:%d. Expected %s but got %s\n",
-          p->lexer->line, p->lexer->col, kind_str(kind),
-          kind_str(p->current_token.kind));
-  p->has_error = true;
+  print_error(
+      (struct Error){
+          .kind = ERR_SYNTAX,
+          .span = p->current_token.span,
+          .as.syntax.expected = kind_str(kind),
+          .as.syntax.found = kind_str(p->current_token.kind),
+      },
+      p->lexer->file, p->lexer->src);
 
-  synchronise(p, kind);
+  p->error_count++;
+  synchronise(p);
 
   return;
 }
@@ -51,9 +61,15 @@ static struct AstNode *parse_expr(struct Parser *p) {
     return node;
   }
   default:
-    fprintf(stderr,
-            "Syntax error at %d:%d: Expected an expression, but found %s\n",
-            p->lexer->line, p->lexer->col, kind_str(p->current_token.kind));
+    print_error(
+        (struct Error){
+            .kind = ERR_SYNTAX,
+            .span = p->current_token.span,
+            .as.syntax.expected = "expression",
+            .as.syntax.found = kind_str(p->current_token.kind),
+        },
+        p->lexer->file, p->lexer->src);
+    p->error_count++;
     return NULL;
   }
 }
@@ -92,9 +108,16 @@ static struct AstNode *parse_block(struct Parser *p, char *name) {
       stmt = parse_return_stmt(p);
       break;
     default:
-      fprintf(stderr, "Syntax error at %d:%d: Unexpected %s in block.\n",
-              p->lexer->line, p->lexer->col, kind_str(p->current_token.kind));
-      synchronise(p, TOK_SEMICOLON);
+      print_error(
+          (struct Error){
+              .kind = ERR_SYNTAX,
+              .span = p->current_token.span,
+              .as.syntax.found = kind_str(p->current_token.kind),
+          },
+          p->lexer->file, p->lexer->src);
+      p->error_count++;
+
+      synchronise(p);
       continue;
     }
     if (stmt != NULL) {
@@ -115,7 +138,9 @@ static struct AstNode *parse_block(struct Parser *p, char *name) {
 
 static struct AstNode *parse_type(struct Parser *p) {
   struct AstNode *type = malloc(sizeof(struct AstNode));
+
   type->kind = AST_TYPE_UNKNOWN;
+
   if (p->current_token.kind == TOK_IDENTIFIER) {
     struct Token name_tok = p->current_token;
     expect(p, TOK_IDENTIFIER);
@@ -123,10 +148,17 @@ static struct AstNode *parse_type(struct Parser *p) {
     type->kind = AST_TYPE_NAMED;
     type->as.type_named.name = name_tok.val;
   }
+
   if (type->kind == AST_TYPE_UNKNOWN) {
-    fprintf(stderr, "Unexpected type casting at %d: %d\n", p->lexer->line,
-            p->lexer->col);
-    p->has_error = true;
+    print_error(
+        (struct Error){
+            .kind = ERR_SYNTAX,
+            .span = p->current_token.span,
+            .as.syntax.found = kind_str(p->current_token.kind),
+        },
+        p->lexer->file, p->lexer->src);
+    advance(p);
+    p->error_count++;
   }
   return type;
 }
@@ -139,6 +171,10 @@ static struct AstNode *parse_func_decl(struct Parser *p, char *name) {
 
   struct AstNode *return_type = parse_type(p);
   struct AstNode *block = parse_block(p, name);
+
+  if (p->error_count > 0) {
+    return NULL;
+  }
 
   struct AstNode *func = malloc(sizeof(struct AstNode));
   func->kind = AST_FUNCTION_DECL;
@@ -173,10 +209,21 @@ struct AstNode *parse_program(struct Parser *p) {
       declaration = realloc(declaration, sizeof(struct AstNode *) * capacity);
     }
     if (p->current_token.kind == TOK_IDENTIFIER) {
-      declaration[count++] = parse_declaration(p);
+      struct AstNode *decl = parse_declaration(p);
+      if (decl != NULL) {
+        declaration[count++] = decl;
+      }
+
     } else {
-      fprintf(stderr, "Unexpected token %s at top level, %d:%d\n",
-              kind_str(p->current_token.kind), p->lexer->line, p->lexer->col);
+      print_error(
+          (struct Error){
+              .kind = ERR_SYNTAX,
+              .span = p->current_token.span,
+              .as.syntax.found = kind_str(p->current_token.kind),
+          },
+          p->lexer->file, p->lexer->src);
+      p->error_count++;
+
       advance(p);
     }
   }
@@ -193,7 +240,7 @@ struct AstNode *parse_program(struct Parser *p) {
 struct Parser parser_init(struct Lexer *l) {
   struct Parser p = (struct Parser){
       .lexer = l,
-      .has_error = false,
+      .error_count = 0,
   };
 
   p.current_token = next_token(l);
