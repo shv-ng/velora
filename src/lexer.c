@@ -2,13 +2,13 @@
 #include <ctype.h>
 #include <string.h>
 
-static char peek(Lexer *l);
-static char peek_next(Lexer *l);
-static char advance(Lexer *l);
-static void skip_whitespace(Lexer *l);
-static Token make_tok(Lexer *l, TokenKind kind);
+static char peek(struct Lexer *l);
+static char peek_next(struct Lexer *l);
+static char advance(struct Lexer *l);
+static void skip_whitespace(struct Lexer *l);
+static struct Token make_tok(struct Lexer *l, enum TokenKind kind);
 
-char *kind_str(TokenKind kind) {
+char *kind_str(enum TokenKind kind) {
   switch (kind) {
   case TOK_EOF:
     return "End of file";
@@ -39,14 +39,15 @@ char *kind_str(TokenKind kind) {
   }
 }
 
-Lexer lexer_init(char *file, char *src) {
-  return (Lexer){.file = file, .src = src, .pos = 0, .line = 1, .col = 1};
+struct Lexer lexer_init(char *file, char *src) {
+  return (struct Lexer){
+      .file = file, .src = src, .pos = 0, .line = 1, .col = 1};
 }
 
-static char peek(Lexer *l) { return l->src[l->pos]; };
-static char peek_next(Lexer *l) { return l->src[l->pos + 1]; };
+static char peek(struct Lexer *l) { return l->src[l->pos]; };
+static char peek_next(struct Lexer *l) { return l->src[l->pos + 1]; };
 
-static char advance(Lexer *l) {
+static char advance(struct Lexer *l) {
   char c = peek(l);
   if (c == '\n' || c == '\r') {
     l->line++;
@@ -62,19 +63,19 @@ static char advance(Lexer *l) {
   return c;
 };
 
-static void skip_whitespace(Lexer *l) {
+static void skip_whitespace(struct Lexer *l) {
   while (peek(l) == ' ' || peek(l) == '\t' || peek(l) == '\n' ||
          peek(l) == '\r')
 
     advance(l);
 };
 
-static Token make_tok(Lexer *l, TokenKind kind) {
-  return (Token){
+static struct Token make_tok(struct Lexer *l, enum TokenKind kind) {
+  return (struct Token){
       .file_name = l->file, .col = l->col, .line = l->line, .kind = kind};
 }
 
-Token next_token(Lexer *l) {
+struct Token next_token(struct Lexer *l) {
   skip_whitespace(l);
 
   char c = peek(l);
@@ -109,7 +110,7 @@ Token next_token(Lexer *l) {
     }
     int length = l->pos - start;
 
-    Token t = make_tok(l, TOK_INT_LITERAL);
+    struct Token t = make_tok(l, TOK_INT_LITERAL);
     t.val = strndup(l->src + start, length);
     return t;
   }
@@ -121,10 +122,10 @@ Token next_token(Lexer *l) {
     }
     int length = l->pos - start;
 
-    Token t = make_tok(l, TOK_IDENTIFIER);
+    struct Token t = make_tok(l, TOK_IDENTIFIER);
     t.val = strndup(l->src + start, length);
 
-    static Keyword keywords[] = {
+    static struct Keyword keywords[] = {
         {"return", TOK_KW_RETURN},
         {"fn", TOK_KW_FUNC},
         {NULL, 0},

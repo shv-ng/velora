@@ -5,12 +5,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static void advance(Parser *p) {
+static void advance(struct Parser *p) {
   p->current_token = p->next_token;
   p->next_token = next_token(p->lexer);
 }
 
-static void synchronise(Parser *p, TokenKind kind) {
+static void synchronise(struct Parser *p, enum TokenKind kind) {
   // error recovery
   while (p->current_token.kind != TOK_EOF) {
     if (p->current_token.kind == kind ||
@@ -21,7 +21,7 @@ static void synchronise(Parser *p, TokenKind kind) {
     advance(p);
   }
 }
-static void expect(Parser *p, TokenKind kind) {
+static void expect(struct Parser *p, enum TokenKind kind) {
   if (p->current_token.kind == kind) {
     advance(p);
     return;
@@ -37,13 +37,13 @@ static void expect(Parser *p, TokenKind kind) {
   return;
 }
 
-static AstNode *parse_expr(Parser *p) {
+static struct AstNode *parse_expr(struct Parser *p) {
   switch (p->current_token.kind) {
   case TOK_INT_LITERAL: {
-    Token int_tok = p->current_token;
+    struct Token int_tok = p->current_token;
     expect(p, TOK_INT_LITERAL);
 
-    AstNode *node = malloc(sizeof(AstNode));
+    struct AstNode *node = malloc(sizeof(struct AstNode));
 
     node->kind = AST_INT_LITERAL;
     node->as.int_literal.value = atoll(int_tok.val);
@@ -58,10 +58,10 @@ static AstNode *parse_expr(Parser *p) {
   }
 }
 
-static AstNode *parse_return_stmt(Parser *p) {
+static struct AstNode *parse_return_stmt(struct Parser *p) {
   expect(p, TOK_KW_RETURN);
 
-  AstNode *return_stmt = malloc(sizeof(AstNode));
+  struct AstNode *return_stmt = malloc(sizeof(struct AstNode));
   return_stmt->kind = AST_RETURN_STMT;
 
   if (p->current_token.kind != TOK_SEMICOLON) {
@@ -73,20 +73,20 @@ static AstNode *parse_return_stmt(Parser *p) {
   return return_stmt;
 }
 
-static AstNode *parse_block(Parser *p, char *name) {
+static struct AstNode *parse_block(struct Parser *p, char *name) {
   expect(p, TOK_LBRACE);
 
   int capacity = 10;
-  AstNode **statements = malloc(sizeof(AstNode *) * capacity);
+  struct AstNode **statements = malloc(sizeof(struct AstNode *) * capacity);
   int count = 0;
 
   while (p->current_token.kind != TOK_EOF &&
          p->current_token.kind != TOK_RBRACE) {
     if (count >= capacity) {
       capacity *= 2;
-      statements = realloc(statements, sizeof(AstNode *) * capacity);
+      statements = realloc(statements, sizeof(struct AstNode *) * capacity);
     }
-    AstNode *stmt = NULL;
+    struct AstNode *stmt = NULL;
     switch (p->current_token.kind) {
     case TOK_KW_RETURN:
       stmt = parse_return_stmt(p);
@@ -102,7 +102,7 @@ static AstNode *parse_block(Parser *p, char *name) {
     }
   }
 
-  AstNode *block = malloc(sizeof(AstNode));
+  struct AstNode *block = malloc(sizeof(struct AstNode));
 
   block->kind = AST_BLOCK_DECL;
   block->as.block.name = name;
@@ -113,11 +113,11 @@ static AstNode *parse_block(Parser *p, char *name) {
   return block;
 }
 
-static AstNode *parse_type(Parser *p) {
-  AstNode *type = malloc(sizeof(AstNode));
+static struct AstNode *parse_type(struct Parser *p) {
+  struct AstNode *type = malloc(sizeof(struct AstNode));
   type->kind = AST_TYPE_UNKNOWN;
   if (p->current_token.kind == TOK_IDENTIFIER) {
-    Token name_tok = p->current_token;
+    struct Token name_tok = p->current_token;
     expect(p, TOK_IDENTIFIER);
 
     type->kind = AST_TYPE_NAMED;
@@ -131,16 +131,16 @@ static AstNode *parse_type(Parser *p) {
   return type;
 }
 
-static AstNode *parse_func_decl(Parser *p, char *name) {
+static struct AstNode *parse_func_decl(struct Parser *p, char *name) {
   expect(p, TOK_KW_FUNC);
 
   expect(p, TOK_LPARAN);
   expect(p, TOK_RPARAN);
 
-  AstNode *return_type = parse_type(p);
-  AstNode *block = parse_block(p, name);
+  struct AstNode *return_type = parse_type(p);
+  struct AstNode *block = parse_block(p, name);
 
-  AstNode *func = malloc(sizeof(AstNode));
+  struct AstNode *func = malloc(sizeof(struct AstNode));
   func->kind = AST_FUNCTION_DECL;
 
   func->as.function.name = name;
@@ -150,8 +150,8 @@ static AstNode *parse_func_decl(Parser *p, char *name) {
   return func;
 }
 
-static AstNode *parse_declaration(Parser *p) {
-  Token name_tok = p->current_token;
+static struct AstNode *parse_declaration(struct Parser *p) {
+  struct Token name_tok = p->current_token;
   expect(p, TOK_IDENTIFIER);
   expect(p, TOK_COLON);
 
@@ -161,16 +161,16 @@ static AstNode *parse_declaration(Parser *p) {
   return NULL;
 }
 
-AstNode *parse_program(Parser *p) {
+struct AstNode *parse_program(struct Parser *p) {
   int capacity = 10;
   int count = 0;
 
-  AstNode **declaration = malloc(sizeof(AstNode *) * capacity);
+  struct AstNode **declaration = malloc(sizeof(struct AstNode *) * capacity);
 
   while (p->current_token.kind != TOK_EOF) {
     if (count >= capacity) {
       capacity *= 2;
-      declaration = realloc(declaration, sizeof(AstNode *) * capacity);
+      declaration = realloc(declaration, sizeof(struct AstNode *) * capacity);
     }
     if (p->current_token.kind == TOK_IDENTIFIER) {
       declaration[count++] = parse_declaration(p);
@@ -181,7 +181,7 @@ AstNode *parse_program(Parser *p) {
     }
   }
 
-  AstNode *program = malloc(sizeof(AstNode));
+  struct AstNode *program = malloc(sizeof(struct AstNode));
 
   program->kind = AST_PROGRAM;
   program->as.program.count = count;
@@ -190,8 +190,8 @@ AstNode *parse_program(Parser *p) {
   return program;
 }
 
-Parser parser_init(Lexer *l) {
-  Parser p = (Parser){
+struct Parser parser_init(struct Lexer *l) {
+  struct Parser p = (struct Parser){
       .lexer = l,
       .has_error = false,
   };
@@ -207,7 +207,7 @@ static void indentation(int indent) {
     printf("  ");
 }
 
-void print_ast(AstNode *node, int indent) {
+void print_ast(struct AstNode *node, int indent) {
   if (node == NULL)
     return;
 

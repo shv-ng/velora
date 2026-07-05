@@ -5,9 +5,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef struct AstNode AstNode;
+struct AstNode;
 
-typedef enum {
+enum AstKind {
   AST_PROGRAM,
   AST_FUNCTION_DECL, // fn(...)...{}
 
@@ -18,61 +18,61 @@ typedef enum {
 
   AST_RETURN_STMT, // return ...;
   AST_INT_LITERAL, // 42
-} AstKind;
+};
 
-typedef struct {
+struct AstIntLiteral {
   long long value;
-} AstIntLiteral;
+};
 
-typedef struct {
-  AstNode *expr;
-} AstReturnStmt;
+struct AstReturnStmt {
+  struct AstNode *expr;
+};
 
-typedef struct {
-  AstNode **statements;
+struct AstBlockDecl {
+  struct AstNode **statements;
   char *name;
   int count;
-} AstBlockDecl;
+};
 
-typedef struct {
+struct AstTypeNamed {
   char *name;
-} AstTypeNamed;
+};
 
-typedef struct {
+struct AstFunctionDecl {
   char *name;
-  AstNode *return_type;
-  AstNode *block;
-} AstFunctionDecl;
+  struct AstNode *return_type;
+  struct AstNode *block;
+};
 
-typedef struct {
+struct AstProgram {
   int count;
-  AstNode **declaration;
-} AstProgram;
+  struct AstNode **declaration;
+};
 
-typedef struct AstNode {
-  AstKind kind;
+struct AstNode {
+  enum AstKind kind;
 
   union {
-    AstProgram program;
-    AstFunctionDecl function;
-    AstTypeNamed type_named;
-    AstBlockDecl block;
-    AstReturnStmt return_stmt;
-    AstIntLiteral int_literal;
+    struct AstProgram program;
+    struct AstFunctionDecl function;
+    struct AstTypeNamed type_named;
+    struct AstBlockDecl block;
+    struct AstReturnStmt return_stmt;
+    struct AstIntLiteral int_literal;
   } as;
-} AstNode;
+};
 
-typedef struct {
-  Lexer *lexer;
-  Token current_token;
-  Token next_token;
+struct Parser {
+  struct Lexer *lexer;
+  struct Token current_token;
+  struct Token next_token;
   bool has_error;
-} Parser;
+};
 
-Parser parser_init(Lexer *l);
+struct Parser parser_init(struct Lexer *l);
 
-AstNode *parse_program(Parser *p);
+struct AstNode *parse_program(struct Parser *p);
 
-void print_ast(AstNode *node, int indent);
+void print_ast(struct AstNode *node, int indent);
 
 #endif

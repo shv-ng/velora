@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-typedef enum {
+enum TokenKind {
   TOK_EOF,
   TOK_ERROR,
 
@@ -21,34 +21,34 @@ typedef enum {
 
   TOK_KW_RETURN,
   TOK_KW_FUNC,
-} TokenKind;
+};
 
-typedef struct {
+struct Token {
   char *file_name;
 
   char *val;
-  TokenKind kind;
+  enum TokenKind kind;
 
   int line;
   int col;
-} Token;
+};
 
-typedef struct {
+struct Keyword {
   const char *word;
-  TokenKind kind;
-} Keyword;
+  enum TokenKind kind;
+};
 
-typedef struct {
+struct Lexer {
   char *src;
   char *file;
   int pos;
   int line;
   int col;
-} Lexer;
+};
 
-char *kind_str(TokenKind kind);
-Lexer lexer_init(char *file, char *src);
+char *kind_str(enum TokenKind kind);
+struct Lexer lexer_init(char *file, char *src);
 
-Token next_token(Lexer *l);
+struct Token next_token(struct Lexer *l);
 
 #endif

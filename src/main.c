@@ -21,19 +21,19 @@ int main(int argc, char *argv[]) {
     return 1;
 
   printf("%s\n\n", contents);
-  Lexer l = lexer_init(file_name, contents);
+  struct Lexer l = lexer_init(file_name, contents);
 
   // Token t;
   // while ((t = next_token(&l)).kind != TOK_EOF) {
-  //   printf("line %d | kind %s | val %s | \n", t.line, kind_str(t.kind), t.val);
-  //   if (t.val) {
+  //   printf("line %d | kind %s | val %s | \n", t.line, kind_str(t.kind),
+  //   t.val); if (t.val) {
   //     free(t.val);
   //   }
   // }
 
-  Parser p = parser_init(&l);
+  struct Parser p = parser_init(&l);
 
-  AstNode *program = parse_program(&p);
+  struct AstNode *program = parse_program(&p);
   print_ast(program, 0);
 
   free(contents);
