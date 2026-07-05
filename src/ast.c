@@ -42,7 +42,6 @@ static void expect(struct Parser *p, enum TokenKind kind) {
       p->lexer->file, p->lexer->src);
 
   p->error_count++;
-  synchronise(p);
 
   return;
 }
