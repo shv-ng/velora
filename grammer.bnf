@@ -1,10 +1,14 @@
+(* Program Structure *)
 program             = package_decl import_decl* declaration*
 
 package_decl        = 'package' identifier ';'
 
 import_decl         = identifier '=' 'import' string_lit ';'
 
-(* Top level declarations *)
+(* ========================================
+   Top Level Declarations
+   ======================================== *)
+
 declaration         = func_decl
                     | const_decl
                     | var_decl
@@ -15,40 +19,62 @@ declaration         = func_decl
 
 visibility          = 'pub'?
 
-(* Functions *)
+(* ========================================
+   Functions
+   name : fn(params) returntype { }
+   ======================================== *)
+
 func_decl           = visibility identifier ':' 'fn'
                       '(' param_list ')' type block
 
 param_list          = ''
                     | param (',' param)*
+
 param               = identifier ':' type
 
+(* ========================================
+   Constants and Variables
+   name : const type = value;
+   name : type = value;
+   ======================================== *)
 
-(* Constants *)
 const_decl          = visibility identifier ':' 'const' type '=' expr ';'
 
-(* Variables *)
 var_decl            = visibility identifier ':' type '=' expr ';'
 
-(* Multi assign — from multi return *)
-multi_assign        = identifier (',' identifier)+ ':' type '=' expr ';'
-                    | identifier (',' identifier)+ ':' '(' type (',' type)+ ')' '=' expr ';'
+(* ========================================
+   Structs
+   name : struct { fields }
+   ======================================== *)
 
-(* Structs *)
 struct_decl         = visibility identifier ':' 'struct' '{' struct_field* '}'
+
 struct_field        = visibility identifier ':' type ','?
 
-(* Enums *)
+(* ========================================
+   Enums
+   name : enum { variants }
+   ======================================== *)
+
 enum_decl           = visibility identifier ':' 'enum' '{' enum_variant* '}'
+
 enum_variant        = identifier ','?
 
-(* Unions *)
-union_decl          = visibility identifier ':' 'union' '{' union_variant* '}'
-union_variant       = identifier (':' '{' struct_field* '}')?
+(* ========================================
+   Unions
+   name : union { variants }
+   each variant optionally has fields
+   ======================================== *)
 
-(* Statements *)
+union_decl          = visibility identifier ':' 'union' '{' union_variant* '}'
+
+union_variant       = identifier (':' '{' struct_field* '}')? ','?
+
+(* ========================================
+   Statements
+   ======================================== *)
+
 statement           = var_decl
-                    | multi_assign
                     | const_decl
                     | assign_stmt
                     | return_stmt
@@ -56,43 +82,79 @@ statement           = var_decl
                     | defer_stmt
                     | expr_stmt
                     | unsafe_block
+                    | scope_stmt
 
+(* assignment — expr on left must be assignable *)
 assign_stmt         = expr '=' expr ';'
-return_stmt         = 'return' expr_list? ';'
-expr_list           = expr (',' expr)*
+
+(* return — only valid inside fn scope *)
+return_stmt         = 'return' expr? ';'
+
+(* break — exits named scope, optionally carries value *)
 break_stmt          = 'break' identifier expr? ';'
+
+(* defer — runs block when named scope exits, reverse order *)
 defer_stmt          = 'defer' identifier block
+
+(* expr as statement — value discarded, ; required *)
 expr_stmt           = expr ';'
+
+(* unsafe — raw pointers and extern calls allowed inside *)
 unsafe_block        = 'unsafe' block
 
-(* Block — is an expression *)
+(* ========================================
+   Scopes
+   name : kind { }
+   every {} is a scope
+   ======================================== *)
+
+scope_stmt          = identifier ':' scope_kind block
+
+scope_kind          = 'scope'                       (* plain named scope *)
+                    | 'loop'                        (* infinite loop *)
+                    | 'loop' '(' expr ')'           (* conditional loop *)
+                    | 'arena'                       (* heap backed scope *)
+
+(* ========================================
+   Block
+   every {} is an expression
+   ; after closing } belongs to outer statement
+   ======================================== *)
+
 block               = '{' statement* expr? '}'
-                    (* last expr is the value, no semicolon *)
 
-(* Scope kinds — all expressions *)
-scope_expr          = identifier ':' scope_kind block
+(* ========================================
+   If — expression
+   ; belongs to outer assignment if used as expr
+   ======================================== *)
 
-scope_kind          = 'scope'
-                    | 'loop'
-                    | 'loop' '(' expr ')'
-                    | 'arena'
-
-(* If — expression *)
 if_expr             = 'if' '(' expr ')' block
                       ('else' 'if' '(' expr ')' block)*
                       ('else' block)?
 
-(* Match — expression *)
+(* ========================================
+   Match — expression
+   all cases must be covered or _ required
+   ; belongs to outer assignment if used as expr
+   ======================================== *)
+
 match_expr          = 'match' expr '{' match_arm+ '}'
+
 match_arm           = match_pattern '=>' match_body ','?
+
 match_body          = block
                     | expr
+
 match_pattern       = '_'
                     | identifier '.' identifier
                     | identifier '.' identifier '{' capture_list '}'
+
 capture_list        = identifier (',' identifier)*
 
-(* Expressions *)
+(* ========================================
+   Expressions
+   ======================================== *)
+
 expr                = literal
                     | identifier
                     | binary_expr
@@ -102,67 +164,164 @@ expr                = literal
                     | field_expr
                     | if_expr
                     | match_expr
-                    | scope_expr
                     | block
                     | grouped_expr
 
+(* binary operations *)
 binary_expr         = expr binary_op expr
-binary_op           = '+' | '-' | '*' | '/' | '%' 
-                    | '==' | '!=' | '<' | '>' | '<=' | '>='
+
+binary_op           = '+'  | '-'  | '*'  | '/'  | '%'
+                    | '==' | '!=' | '<'  | '>'  | '<=' | '>='
                     | '&&' | '||'
 
+(* unary operations *)
 unary_expr          = unary_op expr
+
 unary_op            = '-' | '!'
 
+(* function call
+   move/copy explicit at call site
+   UFCS: foo.bar(x) == bar(foo, x) *)
 call_expr           = expr '(' arg_list ')'
+
 arg_list            = ''
                     | arg (',' arg)*
+
 arg                 = ('move' | 'copy')? expr
 
+(* indexing — bounds checked by compiler *)
 index_expr          = expr '[' expr ']'
+
+(* field access *)
 field_expr          = expr '.' identifier
+
+(* grouped *)
 grouped_expr        = '(' expr ')'
 
-(* Literals *)
+(* ========================================
+   Literals
+   ======================================== *)
+
 literal             = int_lit
                     | float_lit
                     | bool_lit
                     | string_lit
+                    | array_lit
                     | struct_lit
-                    | tuple_lit
 
 int_lit             = [0-9]+
                     | '0x' [0-9A-Fa-f]+
+                    | '0b' [0-1]+
+                    | '0o' [0-7]+
+
 float_lit           = [0-9]+ '.' [0-9]+
+                    | [0-9]+ '.' [0-9]+ ('e' | 'E') ('+' | '-')? [0-9]+
+
 bool_lit            = 'true' | 'false'
-string_lit          = '"' [^"]* '"'
+
+string_lit          = '"' ([^"\\] | '\\' .)* '"'
+
+array_lit           = '[' (expr (',' expr)*)? ']'
 
 struct_lit          = identifier '{' field_init* '}'
+
 field_init          = identifier ':' expr ','?
 
-tuple_lit           = '(' expr ',' expr (',' expr)* ')'
+(* ========================================
+   Types
+   ======================================== *)
 
-(* Types *)
 type                = primitive_type
-                    | '[' int_lit ']' type    (* [10]i32 — fixed array *)
-                    | '[' ']' type            (* []i32 — slice *)
-                    | '*' type                (* raw pointer, unsafe only *)
-                    | identifier              (* user defined *)
+                    | '[' int_lit ']' type      (* [10]i32  fixed array, stack *)
+                    | '[' ']' type              (* []i32    slice, view into array *)
+                    | '*' type                  (* *i32     raw pointer, unsafe only *)
+                    | identifier                (* user defined struct/enum/union *)
 
-primitive_type      = 'i8'    | 'i16' | 'i32' | 'i64'
-                    | 'u8'    | 'u16' | 'u32' | 'u64'
+primitive_type      = 'i8'    | 'i16'  | 'i32' | 'i64'
+                    | 'u8'    | 'u16'  | 'u32' | 'u64'
                     | 'f32'   | 'f64'
                     | 'usize' | 'isize'
                     | 'bool'
                     | 'str'
                     | 'void'
 
-(* FFI *)
+(* ========================================
+   FFI
+   extern "C" name : fn(types) returntype;
+   only callable inside unsafe {}
+   ======================================== *)
+
 extern_decl         = 'extern' string_lit identifier ':' 'fn'
                       '(' extern_param_list ')' type ';'
 
 extern_param_list   = ''
-                    | type (',' type)* (',' '...')?
+                    | extern_param (',' extern_param)* (',' '...')?
 
-(* Identifiers *)
+extern_param        = type
+
+(* ========================================
+   Identifiers
+   ======================================== *)
+
 identifier          = [A-Za-z_] [A-Za-z0-9_]*
+
+
+(* ========================================
+   Compiler Rules (not grammar, but enforced)
+   ======================================== *)
+
+(*
+  1.  CONST ENFORCEMENT
+      - if var declared but never mutated -> compiler error, must use const
+      - const is inlined at use site, no stack slot
+
+  2.  DEFINITE ASSIGNMENT
+      - every var must be assigned before use
+      - compiler error if any path uses uninitialized var
+
+  3.  REGION TAGS
+      - every heap-allocated value tagged with its arena at compile time
+      - value cannot escape to outer scope -> compile error
+
+  4.  ESCAPE CHECK
+      - nothing allocated in arena can outlive that arena's scope
+      - checked at compile time, zero runtime cost
+
+  5.  OWNERSHIP
+      - one owner at a time
+      - structural mutation (push/remove/resize) requires move at call site
+      - readonly access needs no transfer
+      - move/copy explicit at call site, not on signature
+
+  6.  MATCH EXHAUSTIVENESS
+      - all union/enum variants must be covered
+      - _ required if not all covered explicitly
+
+  7.  RAW POINTER BOUNDARY
+      - *T types only valid inside unsafe {}
+      - compiler error if *T appears outside unsafe
+
+  8.  UNSAFE BOUNDARY
+      - compiler does not check memory safety inside unsafe {}
+      - extern functions only callable inside unsafe {}
+
+  9.  ARENA INFERENCE
+      - if any call inside a scope transitively needs heap
+        compiler automatically gives that scope arena backing
+      - developer can also declare arena explicitly
+
+  10. PUB DEFAULT PRIVATE
+      - everything private by default
+      - pub makes it accessible outside package
+      - applies to declarations and struct fields individually
+
+  11. SEMICOLON RULE
+      - statements not ending with } require ;
+      - ; after } belongs to outer statement not the block
+      - if/match/loop/scope do not need ; after their own }
+      - x: i32 = if(ok) { 1 } else { 2 };  <- ; ends var_decl
+
+  12. UFCS
+      - foo.bar(x) is sugar for bar(foo, x)
+      - compiler rewrites at call resolution
+      - functions live in packages not on types

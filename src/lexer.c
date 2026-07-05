@@ -26,14 +26,14 @@ char *kind_str(TokenKind kind) {
     return "'{'";
   case TOK_RBRACE:
     return "'}'";
-  case TOK_STR_LIT:
+  case TOK_STR_LITERAL:
     return "str literal";
   case TOK_IDENTIFIER:
     return "identifier";
-  case TOK_INT_LIT:
+  case TOK_INT_LITERAL:
     return "int literal";
   case TOK_KW_RETURN:
-    return "'return' Keyword";
+    return "'return' keyword";
   case TOK_KW_FUNC:
     return "'fn' Keyword";
   }
@@ -109,7 +109,7 @@ Token next_token(Lexer *l) {
     }
     int length = l->pos - start;
 
-    Token t = make_tok(l, TOK_INT_LIT);
+    Token t = make_tok(l, TOK_INT_LITERAL);
     t.val = strndup(l->src + start, length);
     return t;
   }
