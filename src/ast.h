@@ -5,8 +5,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-struct AstNode;
-
 enum AstKind {
   AST_PROGRAM,
   AST_FUNCTION_DECL, // fn(...)...{}
