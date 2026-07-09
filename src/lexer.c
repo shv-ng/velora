@@ -18,9 +18,9 @@ char *kind_str(enum TokenKind kind) {
     return "unknown token";
   case TOK_COLON:
     return "':'";
-  case TOK_LPARAN:
+  case TOK_LPAREN:
     return "'('";
-  case TOK_RPARAN:
+  case TOK_RPAREN:
     return "')'";
   case TOK_LBRACE:
     return "'{'";
@@ -113,10 +113,10 @@ struct Token next_token(struct Lexer *l) {
     return make_tok(l, TOK_COLON);
   case '(':
     advance(l);
-    return make_tok(l, TOK_LPARAN);
+    return make_tok(l, TOK_LPAREN);
   case ')':
     advance(l);
-    return make_tok(l, TOK_RPARAN);
+    return make_tok(l, TOK_RPAREN);
   case '{':
     advance(l);
     return make_tok(l, TOK_LBRACE);

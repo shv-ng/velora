@@ -7,6 +7,7 @@ build:
     ./src/hashmap.c  \
     ./src/lexer.c \
     ./src/ast.c  \
+    ./src/types.c  \
     ./src/main.c  \
     -o ./tmp/zyn -Wall -Wextra # -g -fsanitize=address
 

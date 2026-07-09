@@ -14,9 +14,9 @@ int main(int argc, char *argv[]) {
 
   char *file_name = argv[1];
 
-  intmax_t file_size = get_file_size(file_name);
+  intmax_t file_size = file_get_size(file_name);
 
-  char *contents = read_file(file_name, file_size);
+  char *contents = file_read(file_name, file_size);
   if (contents == NULL)
     return 1;
 

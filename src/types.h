@@ -15,14 +15,14 @@ struct TypeFunc {
 };
 
 struct Type {
-  enum TypeKind type;
+  enum TypeKind kind;
   union {
     struct TypeFunc func;
   } as;
 };
 
-extern struct Type type_i8 ;
-extern struct Type type_i32 ;
-extern struct Type type_unknown ;
+extern struct Type type_i8;
+extern struct Type type_i32;
+extern struct Type type_unknown;
 
 #endif

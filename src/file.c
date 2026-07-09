@@ -9,7 +9,7 @@
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
 
-intmax_t get_file_size(char *file_name) {
+intmax_t file_get_size(char *file_name) {
   struct stat sb;
 
   if (lstat(file_name, &sb) == -1) {
@@ -19,7 +19,7 @@ intmax_t get_file_size(char *file_name) {
   return (intmax_t)sb.st_size;
 }
 
-char *read_file(char *file_name, intmax_t file_size) {
+char *file_read(char *file_name, intmax_t file_size) {
 
   char *contents = malloc(file_size + 1);
   if (contents == NULL) {
