@@ -12,14 +12,14 @@ enum SymbolKind {
 
 struct Symbol {
   char *name;
-  AstNode *decl;
+  struct AstNode *decl;
   struct Type *type;
   enum SymbolKind kind;
   bool is_defined;
 };
 
 struct Scope {
-  struct Hashmap *hm;
+  struct Hashmap *hashmap;
   struct Scope *parent;
 };
 
