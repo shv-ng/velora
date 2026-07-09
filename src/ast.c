@@ -2,9 +2,17 @@
 #include "ast.h"
 #include "error.h"
 #include "lexer.h"
+#include "types.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+static struct AstNode *make_astnode(enum AstKind kind) {
+  struct AstNode *node = malloc(sizeof(struct AstNode));
+  node->resolved_type = &type_unknown;
+  node->kind = kind;
+  return node;
+}
 
 static void advance(struct Parser *p) {
   p->current_token = p->next_token;
@@ -52,9 +60,7 @@ static struct AstNode *parse_expr(struct Parser *p) {
     struct Token int_tok = p->current_token;
     expect(p, TOK_INT_LITERAL);
 
-    struct AstNode *node = malloc(sizeof(struct AstNode));
-
-    node->kind = AST_INT_LITERAL;
+    struct AstNode *node = make_astnode(AST_INT_LITERAL);
     node->as.int_literal.value = atoll(int_tok.val);
 
     return node;
@@ -76,8 +82,7 @@ static struct AstNode *parse_expr(struct Parser *p) {
 static struct AstNode *parse_return_stmt(struct Parser *p) {
   expect(p, TOK_KW_RETURN);
 
-  struct AstNode *return_stmt = malloc(sizeof(struct AstNode));
-  return_stmt->kind = AST_RETURN_STMT;
+  struct AstNode *return_stmt = make_astnode(AST_RETURN_STMT);
 
   if (p->current_token.kind != TOK_SEMICOLON) {
     return_stmt->as.return_stmt.expr = parse_expr(p);
@@ -124,9 +129,8 @@ static struct AstNode *parse_block(struct Parser *p, char *name) {
     }
   }
 
-  struct AstNode *block = malloc(sizeof(struct AstNode));
+  struct AstNode *block = make_astnode(AST_BLOCK_DECL);
 
-  block->kind = AST_BLOCK_DECL;
   block->as.block.name = name;
   block->as.block.statements = statements;
   block->as.block.count = count;
@@ -136,9 +140,7 @@ static struct AstNode *parse_block(struct Parser *p, char *name) {
 }
 
 static struct AstNode *parse_type(struct Parser *p) {
-  struct AstNode *type = malloc(sizeof(struct AstNode));
-
-  type->kind = AST_TYPE_UNKNOWN;
+  struct AstNode *type = make_astnode(AST_TYPE_UNKNOWN);
 
   if (p->current_token.kind == TOK_IDENTIFIER) {
     struct Token name_tok = p->current_token;
@@ -175,8 +177,7 @@ static struct AstNode *parse_func_decl(struct Parser *p, char *name) {
     return NULL;
   }
 
-  struct AstNode *func = malloc(sizeof(struct AstNode));
-  func->kind = AST_FUNCTION_DECL;
+  struct AstNode *func = make_astnode(AST_FUNCTION_DECL);
 
   func->as.function.name = name;
   func->as.function.return_type = return_type;
@@ -227,9 +228,7 @@ struct AstNode *parse_program(struct Parser *p) {
     }
   }
 
-  struct AstNode *program = malloc(sizeof(struct AstNode));
-
-  program->kind = AST_PROGRAM;
+  struct AstNode *program = make_astnode(AST_PROGRAM);
   program->as.program.count = count;
   program->as.program.declaration = declaration;
 

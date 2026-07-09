@@ -36,12 +36,7 @@ void hmap_free(struct Hashmap *hmap) {
   free(hmap);
 }
 
-int hmap_set(struct Hashmap *hmap, const char *key, void *value) {
-  void *data = hmap_get(hmap, key);
-  if (data != NULL) {
-    return 1;
-  }
-
+void hmap_set(struct Hashmap *hmap, const char *key, void *value) {
   unsigned long idx = hash(key, hmap->capacity);
 
   struct Entry *e = malloc(sizeof(struct Entry));
@@ -50,7 +45,6 @@ int hmap_set(struct Hashmap *hmap, const char *key, void *value) {
   e->next = hmap->buckets[idx];
 
   hmap->buckets[idx] = e;
-  return 0;
 }
 
 void *hmap_get(struct Hashmap *hmap, const char *key) {

@@ -14,7 +14,7 @@ struct Hashmap {
 
 struct Hashmap *hmap_new();
 void hmap_free(struct Hashmap *hmap);
-int hmap_set(struct Hashmap *hmap, const char *key, void *value);
+void hmap_set(struct Hashmap *hmap, const char *key, void *value);
 void *hmap_get(struct Hashmap *hmap, const char *key);
 
 #endif

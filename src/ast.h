@@ -49,6 +49,7 @@ struct AstProgram {
 
 struct AstNode {
   enum AstKind kind;
+  struct Type* resolved_type;
 
   union {
     struct AstProgram program;
