@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
 
   printf("%s\n\n", contents);
 
-  struct Lexer l = lexer_init(file_name, contents);
+  struct Lexer l = lexer_new(file_name, contents);
 
   // struct Token t;
   // while ((t = next_token(&l)).kind != TOK_EOF) {
@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
   //   }
   // }
 
-  struct Parser p = parser_init(&l);
+  struct Parser p = parser_new(&l);
 
   struct AstNode *program = parse_program(&p);
   if (p.error_count == 0) {

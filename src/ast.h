@@ -67,7 +67,7 @@ struct Parser {
   int error_count;
 };
 
-struct Parser parser_init(struct Lexer *l);
+struct Parser parser_new(struct Lexer *l);
 
 struct AstNode *parse_program(struct Parser *p);
 

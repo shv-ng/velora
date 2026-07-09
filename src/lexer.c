@@ -51,7 +51,7 @@ inline struct Span merge_span(struct Span s1, struct Span s2) {
   return span;
 }
 
-struct Lexer lexer_init(char *file, char *src) {
+struct Lexer lexer_new(char *file, char *src) {
   return (struct Lexer){
       .file = file,
       .src = src,

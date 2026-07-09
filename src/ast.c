@@ -236,7 +236,7 @@ struct AstNode *parse_program(struct Parser *p) {
   return program;
 }
 
-struct Parser parser_init(struct Lexer *l) {
+struct Parser parser_new(struct Lexer *l) {
   struct Parser p = (struct Parser){
       .lexer = l,
       .error_count = 0,
