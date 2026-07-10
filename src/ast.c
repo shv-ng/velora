@@ -47,7 +47,7 @@ static void expect(struct Parser *p, enum TokenKind kind) {
           .as.syntax.expected = kind_str(kind),
           .as.syntax.found = kind_str(p->current_token.kind),
       },
-      p->lexer->file, p->lexer->src);
+      p->lexer->file_name, p->lexer->contents);
 
   p->error_count++;
 
@@ -62,6 +62,7 @@ static struct AstNode *parse_expr(struct Parser *p) {
 
     struct AstNode *node = astnode_new(AST_INT_LITERAL);
     node->as.int_literal.value = atoll(int_tok.val);
+    node->span = int_tok.span;
 
     return node;
   }
@@ -73,13 +74,15 @@ static struct AstNode *parse_expr(struct Parser *p) {
             .as.syntax.expected = "expression",
             .as.syntax.found = kind_str(p->current_token.kind),
         },
-        p->lexer->file, p->lexer->src);
+        p->lexer->file_name, p->lexer->contents);
+    synchronise(p);
     p->error_count++;
     return NULL;
   }
 }
 
 static struct AstNode *parse_return_stmt(struct Parser *p) {
+  struct Span start = p->current_token.span;
   expect(p, TOK_KW_RETURN);
 
   struct AstNode *return_stmt = astnode_new(AST_RETURN_STMT);
@@ -88,12 +91,15 @@ static struct AstNode *parse_return_stmt(struct Parser *p) {
     return_stmt->as.return_stmt.expr = parse_expr(p);
   }
 
+  struct Span end = p->current_token.span;
   expect(p, TOK_SEMICOLON);
+  return_stmt->span = merge_span(start, end);
 
   return return_stmt;
 }
 
 static struct AstNode *parse_block(struct Parser *p, char *name) {
+  struct Span start = p->current_token.span;
   expect(p, TOK_LBRACE);
 
   int capacity = 10;
@@ -118,7 +124,7 @@ static struct AstNode *parse_block(struct Parser *p, char *name) {
               .span = p->current_token.span,
               .as.syntax.found = kind_str(p->current_token.kind),
           },
-          p->lexer->file, p->lexer->src);
+          p->lexer->file_name, p->lexer->contents);
       p->error_count++;
 
       synchronise(p);
@@ -136,10 +142,13 @@ static struct AstNode *parse_block(struct Parser *p, char *name) {
   block->as.block.count = count;
 
   expect(p, TOK_RBRACE);
+  struct Span end = p->current_token.span;
+  block->span = merge_span(start, end);
   return block;
 }
 
 static struct AstNode *parse_type(struct Parser *p) {
+  struct Span start = p->current_token.span;
   struct AstNode *type = astnode_new(AST_TYPE_UNKNOWN);
 
   if (p->current_token.kind == TOK_IDENTIFIER) {
@@ -157,14 +166,17 @@ static struct AstNode *parse_type(struct Parser *p) {
             .span = p->current_token.span,
             .as.syntax.found = kind_str(p->current_token.kind),
         },
-        p->lexer->file, p->lexer->src);
+        p->lexer->file_name, p->lexer->contents);
     advance(p);
     p->error_count++;
   }
+  struct Span end = p->current_token.span;
+  type->span = merge_span(start, end);
   return type;
 }
 
 static struct AstNode *parse_func_decl(struct Parser *p, char *name) {
+  struct Span start = p->current_token.span;
   expect(p, TOK_KW_FUNC);
 
   expect(p, TOK_LPAREN);
@@ -183,6 +195,8 @@ static struct AstNode *parse_func_decl(struct Parser *p, char *name) {
   func->as.function.return_type = return_type;
   func->as.function.block = block;
 
+  struct Span end = p->current_token.span;
+  func->span = merge_span(start, end);
   return func;
 }
 
@@ -221,7 +235,7 @@ struct AstNode *parse_program(struct Parser *p) {
               .span = p->current_token.span,
               .as.syntax.found = kind_str(p->current_token.kind),
           },
-          p->lexer->file, p->lexer->src);
+          p->lexer->file_name, p->lexer->contents);
       p->error_count++;
 
       advance(p);

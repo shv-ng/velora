@@ -1,10 +1,25 @@
 #include "sema.h"
 #include "ast.h"
+#include "error.h"
 #include "symbol.h"
 #include "types.h"
 #include <stdlib.h>
+#include <string.h>
 
-static void sema_node(struct SemaCtx *sema, struct AstNode *node);
+static struct Type *resolve_type_node(struct AstNode *node) {
+  switch (node->kind) {
+  case AST_TYPE_NAMED: {
+    if (strcmp(node->as.type_named.name, "i32") == 0) {
+      return &type_i32;
+    }
+  }
+  default:
+    return &type_unknown;
+  }
+}
+
+static void sema_node(struct SemaCtx *sema, struct AstNode *node,
+                      struct Type *hint);
 
 struct SemaCtx *sema_new(void) {
   struct SemaCtx *sema = malloc(sizeof(struct SemaCtx));
@@ -19,35 +34,46 @@ struct SemaCtx *sema_new(void) {
 static void sema_func(struct SemaCtx *sema, struct AstNode *node) {
   struct Type *prev_type = sema->current_return_type;
 
-  struct AstNode *return_type = node->as.function.return_type;
-  sema->current_return_type = return_type->resolved_type;
+  sema->current_return_type = resolve_type_node(node->as.function.return_type);
 
-  struct Symbol *sym = symbol_new(node);
-  sym->type = node->resolved_type;
-  sym->kind = SYMBOL_FUNC;
+  struct Symbol *sym =
+      scope_lookup(sema->current_scope, node->as.function.name);
 
-  sema_node(sema, node->as.function.block);
+  if (sym == NULL) {
+    sym = symbol_new(node);
+    sym->type = node->resolved_type;
+    sym->kind = SYMBOL_FUNC;
+  }
+
+  sema_node(sema, node->as.function.block, NULL);
 
   sema->current_return_type = prev_type;
 }
 
 static void sema_block(struct SemaCtx *sema, struct AstNode *node) {
   struct Scope *prev = sema->current_scope;
-  sema->current_scope = scope_new(sema->current_scope);
 
+  sema->current_scope = scope_new(sema->current_scope);
   for (int i = 0; i < node->as.block.count; i++) {
-    sema_node(sema, node->as.block.statements[i]);
+    sema_node(sema, node->as.block.statements[i], NULL);
   }
 
   sema->current_scope = prev;
 }
 
 static void sema_return_stmt(struct SemaCtx *sema, struct AstNode *node) {
-  sema_node(sema, node->as.return_stmt.expr);
-  sema->current_return_type 
+  sema_node(sema, node->as.return_stmt.expr, NULL);
+
+  struct Type *actual_return_type =
+      resolve_type_node(node->as.return_stmt.expr);
+
+  if (!type_equal(actual_return_type, sema->current_return_type)) {
+    print_error((struct Error){}, const char *file_name, const char *contents)
+  }
 }
 
-static void sema_node(struct SemaCtx *sema, struct AstNode *node) {
+static void sema_node(struct SemaCtx *sema, struct AstNode *node,
+                      struct Type *hint) {
   switch (node->kind) {
   case AST_FUNCTION_DECL:
     sema_func(sema, node);
@@ -83,6 +109,6 @@ void sema_check(struct SemaCtx *sema, struct AstNode *root) {
 
   // recursive semantic analysis+type checking
   for (int i = 0; i < root->as.program.count; i++) {
-    sema_node(sema, root->as.program.declaration[i]);
+    sema_node(sema, root->as.program.declaration[i], NULL);
   }
 }

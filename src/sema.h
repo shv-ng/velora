@@ -5,6 +5,9 @@
 #include "symbol.h"
 
 struct SemaCtx {
+  char *contents;
+  char *file_name;
+
   struct Scope *current_scope;
   struct Type *current_return_type;
 

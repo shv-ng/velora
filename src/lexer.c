@@ -39,7 +39,7 @@ char *kind_str(enum TokenKind kind) {
   }
 }
 
-inline struct Span merge_span(struct Span s1, struct Span s2) {
+struct Span merge_span(struct Span s1, struct Span s2) {
   struct Span span;
   span.start_col = s1.start_col < s2.start_col ? s1.start_col : s2.start_col;
   span.end_col = s1.end_col > s2.end_col ? s1.end_col : s2.end_col;
@@ -51,17 +51,17 @@ inline struct Span merge_span(struct Span s1, struct Span s2) {
   return span;
 }
 
-struct Lexer lexer_new(char *file, char *src) {
+struct Lexer lexer_new(char *file_name, char *contents) {
   return (struct Lexer){
-      .file = file,
-      .src = src,
+      .file_name = file_name,
+      .contents = contents,
       .pos = 0,
       .current_span = (struct Span){
           .start_col = 1, .end_col = 1, .start_line = 1, .end_line = 1}};
 }
 
-static char peek(struct Lexer *l) { return l->src[l->pos]; };
-static char peek_next(struct Lexer *l) { return l->src[l->pos + 1]; };
+static char peek(struct Lexer *l) { return l->contents[l->pos]; };
+static char peek_next(struct Lexer *l) { return l->contents[l->pos + 1]; };
 
 static char advance(struct Lexer *l) {
   char c = peek(l);
@@ -90,7 +90,7 @@ static void skip_whitespace(struct Lexer *l) {
 
 static struct Token make_tok(struct Lexer *l, enum TokenKind kind) {
   return (struct Token){
-      .file_name = l->file, .span = l->current_span, .kind = kind};
+      .file_name = l->file_name, .span = l->current_span, .kind = kind};
 }
 
 struct Token next_token(struct Lexer *l) {
@@ -133,7 +133,7 @@ struct Token next_token(struct Lexer *l) {
     int length = l->pos - start;
 
     struct Token t = make_tok(l, TOK_INT_LITERAL);
-    t.val = strndup(l->src + start, length);
+    t.val = strndup(l->contents + start, length);
     return t;
   }
 
@@ -145,7 +145,7 @@ struct Token next_token(struct Lexer *l) {
     int length = l->pos - start;
 
     struct Token t = make_tok(l, TOK_IDENTIFIER);
-    t.val = strndup(l->src + start, length);
+    t.val = strndup(l->contents + start, length);
 
     static struct Keyword keywords[] = {
         {"return", TOK_KW_RETURN},
