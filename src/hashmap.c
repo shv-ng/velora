@@ -13,7 +13,7 @@ static unsigned long hash(const char *str, int capacity) {
   return hash & (capacity - 1);
 }
 
-struct Hashmap *hmap_new() {
+struct Hashmap *hashmap_new(void) {
   struct Hashmap *h = malloc(sizeof(struct Hashmap));
 
   h->capacity = 1024; // hardcoded for now, which is fine for simplicity
@@ -22,7 +22,7 @@ struct Hashmap *hmap_new() {
   return h;
 };
 
-void hmap_free(struct Hashmap *hmap) {
+void hashmap_free(struct Hashmap *hmap) {
   for (int i = 0; i < hmap->capacity; i++) {
     struct Entry *e = hmap->buckets[i];
     while (e) {
@@ -36,7 +36,7 @@ void hmap_free(struct Hashmap *hmap) {
   free(hmap);
 }
 
-void hmap_set(struct Hashmap *hmap, const char *key, void *value) {
+void hashmap_set(struct Hashmap *hmap, const char *key, void *value) {
   unsigned long idx = hash(key, hmap->capacity);
 
   struct Entry *e = malloc(sizeof(struct Entry));
@@ -47,7 +47,7 @@ void hmap_set(struct Hashmap *hmap, const char *key, void *value) {
   hmap->buckets[idx] = e;
 }
 
-void *hmap_get(struct Hashmap *hmap, const char *key) {
+void *hashmap_get(struct Hashmap *hmap, const char *key) {
   unsigned long idx = hash(key, hmap->capacity);
   struct Entry *e = hmap->buckets[idx];
   for (; e; e = e->next) {

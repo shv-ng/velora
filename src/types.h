@@ -1,6 +1,8 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include <stdbool.h>
+
 enum TypeKind {
   TYPE_I8,
   TYPE_I32,
@@ -24,5 +26,7 @@ struct Type {
 extern struct Type type_i8;
 extern struct Type type_i32;
 extern struct Type type_unknown;
+
+bool type_equal(struct Type *a, struct Type *b);
 
 #endif

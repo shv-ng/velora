@@ -35,3 +35,22 @@ struct Symbol *scope_lookup(struct Scope *s, const char *name) {
   }
   return NULL;
 }
+
+struct Symbol *symbol_new(struct AstNode *decl) {
+  struct Symbol *sym = malloc(sizeof(struct Symbol));
+  sym->decl = decl;
+
+  sym->is_defined = true;
+  sym->is_moved = false;
+  sym->is_used = false;
+
+  switch (decl->kind) {
+  case AST_FUNCTION_DECL:
+      sym->name = decl->as.function.name;
+    break;
+  default:
+    break;
+  }
+
+  return sym;
+}
