@@ -17,3 +17,16 @@ bool type_equal(struct Type *a, struct Type *b) {
     return true;
   }
 }
+
+const char *type_str(struct Type *t) {
+  switch (t->kind) {
+  case TYPE_I8:
+    return "i8";
+  case TYPE_I32:
+    return "i32";
+  case TYPE_UNKNOWN:
+    return "unknown_type";
+  case TYPE_FUNC:
+    return "function";
+  }
+}

@@ -40,14 +40,13 @@ static void expect(struct Parser *p, enum TokenKind kind) {
     return;
   }
 
-  print_error(
-      (struct Error){
-          .kind = ERR_SYNTAX,
-          .span = p->current_token.span,
-          .as.syntax.expected = kind_str(kind),
-          .as.syntax.found = kind_str(p->current_token.kind),
-      },
-      p->lexer->file_name, p->lexer->contents);
+  struct Error err = {
+      .kind = ERR_SYNTAX,
+      .span = p->current_token.span,
+      .as.syntax.expected = token_kind_str(kind),
+      .as.syntax.found = token_kind_str(p->current_token.kind),
+  };
+  print_error(err, p->lexer->file_name, p->lexer->contents);
 
   p->error_count++;
 
@@ -66,18 +65,19 @@ static struct AstNode *parse_expr(struct Parser *p) {
 
     return node;
   }
-  default:
-    print_error(
-        (struct Error){
-            .kind = ERR_SYNTAX,
-            .span = p->current_token.span,
-            .as.syntax.expected = "expression",
-            .as.syntax.found = kind_str(p->current_token.kind),
-        },
-        p->lexer->file_name, p->lexer->contents);
+  default: {
+    struct Error err = {
+        .kind = ERR_SYNTAX,
+        .span = p->current_token.span,
+        .as.syntax.expected = "expression",
+        .as.syntax.found = token_kind_str(p->current_token.kind),
+    };
+
+    print_error(err, p->lexer->file_name, p->lexer->contents);
     synchronise(p);
     p->error_count++;
     return NULL;
+  }
   }
 }
 
@@ -117,21 +117,21 @@ static struct AstNode *parse_block(struct Parser *p, char *name) {
     case TOK_KW_RETURN:
       stmt = parse_return_stmt(p);
       break;
-    default:
-      print_error(
-          (struct Error){
-              .kind = ERR_SYNTAX,
-              .span = p->current_token.span,
-              .as.syntax.found = kind_str(p->current_token.kind),
-          },
-          p->lexer->file_name, p->lexer->contents);
+    default: {
+      struct Error err = {
+          .kind = ERR_SYNTAX,
+          .span = p->current_token.span,
+          .as.syntax.found = token_kind_str(p->current_token.kind),
+      };
+      print_error(err, p->lexer->file_name, p->lexer->contents);
       p->error_count++;
 
       synchronise(p);
       continue;
     }
-    if (stmt != NULL) {
-      statements[count++] = stmt;
+      if (stmt != NULL) {
+        statements[count++] = stmt;
+      }
     }
   }
 
@@ -160,13 +160,12 @@ static struct AstNode *parse_type(struct Parser *p) {
   }
 
   if (type->kind == AST_TYPE_UNKNOWN) {
-    print_error(
-        (struct Error){
-            .kind = ERR_SYNTAX,
-            .span = p->current_token.span,
-            .as.syntax.found = kind_str(p->current_token.kind),
-        },
-        p->lexer->file_name, p->lexer->contents);
+    struct Error err = {
+        .kind = ERR_SYNTAX,
+        .span = p->current_token.span,
+        .as.syntax.found = token_kind_str(p->current_token.kind),
+    };
+    print_error(err, p->lexer->file_name, p->lexer->contents);
     advance(p);
     p->error_count++;
   }
@@ -229,13 +228,12 @@ struct AstNode *parse_program(struct Parser *p) {
       }
 
     } else {
-      print_error(
-          (struct Error){
-              .kind = ERR_SYNTAX,
-              .span = p->current_token.span,
-              .as.syntax.found = kind_str(p->current_token.kind),
-          },
-          p->lexer->file_name, p->lexer->contents);
+      struct Error err = {
+          .kind = ERR_SYNTAX,
+          .span = p->current_token.span,
+          .as.syntax.found = token_kind_str(p->current_token.kind),
+      };
+      print_error(err, p->lexer->file_name, p->lexer->contents);
       p->error_count++;
 
       advance(p);
@@ -274,14 +272,15 @@ void print_ast(struct AstNode *node, int indent) {
 
   switch (node->kind) {
   case AST_PROGRAM: {
-    printf("AstProgram: \n");
+    printf("AstProgram: (resolved_type: %s)\n", type_str(node->resolved_type));
     for (int i = 0; i < node->as.program.count; i++) {
       print_ast(node->as.program.declaration[i], indent + 1);
     }
     break;
   }
   case AST_FUNCTION_DECL:
-    printf("AstFunctionDecl: (name: %s)\n", node->as.function.name);
+    printf("AstFunctionDecl: (name: %s, resolved_type: %s)\n",
+           node->as.function.name, type_str(node->resolved_type));
     print_ast(node->as.function.return_type, indent + 1);
     print_ast(node->as.function.block, indent + 1);
     break;
@@ -289,20 +288,24 @@ void print_ast(struct AstNode *node, int indent) {
     printf("AstUnknownType: \n");
     break;
   case AST_TYPE_NAMED:
-    printf("AstTypeNamed: (name: %s)\n", node->as.type_named.name);
+    printf("AstTypeNamed: (name: %s, resolved_type: %s)\n",
+           node->as.type_named.name, type_str(node->resolved_type));
     break;
   case AST_BLOCK_DECL:
-    printf("AstBlockDecl: (name: %s)\n", node->as.block.name);
+    printf("AstBlockDecl: (name: %s, resolved_type: %s)\n", node->as.block.name,
+           type_str(node->resolved_type));
     for (int i = 0; i < node->as.block.count; i++) {
       print_ast(node->as.block.statements[i], indent + 1);
     }
     break;
   case AST_RETURN_STMT:
-    printf("AstReturnStmt:\n");
+    printf("AstReturnStmt: (resolved_type: %s)\n",
+           type_str(node->resolved_type));
     print_ast(node->as.return_stmt.expr, indent + 1);
     break;
   case AST_INT_LITERAL:
-    printf("AstIntLiteral: (value: %lld)\n", node->as.int_literal.value);
+    printf("AstIntLiteral: (value: %lld, resolved_type: %s)\n",
+           node->as.int_literal.value, type_str(node->resolved_type));
     break;
   }
 }

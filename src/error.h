@@ -10,6 +10,13 @@
 
 enum ErrorKind {
   ERR_SYNTAX,
+  ERR_TYPE_MISMATCH,
+};
+
+struct ErrTypeMismatch {
+  const char *expected;
+  const char *found;
+  const char *context;
 };
 
 struct ErrSyntax {
@@ -23,6 +30,7 @@ struct Error {
 
   union {
     struct ErrSyntax syntax;
+    struct ErrTypeMismatch type_mismatch;
   } as;
 };
 

@@ -21,12 +21,14 @@ static struct Type *resolve_type_node(struct AstNode *node) {
 static void sema_node(struct SemaCtx *sema, struct AstNode *node,
                       struct Type *hint);
 
-struct SemaCtx *sema_new(void) {
+struct SemaCtx *sema_new(char *file_name, char *contents) {
   struct SemaCtx *sema = malloc(sizeof(struct SemaCtx));
 
   sema->error_count = 0;
   sema->current_return_type = &type_unknown;
   sema->current_scope = scope_new(NULL);
+  sema->file_name = file_name;
+  sema->contents = contents;
 
   return sema;
 }
@@ -68,7 +70,17 @@ static void sema_return_stmt(struct SemaCtx *sema, struct AstNode *node) {
       resolve_type_node(node->as.return_stmt.expr);
 
   if (!type_equal(actual_return_type, sema->current_return_type)) {
-    print_error((struct Error){}, const char *file_name, const char *contents)
+    struct Error err = {
+        .kind = ERR_TYPE_MISMATCH,
+        .span = node->span,
+        .as.type_mismatch =
+            {
+                .expected = type_str(sema->current_return_type),
+                .found = type_str(actual_return_type),
+                .context = "return statement",
+            },
+    };
+    print_error(err, sema->file_name, sema->contents);
   }
 }
 

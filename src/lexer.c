@@ -8,7 +8,7 @@ static char advance(struct Lexer *l);
 static void skip_whitespace(struct Lexer *l);
 static struct Token make_tok(struct Lexer *l, enum TokenKind kind);
 
-char *kind_str(enum TokenKind kind) {
+char *token_kind_str(enum TokenKind kind) {
   switch (kind) {
   case TOK_EOF:
     return "end of file";

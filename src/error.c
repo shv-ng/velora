@@ -93,6 +93,12 @@ void print_error(struct Error error, const char *file_name,
               error.as.syntax.found, ANSI_COLOR_RESET);
     }
     break;
+  case ERR_TYPE_MISMATCH:
+    fprintf(stderr, "%stype mismatch in %s: expected %s, found %s%s\n",
+            ANSI_COLOR_BOLD, error.as.type_mismatch.context,
+            error.as.type_mismatch.expected, error.as.type_mismatch.found,
+            ANSI_COLOR_RESET);
+    break;
   }
 
   print_error_body(file_name, contents, error.span);

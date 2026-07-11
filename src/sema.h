@@ -14,7 +14,7 @@ struct SemaCtx {
   int error_count;
 };
 
-struct SemaCtx *sema_new(void);
+struct SemaCtx *sema_new(char *file_name, char *contents);
 void sema_check(struct SemaCtx *sema, struct AstNode *root);
 
 #endif

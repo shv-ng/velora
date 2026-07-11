@@ -28,5 +28,6 @@ extern struct Type type_i32;
 extern struct Type type_unknown;
 
 bool type_equal(struct Type *a, struct Type *b);
+const char *type_str(struct Type *a);
 
 #endif
