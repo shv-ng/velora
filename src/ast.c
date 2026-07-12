@@ -113,6 +113,7 @@ static struct AstNode *parse_block(struct Parser *p, char *name) {
       statements = realloc(statements, sizeof(struct AstNode *) * capacity);
     }
     struct AstNode *stmt = NULL;
+
     switch (p->current_token.kind) {
     case TOK_KW_RETURN:
       stmt = parse_return_stmt(p);
@@ -129,9 +130,9 @@ static struct AstNode *parse_block(struct Parser *p, char *name) {
       synchronise(p);
       continue;
     }
-      if (stmt != NULL) {
-        statements[count++] = stmt;
-      }
+    }
+    if (stmt != NULL) {
+      statements[count++] = stmt;
     }
   }
 

@@ -1,15 +1,7 @@
 
 build:
   @mkdir -p tmp
-  @clang  \
-    ./src/file.c  \
-    ./src/error.c  \
-    ./src/hashmap.c  \
-    ./src/lexer.c \
-    ./src/ast.c  \
-    ./src/types.c  \
-    ./src/main.c  \
-    -o ./tmp/zyn -Wall -Wextra # -g -fsanitize=address
+  @clang ./src/*.c -o ./tmp/zyn -Wall -Wextra # -g -fsanitize=address
 
 run *args: build 
   @./tmp/zyn {{args}}

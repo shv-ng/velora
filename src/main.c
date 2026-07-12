@@ -1,6 +1,7 @@
 #include "ast.h"
 #include "file.h"
 #include "lexer.h"
+#include "sema.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,11 +36,15 @@ int main(int argc, char *argv[]) {
   struct Parser p = parser_new(&l);
 
   struct AstNode *program = parse_program(&p);
-  if (p.error_count == 0) {
-    print_ast(program, 0);
-  } else {
+  if (p.error_count != 0) {
     fprintf(stderr, "%d error generated\n", p.error_count);
+    exit(1);
   }
+
+  struct SemaCtx sema = sema_new(&p);
+  sema_check(&sema, program);
+
+  print_ast(program, 0);
 
   free(contents);
 
