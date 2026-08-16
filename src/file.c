@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <sys/sysmacros.h>
 
 intmax_t file_get_size(char *file_name) {
   struct stat sb;
@@ -29,7 +28,7 @@ char *file_read(char *file_name, intmax_t file_size) {
 
   contents[file_size] = '\0';
 
-  FILE *file = fopen(file_name, "r");
+  FILE *file = fopen(file_name, "rb");
   if (file == NULL) {
     perror("fopen");
     free(contents);

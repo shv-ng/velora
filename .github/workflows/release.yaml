@@ -43,37 +43,19 @@ jobs:
           git push origin "${{ steps.svu.outputs.tag }}"
 
   build:
-    name: Build (${{ matrix.target }})
+    name: Build (linux-amd64)
     needs: tag
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            target: linux-amd64
-            ext: ""
-          - os: macos-latest
-            target: darwin-arm64
-            ext: ""
-          - os: windows-latest
-            target: windows-amd64
-            ext: .exe
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: Install clang (Windows)
-        if: matrix.os == 'windows-latest'
-        run: choco install llvm -y
-        shell: pwsh
-
       - name: Build
-        shell: bash
         run: |
           mkdir -p dist
           clang ./src/*.c \
-            -o dist/velora-${{ matrix.target }}${{ matrix.ext }} \
+            -o dist/velora-linux-amd64 \
             -Wall -Wextra \
             -DVERSION=\"${{ needs.tag.outputs.version }}\" \
             -DCOMMIT=\"$(git rev-parse --short HEAD)\" \
@@ -82,8 +64,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
-          name: velora-${{ matrix.target }}
-          path: dist/velora-${{ matrix.target }}${{ matrix.ext }}
+          name: velora-linux-amd64
+          path: dist/velora-linux-amd64
 
   release:
     name: Release
