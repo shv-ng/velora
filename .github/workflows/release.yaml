@@ -16,16 +16,17 @@ jobs:
       version: ${{ steps.svu.outputs.version }}
       tag:     ${{ steps.svu.outputs.tag }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Install svu
         run: |
-          curl -sSLO https://github.com/caarlos0/svu/releases/latest/download/svu_linux_amd64.tar.gz
-          tar xzf svu_linux_amd64.tar.gz svu
+          VERSION=$(curl -sL https://api.github.com/repos/caarlos0/svu/releases/latest \
+            | jq -r '.tag_name | ltrimstr("v")')
+          curl -sSL "https://github.com/caarlos0/svu/releases/download/v${VERSION}/svu_${VERSION}_linux_amd64.tar.gz" \
+            | tar xz svu
           sudo mv svu /usr/local/bin/svu
-          rm svu_linux_amd64.tar.gz
 
       - name: Compute next tag
         id: svu
@@ -58,7 +59,7 @@ jobs:
             ext: .exe
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -79,7 +80,7 @@ jobs:
             -DDATE=\"$(date +%Y-%m-%d)\"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: velora-${{ matrix.target }}
           path: dist/velora-${{ matrix.target }}${{ matrix.ext }}
@@ -90,13 +91,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: dist
           merge-multiple: true
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.tag.outputs.tag }}
           name:     ${{ needs.tag.outputs.tag }}
