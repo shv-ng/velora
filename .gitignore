@@ -1,2 +1,4 @@
 tmp/
 drafts/
+# Added by goreleaser init:
+dist/

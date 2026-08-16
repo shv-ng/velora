@@ -1,5 +1,6 @@
 #ifndef CLI_H
 #define CLI_H
 
-void print_help(char *argv[]) ;
+int cli_new(int argc, char *argv[]);
+
 #endif
