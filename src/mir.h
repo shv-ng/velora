@@ -25,4 +25,7 @@ struct MirFunc {
   int count;
 };
 
+struct MirCtx sema_new(struct Parser *p);
+void sema_check(struct SemaCtx *sema, struct AstNode *root);
+
 #endif

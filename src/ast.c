@@ -21,7 +21,6 @@ static void advance(struct Parser *p) {
 
 static void synchronise(struct Parser *p) {
   // dumber error recovery
-
   while (p->current_token.kind != TOK_EOF) {
     switch (p->current_token.kind) {
     case TOK_EOF:
@@ -34,6 +33,7 @@ static void synchronise(struct Parser *p) {
     }
   }
 }
+
 static void expect(struct Parser *p, enum TokenKind kind) {
   if (p->current_token.kind == kind) {
     advance(p);

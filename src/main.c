@@ -1,4 +1,5 @@
 #include "ast.h"
+#include "cli.h"
 #include "file.h"
 #include "lexer.h"
 #include "sema.h"
@@ -7,9 +8,10 @@
 #include <stdlib.h>
 
 int main(int argc, char *argv[]) {
+  print_help(argv);
   if (argc != 2) {
-    fprintf(stderr, "zyn: error: no input file\nusage:\n  %s [path]\n",
-            argv[0]);
+    // fprintf(stderr, "%s: error: no input file\nusage:\n  %s [path]\n", argv[0],
+    //         argv[0]);
     return 1;
   }
 
@@ -24,14 +26,6 @@ int main(int argc, char *argv[]) {
   printf("%s\n\n", contents);
 
   struct Lexer l = lexer_new(file_name, contents);
-
-  // struct Token t;
-  // while ((t = next_token(&l)).kind != TOK_EOF) {
-  //   printf("line %d | kind %s | val %s | \n", t.line, kind_str(t.kind),
-  //   t.val); if (t.val) {
-  //     free(t.val);
-  //   }
-  // }
 
   struct Parser p = parser_new(&l);
 
