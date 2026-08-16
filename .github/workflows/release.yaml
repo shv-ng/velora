@@ -22,9 +22,10 @@ jobs:
 
       - name: Install svu
         run: |
-          curl -sSL https://github.com/caarlos0/svu/releases/latest/download/svu_linux_amd64.tar.gz \
-            | tar xz svu
+          curl -sSLO https://github.com/caarlos0/svu/releases/latest/download/svu_linux_amd64.tar.gz
+          tar xzf svu_linux_amd64.tar.gz svu
           sudo mv svu /usr/local/bin/svu
+          rm svu_linux_amd64.tar.gz
 
       - name: Compute next tag
         id: svu
