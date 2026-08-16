@@ -39,8 +39,10 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag "${{ steps.svu.outputs.tag }}"
+          git tag -d "${{ steps.svu.outputs.tag }}" 2>/dev/null || true
+          git push origin ":refs/tags/${{ steps.svu.outputs.tag }}" 2>/dev/null || true
           git push origin "${{ steps.svu.outputs.tag }}"
+          git tag "${{ steps.svu.outputs.tag }}"
 
   build:
     name: Build (linux-amd64)
