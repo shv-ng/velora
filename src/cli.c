@@ -34,20 +34,20 @@ static int execute_run(int argc, char *argv[]) {
 
   printf("%s\n\n", contents);
 
-  struct Lexer l = lexer_new(file_name, contents);
+  struct Lexer lexer = lexer_new(file_name, contents);
 
-  struct Parser p = parser_new(&l);
+  struct Parser parser = parser_new(&lexer);
 
-  struct AstNode *program = parse_program(&p);
-  if (p.error_count != 0) {
-    fprintf(stderr, "%d error generated\n", p.error_count);
+  struct AstNode *program_ast = parse_program(&parser);
+  if (parser.error_count != 0) {
+    fprintf(stderr, "%d error generated\n", parser.error_count);
     return 1;
   }
 
-  struct SemaCtx sema = sema_new(&p);
-  sema_check(&sema, program);
+  struct SemaCtx sema = sema_new(&parser);
+  sema_check(&sema, program_ast);
 
-  print_ast(program, 0);
+  print_ast(program_ast, 0);
 
   free(contents);
 
