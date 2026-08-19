@@ -14,6 +14,9 @@ struct CodegenCtx {
   LLVMValueRef current_func;
 
   int error_count;
+
+  char *contents;
+  char *file_name;
 };
 
 struct CodegenCtx codegen_new();

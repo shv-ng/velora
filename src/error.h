@@ -11,6 +11,11 @@
 enum ErrorKind {
   ERR_SYNTAX,
   ERR_TYPE_MISMATCH,
+  ERR_CODEGEN,
+};
+
+struct ErrCodegen {
+  const char *message;
 };
 
 struct ErrTypeMismatch {
@@ -31,6 +36,7 @@ struct Error {
   union {
     struct ErrSyntax syntax;
     struct ErrTypeMismatch type_mismatch;
+    struct ErrCodegen codegen;
   } as;
 };
 

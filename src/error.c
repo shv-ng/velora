@@ -99,6 +99,10 @@ void print_error(struct Error error, const char *file_name,
             error.as.type_mismatch.expected, error.as.type_mismatch.found,
             ANSI_COLOR_RESET);
     break;
+  case ERR_CODEGEN:
+    fprintf(stderr, "%scodegen error: %s%s\n", ANSI_COLOR_BOLD,
+            error.as.codegen.message, ANSI_COLOR_RESET);
+    break;
   }
 
   print_error_body(file_name, contents, error.span);
