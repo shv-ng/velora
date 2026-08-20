@@ -1,5 +1,6 @@
 #include "ast.h"
 #include "codegen.h"
+#include "error.h"
 #include "file.h"
 #include "lexer.h"
 #include "sema.h"
@@ -21,7 +22,7 @@
 
 #include <stdio.h>
 
-static int execute_run(int argc, char *argv[]) {
+static int execute_build(int argc, char *argv[]) {
   if (argc < 2) {
     fprintf(stderr, "<path> is missing\n");
     return 1;
@@ -79,7 +80,18 @@ content_cleanup:
   if (err_code == 1) {
     fprintf(stderr, "%d error generated\n", err_count);
   }
+
   return err_code;
+}
+static int execute_run(int argc, char *argv[]) {
+  int fail = execute_build(argc, argv);
+  if (fail == 1) {
+    return 1;
+  }
+
+  int status = system("./main");
+  int actual_code = WEXITSTATUS(status);
+  return actual_code;
 }
 
 static void print_help(char *argv[]) {
@@ -90,6 +102,7 @@ static void print_help(char *argv[]) {
 
   fprintf(stderr, "commands:\n");
   fprintf(stderr, "    run <path>       compile and run program\n");
+  fprintf(stderr, "    build <path>     compile program\n");
   fprintf(stderr, "    help             print this msg\n");
   fprintf(stderr, "    version          print version\n");
 
@@ -101,7 +114,7 @@ static void print_help(char *argv[]) {
 }
 
 static void print_version() {
-  fprintf(stdout, "velora %s (%s %s)", VERSION, COMMIT, DATE);
+  fprintf(stdout, "velora %s (%s %s)\n", VERSION, COMMIT, DATE);
 }
 
 int cli_new(int argc, char *argv[]) {
@@ -116,6 +129,10 @@ int cli_new(int argc, char *argv[]) {
       strcmp(argv[1], "--version") == 0) {
     print_version();
     return 0;
+  }
+
+  if (strcmp(argv[1], "build") == 0) {
+    return execute_build(argc - 1, argv + 1);
   }
 
   if (strcmp(argv[1], "run") == 0) {

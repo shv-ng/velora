@@ -7,12 +7,10 @@
 #include <llvm-c/Analysis.h>
 #include <llvm-c/Core.h>
 #include <llvm-c/Target.h>
-#include <llvm-c/Target.h>
-#include <llvm-c/TargetMachine.h>
-#include <sys/wait.h>
 #include <llvm-c/TargetMachine.h>
 #include <llvm-c/Types.h>
 #include <stdlib.h>
+#include <sys/wait.h>
 
 void codegen_stmt(struct CodegenCtx *ctx, struct AstNode *node);
 
@@ -177,8 +175,16 @@ void codegen_binary(struct CodegenCtx *ctx) {
   LLVMDisposeMessage(emit_err);
   LLVMDisposeTargetMachine(machine);
 
+  int status = system("clang /tmp/velora_out.o -o main");
 
-  system("clang /tmp/velora_out.o -o main");
+  if (status == -1) {
+    ctx->error_count += 1;
+    struct Error error = {.kind = ERR_CODEGEN,
+                          .as.codegen =
+                              (struct ErrCodegen){.message = "fail to run clang"}};
+
+    print_error(error, ctx->file_name, ctx->contents);
+  }
 }
 
 void codegen_emit(struct CodegenCtx *ctx, struct AstNode *root) {

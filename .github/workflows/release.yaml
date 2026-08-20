@@ -1,53 +1,18 @@
 name: Release
-
 on:
   push:
-    branches:
-      - main
+    tags:
+      - 'v*'
 
 permissions:
   contents: write
 
 jobs:
-  tag:
-    name: Tag version
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.svu.outputs.version }}
-      tag:     ${{ steps.svu.outputs.tag }}
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
-      - name: Install svu
-        run: |
-          VERSION=$(curl -sL https://api.github.com/repos/caarlos0/svu/releases/latest \
-            | jq -r '.tag_name | ltrimstr("v")')
-          curl -sSL "https://github.com/caarlos0/svu/releases/download/v${VERSION}/svu_${VERSION}_linux_amd64.tar.gz" \
-            | tar xz svu
-          sudo mv svu /usr/local/bin/svu
-
-      - name: Compute next tag
-        id: svu
-        run: |
-          NEXT=$(svu next)
-          echo "version=${NEXT#v}" >> "$GITHUB_OUTPUT"
-          echo "tag=${NEXT}"       >> "$GITHUB_OUTPUT"
-
-      - name: Push tag
-        run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag "${{ steps.svu.outputs.tag }}"
-          git push origin "${{ steps.svu.outputs.tag }}"
-
   build:
     name: Build (linux-amd64)
-    needs: tag
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -57,32 +22,32 @@ jobs:
           clang ./src/*.c \
             -o dist/velora-linux-amd64 \
             -Wall -Wextra \
-            -DVERSION=\"${{ needs.tag.outputs.version }}\" \
+            -DVERSION=\"${{ github.ref_name }}\" \
             -DCOMMIT=\"$(git rev-parse --short HEAD)\" \
             -DDATE=\"$(date +%Y-%m-%d)\"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: velora-linux-amd64
           path: dist/velora-linux-amd64
 
   release:
     name: Release
-    needs: [tag, build]
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v4
         with:
           path: dist
           merge-multiple: true
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ needs.tag.outputs.tag }}
-          name:     ${{ needs.tag.outputs.tag }}
+          tag_name: ${{ github.ref_name }}
+          name:     ${{ github.ref_name }}
           files:    dist/**
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
