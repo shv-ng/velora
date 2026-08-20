@@ -310,3 +310,17 @@ void print_ast(struct AstNode *node, int indent) {
     break;
   }
 }
+
+void ast_free(struct AstNode *node) {
+  switch (node->kind) {
+  case AST_PROGRAM:
+
+  case AST_FUNCTION_DECL:
+  case AST_TYPE_UNKNOWN:
+  case AST_TYPE_NAMED:
+  case AST_BLOCK_DECL:
+  case AST_RETURN_STMT:
+  case AST_INT_LITERAL:
+    break;
+  }
+}

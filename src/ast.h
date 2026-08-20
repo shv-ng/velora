@@ -74,5 +74,6 @@ struct Parser parser_new(struct Lexer *l);
 struct AstNode *parse_program(struct Parser *p);
 
 void print_ast(struct AstNode *node, int indent);
+void ast_free(struct AstNode *node);
 
 #endif

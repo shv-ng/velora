@@ -1,4 +1,5 @@
 #include "ast.h"
+#include "codegen.h"
 #include "file.h"
 #include "lexer.h"
 #include "sema.h"
@@ -32,7 +33,8 @@ static int execute_run(int argc, char *argv[]) {
   if (contents == NULL)
     return 1;
 
-  printf("%s\n\n", contents);
+  int err_code = 0;
+  int err_count = 0;
 
   struct Lexer lexer = lexer_new(file_name, contents);
 
@@ -40,18 +42,40 @@ static int execute_run(int argc, char *argv[]) {
 
   struct AstNode *program_ast = parse_program(&parser);
   if (parser.error_count != 0) {
-    fprintf(stderr, "%d error generated\n", parser.error_count);
-    return 1;
+    err_count += parser.error_count;
+    err_code = 1;
+    goto content_cleanup;
   }
 
   struct SemaCtx sema = sema_new(&parser);
   sema_check(&sema, program_ast);
+  if (sema.error_count != 0) {
+    err_count += sema.error_count;
+    err_code = 1;
+    goto ast_cleanup;
+  }
 
-  print_ast(program_ast, 0);
+  struct CodegenCtx codegen = codegen_new(&sema);
+  codegen_emit(&codegen, program_ast);
 
+  if (codegen.error_count != 0) {
+    err_count += codegen.error_count;
+    err_code = 1;
+    goto ast_cleanup;
+  }
+
+  codegen_free(&codegen);
+
+ast_cleanup:
+  ast_free(program_ast);
+
+content_cleanup:
   free(contents);
 
-  return 0;
+  if (err_code == 1) {
+    fprintf(stderr, "%d error generated\n", err_count);
+  }
+  return err_code;
 }
 
 static void print_help(char *argv[]) {
