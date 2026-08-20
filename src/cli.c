@@ -89,7 +89,7 @@ static int execute_run(int argc, char *argv[]) {
     return 1;
   }
 
-  int status = system("./main");
+  int status = system("/tmp/main");
   int actual_code = WEXITSTATUS(status);
   return actual_code;
 }
