@@ -12,9 +12,12 @@ jobs:
     name: Build (linux-amd64)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+
+      - name: Install LLVM
+        run: sudo apt-get install -y llvm-dev libclang-dev clang
 
       - name: Build
         run: |
@@ -24,7 +27,9 @@ jobs:
             -Wall -Wextra \
             -DVERSION=\"${{ github.ref_name }}\" \
             -DCOMMIT=\"$(git rev-parse --short HEAD)\" \
-            -DDATE=\"$(date +%Y-%m-%d)\"
+            -DDATE=\"$(date +%Y-%m-%d)\" \
+            $(llvm-config --cflags --ldflags --libs core) \
+            -lpthread -lm -ldl
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
