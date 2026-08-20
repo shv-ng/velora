@@ -65,8 +65,9 @@ static void sema_block(struct SemaCtx *sema, struct AstNode *node) {
         node->as.block.statements[node->as.block.count - 1]->resolved_type;
   }
 
-
+  struct Scope *child = sema->current_scope;
   sema->current_scope = prev;
+  scope_free(child);
 }
 
 static void sema_return_stmt(struct SemaCtx *sema, struct AstNode *node) {

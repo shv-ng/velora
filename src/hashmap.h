@@ -12,7 +12,7 @@ struct Hashmap {
   int capacity;
 };
 
-struct Hashmap *hashmap_new(void);
+struct Hashmap *hashmap_new();
 void hashmap_free(struct Hashmap *hmap);
 void hashmap_set(struct Hashmap *hmap, const char *key, void *value);
 void *hashmap_get(struct Hashmap *hmap, const char *key);

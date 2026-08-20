@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
 
 static struct AstNode *astnode_new(enum AstKind kind) {
   struct AstNode *node = malloc(sizeof(struct AstNode));
@@ -63,6 +64,7 @@ static struct AstNode *parse_expr(struct Parser *p) {
     node->as.int_literal.value = atoll(int_tok.val);
     node->span = int_tok.span;
 
+    free(int_tok.val);
     return node;
   }
   default: {
@@ -314,13 +316,30 @@ void print_ast(struct AstNode *node, int indent) {
 void ast_free(struct AstNode *node) {
   switch (node->kind) {
   case AST_PROGRAM:
-
+    for (int i = 0; i < node->as.program.count; i++) {
+      ast_free(node->as.program.declaration[i]);
+    }
+    free(node->as.program.declaration);
+    break;
   case AST_FUNCTION_DECL:
-  case AST_TYPE_UNKNOWN:
-  case AST_TYPE_NAMED:
+    ast_free(node->as.function.return_type);
+    ast_free(node->as.function.block);
+    break;
   case AST_BLOCK_DECL:
+    free(node->as.block.name);
+    for (int i = 0; i < node->as.block.count; i++) {
+      ast_free(node->as.block.statements[i]);
+    }
+    free(node->as.block.statements);
+    break;
   case AST_RETURN_STMT:
-  case AST_INT_LITERAL:
+    ast_free(node->as.return_stmt.expr);
+    break;
+  case AST_TYPE_NAMED:
+    free(node->as.type_named.name);
+    break;
+  default:
     break;
   }
+  free(node);
 }

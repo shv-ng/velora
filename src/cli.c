@@ -3,6 +3,7 @@
 #include "file.h"
 #include "lexer.h"
 #include "sema.h"
+#include "symbol.h"
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -52,7 +53,7 @@ static int execute_run(int argc, char *argv[]) {
   if (sema.error_count != 0) {
     err_count += sema.error_count;
     err_code = 1;
-    goto ast_cleanup;
+    goto scope_cleanup;
   }
 
   struct CodegenCtx codegen = codegen_new(&sema);
@@ -65,6 +66,9 @@ static int execute_run(int argc, char *argv[]) {
   }
 
   codegen_free(&codegen);
+
+scope_cleanup:
+  scope_free(sema.current_scope);
 
 ast_cleanup:
   ast_free(program_ast);

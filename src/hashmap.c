@@ -28,6 +28,7 @@ void hashmap_free(struct Hashmap *hmap) {
     while (e) {
       struct Entry *next = e->next;
       free(e->key);
+      free(e->data);
       free(e);
       e = next;
     }

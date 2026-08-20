@@ -1,5 +1,6 @@
 #include "lexer.h"
 #include <ctype.h>
+#include <stdlib.h>
 #include <string.h>
 
 static char peek(struct Lexer *l);
@@ -156,6 +157,7 @@ struct Token next_token(struct Lexer *l) {
     for (int k = 0; keywords[k].word; k++) {
       if (strcmp(t.val, keywords[k].word) == 0) {
         t.kind = keywords[k].kind;
+        free(t.val);
         break;
       }
     }
