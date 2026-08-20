@@ -29,7 +29,9 @@ jobs:
             -DVERSION=\"${{ github.ref_name }}\" \
             -DCOMMIT=\"$(git rev-parse --short HEAD)\" \
             -DDATE=\"$(date +%Y-%m-%d)\" \
-            $(llvm-config --cflags --ldflags --libs core) \
+            $(llvm-config --cflags) \
+            $(llvm-config --ldflags) \
+            $(llvm-config --libs core --link-static) \
             -lpthread -lm -ldl
 
       - name: Upload artifact
