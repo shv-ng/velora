@@ -47,11 +47,18 @@ jobs:
           fetch-depth: 0
 
       - name: Install LLVM
+        env: 
+          HOMEBREW_NO_REQUIRE_TAP_TRUST: 1
         run: ${{ matrix.install }}
 
       - name: Build (unix)
         if: runner.os != 'Windows'
         run: |
+          # add homebrew llvm to path on mac
+          if [ "$RUNNER_OS" = "macOS" ]; then
+            export PATH="$(brew --prefix llvm)/bin:$PATH"
+          fi
+
           mkdir -p dist
           clang ./src/*.c \
             -o dist/${{ matrix.artifact }} \
