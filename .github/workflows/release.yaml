@@ -31,10 +31,10 @@ jobs:
             artifact: velora-darwin-arm64
             install: brew install llvm
 
-          - os: windows-latest
-            target: windows-amd64
-            artifact: velora-windows-amd64.exe
-            install: choco install llvm
+          # - os: windows-latest
+          #   target: windows-amd64
+          #   artifact: velora-windows-amd64.exe
+          #   install: choco install llvm
 
     steps:
       - uses: actions/checkout@v6
@@ -64,13 +64,13 @@ jobs:
             $(llvm-config --cflags --ldflags --libs core analysis native) \
             -lpthread -lm -ldl
 
-      - name: Build (windows)
-        if: runner.os == 'Windows'
-        shell: cmd
-        run: |
-          mkdir dist
-          for /f "tokens=*" %%i in ('llvm-config --cflags --ldflags --libs core analysis native') do set LLVM_FLAGS=%%i
-          clang ./src/*.c -o dist/${{ matrix.artifact }} -Wall -Wextra -DVERSION="%{{ github.ref_name }}%" %LLVM_FLAGS%
+      # - name: Build (windows)
+      #   if: runner.os == 'Windows'
+      #   shell: cmd
+      #   run: |
+      #     mkdir dist
+      #     for /f "tokens=*" %%i in ('llvm-config --cflags --ldflags --libs core analysis native') do set LLVM_FLAGS=%%i
+      #     clang ./src/*.c -o dist/${{ matrix.artifact }} -Wall -Wextra -DVERSION="%{{ github.ref_name }}%" %LLVM_FLAGS%
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
