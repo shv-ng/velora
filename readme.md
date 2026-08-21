@@ -10,6 +10,7 @@ A programming language.
 ## Requirements
 
 - llvm-18
+- clang
 
 ## Install
 
