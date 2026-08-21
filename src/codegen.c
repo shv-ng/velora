@@ -131,11 +131,14 @@ void codegen_binary(struct CodegenCtx *ctx) {
   char *triple = LLVMGetDefaultTargetTriple();
 
   // initialise targets
-  LLVMInitializeAllTargetInfos();
-  LLVMInitializeAllTargets();
-  LLVMInitializeAllTargetMCs();
-  LLVMInitializeAllAsmParsers();
-  LLVMInitializeAllAsmPrinters();
+  // LLVMInitializeAllTargetInfos();
+  // LLVMInitializeAllTargets();
+  // LLVMInitializeAllTargetMCs();
+  // LLVMInitializeAllAsmParsers();
+  // LLVMInitializeAllAsmPrinters();
+  LLVMInitializeNativeTarget();
+  LLVMInitializeNativeAsmPrinter();
+  LLVMInitializeNativeAsmParser();
 
   // get target from triple
   LLVMTargetRef target;
