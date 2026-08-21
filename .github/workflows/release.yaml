@@ -3,126 +3,27 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  build:
-    name: Build (${{ matrix.target }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-            target: linux-amd64
-            llvm_file: LLVM-22.1.8-Linux-X64.tar.xz
-            artifact: velora-linux-amd64
-
-          - os: ubuntu-24.04-arm
-            target: linux-arm64
-            llvm_file: LLVM-22.1.8-Linux-ARM64.tar.xz
-            artifact: velora-linux-arm64
-
-          - os: macos-latest
-            target: darwin-arm64
-            llvm_file: LLVM-22.1.8-macOS-ARM64.tar.xz
-            artifact: velora-darwin-arm64
-
-          - os: macos-13
-            target: darwin-amd64
-            llvm_file: LLVM-22.1.8-macOS-X64.tar.xz
-            artifact: velora-darwin-amd64
-
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Download LLVM 22.1.8
-        shell: bash
-        run: |
-          URL="https://github.com/llvm/llvm-project/releases/download/llvmorg-22.1.8/${{ matrix.llvm_file }}"
-          echo "Downloading $URL"
-          curl -L "$URL" -o llvm.tar.xz
-          mkdir -p llvm
-          tar -xf llvm.tar.xz --strip-components=1 -C llvm
-
-      - name: Build
-        shell: bash
-        run: |
-          mkdir -p dist
-
-          LLVM_ROOT="$(pwd)/llvm"
-          CFLAGS="$($LLVM_ROOT/bin/llvm-config --cflags)"
-          LDFLAGS="$($LLVM_ROOT/bin/llvm-config --ldflags --link-static --libs core analysis target \
-                      x86 aarch64 2>/dev/null || \
-                     $LLVM_ROOT/bin/llvm-config --ldflags --libs core analysis)"
-
-          clang ./src/*.c \
-            -o dist/${{ matrix.artifact }} \
-            -Wall -Wextra \
-            -I$LLVM_ROOT/include \
-            -DVERSION=\"${{ github.ref_name }}\" \
-            -DCOMMIT=\"$(git rev-parse --short HEAD)\" \
-            -DDATE=\"$(date +%Y-%m-%d)\" \
-            $CFLAGS $LDFLAGS \
-            -lpthread -lm -ldl -lstdc++ -static-libgcc
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: ${{ matrix.artifact }}
-          path: dist/${{ matrix.artifact }}
-
-  build-windows:
-    name: Build (windows-amd64)
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Download LLVM 22.1.8
-        shell: pwsh
-        run: |
-          $url = "https://github.com/llvm/llvm-project/releases/download/llvmorg-22.1.8/clang+llvm-22.1.8-x86_64-pc-windows-msvc.tar.xz"
-          Invoke-WebRequest $url -OutFile llvm.tar.xz
-          New-Item -ItemType Directory -Force llvm | Out-Null
-          tar -xf llvm.tar.xz --strip-components=1 -C llvm
-
-      - name: Build
-        shell: cmd
-        run: |
-          mkdir dist
-          set LLVM=%CD%\llvm
-          clang ./src/*.c -o dist/velora-windows-amd64.exe -Wall -Wextra -I%LLVM%/include -DVERSION="%{{ github.ref_name }}%" -DCOMMIT="%cd%" -L%LLVM%/lib -lLLVM -lpthread -lm
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: velora-windows-amd64
-          path: dist/velora-windows-amd64.exe
-
   release:
-    name: Release
-    needs: [build, build-windows]
     runs-on: ubuntu-latest
     steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@v7
+      - uses: actions/checkout@v6
         with:
-          path: dist
-          merge-multiple: true
+          fetch-depth: 0
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: ${{ github.ref_name }}
-          name:     ${{ github.ref_name }}
-          files:    dist/**
+      - name: Install just
+        run: curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+
+      - name: install deps
+        run: sudo apt-get install -y llvm-dev clang
+
+      - name: Release
+        run: ./release.sh ${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

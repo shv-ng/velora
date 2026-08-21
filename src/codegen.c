@@ -179,9 +179,9 @@ void codegen_binary(struct CodegenCtx *ctx) {
 
   if (status == -1) {
     ctx->error_count += 1;
-    struct Error error = {.kind = ERR_CODEGEN,
-                          .as.codegen =
-                              (struct ErrCodegen){.message = "fail to run clang"}};
+    struct Error error = {
+        .kind = ERR_CODEGEN,
+        .as.codegen = (struct ErrCodegen){.message = "fail to run clang"}};
 
     print_error(error, ctx->file_name, ctx->contents);
   }
