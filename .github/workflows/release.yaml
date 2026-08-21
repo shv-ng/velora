@@ -19,22 +19,22 @@ jobs:
         include:
           - os: ubuntu-latest
             target: linux-amd64
-            llvm_triple: x86_64-linux-gnu
+            llvm_file: LLVM-22.1.8-Linux-X64.tar.xz
             artifact: velora-linux-amd64
 
           - os: ubuntu-24.04-arm
             target: linux-arm64
-            llvm_triple: aarch64-linux-gnu
+            llvm_file: LLVM-22.1.8-Linux-ARM64.tar.xz
             artifact: velora-linux-arm64
 
           - os: macos-latest
             target: darwin-arm64
-            llvm_triple: arm64-apple-darwin
+            llvm_file: LLVM-22.1.8-macOS-ARM64.tar.xz
             artifact: velora-darwin-arm64
 
           - os: macos-13
             target: darwin-amd64
-            llvm_triple: x86_64-apple-darwin
+            llvm_file: LLVM-22.1.8-macOS-X64.tar.xz
             artifact: velora-darwin-amd64
 
     steps:
@@ -42,12 +42,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download LLVM 22 prebuilt
+      - name: Download LLVM 22.1.8
         shell: bash
         run: |
-          LLVM_VER="22.1.5"
-          TRIPLE="${{ matrix.llvm_triple }}"
-          URL="https://github.com/llvm/llvm-project/releases/download/llvmorg-${LLVM_VER}/clang+llvm-${LLVM_VER}-${TRIPLE}.tar.xz"
+          URL="https://github.com/llvm/llvm-project/releases/download/llvmorg-22.1.8/${{ matrix.llvm_file }}"
           echo "Downloading $URL"
           curl -L "$URL" -o llvm.tar.xz
           mkdir -p llvm
@@ -88,30 +86,20 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download LLVM 22 prebuilt
+      - name: Download LLVM 22.1.8
         shell: pwsh
         run: |
-          $ver = "22.1.5"
-          $url = "https://github.com/llvm/llvm-project/releases/download/llvmorg-$ver/clang+llvm-$ver-x86_64-pc-windows-msvc.tar.xz"
+          $url = "https://github.com/llvm/llvm-project/releases/download/llvmorg-22.1.8/clang+llvm-22.1.8-x86_64-pc-windows-msvc.tar.xz"
           Invoke-WebRequest $url -OutFile llvm.tar.xz
           New-Item -ItemType Directory -Force llvm | Out-Null
           tar -xf llvm.tar.xz --strip-components=1 -C llvm
 
       - name: Build
-        shell: pwsh
+        shell: cmd
         run: |
-          New-Item -ItemType Directory -Force dist | Out-Null
-          $llvm = "$(Get-Location)\llvm"
-          clang ./src/*.c `
-            -o dist/velora-windows-amd64.exe `
-            -Wall -Wextra `
-            -I"$llvm/include" `
-            -DVERSION=`"${{ github.ref_name }}`" `
-            -DCOMMIT=`"$(git rev-parse --short HEAD)`" `
-            -DDATE=`"$(Get-Date -Format yyyy-MM-dd)`" `
-            -L"$llvm/lib" `
-            -lLLVM `
-            -lpthread -lm
+          mkdir dist
+          set LLVM=%CD%\llvm
+          clang ./src/*.c -o dist/velora-windows-amd64.exe -Wall -Wextra -I%LLVM%/include -DVERSION="%{{ github.ref_name }}%" -DCOMMIT="%cd%" -L%LLVM%/lib -lLLVM -lpthread -lm
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
