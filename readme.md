@@ -1,7 +1,7 @@
 # Velora
 A programming language.
 
-**Platform support**
+> **Platform support**
 > - Linux x86_64 — supported
 > - Linux arm64 — supported  
 > - macOS — untested
@@ -15,7 +15,7 @@ A programming language.
 
 Download the latest binary from [releases](https://github.com/shv-ng/velora/releases).
 
-# Linux
+### Linux
 ```bash
 curl https://github.com/shv-ng/velora/blob/main/install.sh | bash
 ```
