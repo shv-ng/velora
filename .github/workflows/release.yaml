@@ -31,11 +31,6 @@ jobs:
             artifact: velora-darwin-arm64
             install: brew install llvm
 
-          - os: macos-13
-            target: darwin-amd64
-            artifact: velora-darwin-amd64
-            install: brew install llvm
-
           - os: windows-latest
             target: windows-amd64
             artifact: velora-windows-amd64.exe
