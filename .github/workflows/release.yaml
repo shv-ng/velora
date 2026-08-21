@@ -1,4 +1,5 @@
 name: Release
+
 on:
   push:
     tags:
@@ -10,47 +11,127 @@ permissions:
 
 jobs:
   build:
-    name: Build (linux-amd64)
-    runs-on: ubuntu-latest
+    name: Build (${{ matrix.target }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: linux-amd64
+            llvm_triple: x86_64-linux-gnu
+            artifact: velora-linux-amd64
+
+          - os: ubuntu-24.04-arm
+            target: linux-arm64
+            llvm_triple: aarch64-linux-gnu
+            artifact: velora-linux-arm64
+
+          - os: macos-latest
+            target: darwin-arm64
+            llvm_triple: arm64-apple-darwin
+            artifact: velora-darwin-arm64
+
+          - os: macos-13
+            target: darwin-amd64
+            llvm_triple: x86_64-apple-darwin
+            artifact: velora-darwin-amd64
+
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - name: Install LLVM
-        run: sudo apt-get install -y llvm-dev libclang-dev clang
+      - name: Download LLVM 22 prebuilt
+        shell: bash
+        run: |
+          LLVM_VER="22.1.5"
+          TRIPLE="${{ matrix.llvm_triple }}"
+          URL="https://github.com/llvm/llvm-project/releases/download/llvmorg-${LLVM_VER}/clang+llvm-${LLVM_VER}-${TRIPLE}.tar.xz"
+          echo "Downloading $URL"
+          curl -L "$URL" -o llvm.tar.xz
+          mkdir -p llvm
+          tar -xf llvm.tar.xz --strip-components=1 -C llvm
 
       - name: Build
+        shell: bash
         run: |
           mkdir -p dist
+
+          LLVM_ROOT="$(pwd)/llvm"
+          CFLAGS="$($LLVM_ROOT/bin/llvm-config --cflags)"
+          LDFLAGS="$($LLVM_ROOT/bin/llvm-config --ldflags --link-static --libs core analysis target \
+                      x86 aarch64 2>/dev/null || \
+                     $LLVM_ROOT/bin/llvm-config --ldflags --libs core analysis)"
+
           clang ./src/*.c \
-            -o dist/velora-linux-amd64 \
+            -o dist/${{ matrix.artifact }} \
             -Wall -Wextra \
+            -I$LLVM_ROOT/include \
             -DVERSION=\"${{ github.ref_name }}\" \
             -DCOMMIT=\"$(git rev-parse --short HEAD)\" \
             -DDATE=\"$(date +%Y-%m-%d)\" \
-            $(llvm-config --cflags --ldflags --libs core analysis) \
-            -lpthread -lm -ldl
+            $CFLAGS $LDFLAGS \
+            -lpthread -lm -ldl -lstdc++ -static-libgcc
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          name: velora-linux-amd64
-          path: dist/velora-linux-amd64
+          name: ${{ matrix.artifact }}
+          path: dist/${{ matrix.artifact }}
+
+  build-windows:
+    name: Build (windows-amd64)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Download LLVM 22 prebuilt
+        shell: pwsh
+        run: |
+          $ver = "22.1.5"
+          $url = "https://github.com/llvm/llvm-project/releases/download/llvmorg-$ver/clang+llvm-$ver-x86_64-pc-windows-msvc.tar.xz"
+          Invoke-WebRequest $url -OutFile llvm.tar.xz
+          New-Item -ItemType Directory -Force llvm | Out-Null
+          tar -xf llvm.tar.xz --strip-components=1 -C llvm
+
+      - name: Build
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist | Out-Null
+          $llvm = "$(Get-Location)\llvm"
+          clang ./src/*.c `
+            -o dist/velora-windows-amd64.exe `
+            -Wall -Wextra `
+            -I"$llvm/include" `
+            -DVERSION=`"${{ github.ref_name }}`" `
+            -DCOMMIT=`"$(git rev-parse --short HEAD)`" `
+            -DDATE=`"$(Get-Date -Format yyyy-MM-dd)`" `
+            -L"$llvm/lib" `
+            -lLLVM `
+            -lpthread -lm
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: velora-windows-amd64
+          path: dist/velora-windows-amd64.exe
 
   release:
     name: Release
-    needs: build
+    needs: [build, build-windows]
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           path: dist
           merge-multiple: true
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.ref_name }}
           name:     ${{ github.ref_name }}
