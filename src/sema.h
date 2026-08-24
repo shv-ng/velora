@@ -10,6 +10,7 @@ struct SemaCtx {
 
   struct Scope *current_scope;
   struct Type *current_return_type;
+  struct Arena *arena;
 
   int error_count;
 };

@@ -1,7 +1,6 @@
 #include "lexer.h"
 #include "arena.h"
 #include <ctype.h>
-#include <stdlib.h>
 #include <string.h>
 
 static char peek(struct Lexer *l);
@@ -53,9 +52,9 @@ struct Span merge_span(struct Span s1, struct Span s2) {
   return span;
 }
 
-struct Lexer lexer_new(struct Arena *arena, char *file_name, char *contents) {
+struct Lexer lexer_new(struct Arena *a, char *file_name, char *contents) {
   return (struct Lexer){
-      .arena = arena,
+      .arena = a,
       .file_name = file_name,
       .contents = contents,
       .pos = 0,
@@ -136,7 +135,7 @@ struct Token next_token(struct Lexer *l) {
     int length = l->pos - start;
 
     struct Token t = make_tok(l, TOK_INT_LITERAL);
-    t.val = strndup(l->contents + start, length);
+    t.val = arena_strndup(l->arena, l->contents + start, length);
     return t;
   }
 
@@ -148,7 +147,7 @@ struct Token next_token(struct Lexer *l) {
     int length = l->pos - start;
 
     struct Token t = make_tok(l, TOK_IDENTIFIER);
-    t.val = strndup(l->contents + start, length);
+    t.val = arena_strndup(l->arena, l->contents + start, length);
 
     static struct Keyword keywords[] = {
         {"return", TOK_KW_RETURN},

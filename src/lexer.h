@@ -55,7 +55,7 @@ struct Lexer {
 
 char *token_kind_str(enum TokenKind kind);
 struct Span merge_span(struct Span s1, struct Span s2);
-struct Lexer lexer_new(struct Arena *arena, char *file, char *src);
+struct Lexer lexer_new(struct Arena *a, char *file, char *src);
 
 struct Token next_token(struct Lexer *l);
 

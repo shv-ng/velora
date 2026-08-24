@@ -30,9 +30,10 @@ struct SemaCtx sema_new(struct Parser *p) {
 
   sema.error_count = 0;
   sema.current_return_type = &type_unknown;
-  sema.current_scope = scope_new(NULL);
+  sema.current_scope = scope_new(p->arena, NULL);
   sema.file_name = p->lexer->file_name;
   sema.contents = p->lexer->contents;
+  sema.arena = p->arena;
 
   return sema;
 }
@@ -53,7 +54,7 @@ static void sema_func(struct SemaCtx *sema, struct AstNode *node) {
 static void sema_block(struct SemaCtx *sema, struct AstNode *node) {
   struct Scope *prev = sema->current_scope;
 
-  sema->current_scope = scope_new(sema->current_scope);
+  sema->current_scope = scope_new(sema->arena, sema->current_scope);
 
   node->resolved_type = &type_void;
   for (int i = 0; i < node->as.block.count; i++) {
@@ -65,14 +66,23 @@ static void sema_block(struct SemaCtx *sema, struct AstNode *node) {
         node->as.block.statements[node->as.block.count - 1]->resolved_type;
   }
 
-  struct Scope *child = sema->current_scope;
   sema->current_scope = prev;
-  scope_free(child);
 }
 
 static void sema_return_stmt(struct SemaCtx *sema, struct AstNode *node) {
-  sema_node(sema, node->as.return_stmt.expr, sema->current_return_type);
 
+  if (!node->as.return_stmt.expr) {
+    struct Error err = {.kind = ERR_SYNTAX,
+                        .span = node->span,
+                        .as.syntax = {
+                            .expected = type_str(sema->current_return_type),
+                        }};
+    sema->error_count++;
+    print_error(err, sema->file_name, sema->contents);
+    return;
+  }
+
+  sema_node(sema, node->as.return_stmt.expr, sema->current_return_type);
   struct Type *actual = node->as.return_stmt.expr->resolved_type;
   node->resolved_type = actual;
 
@@ -119,7 +129,7 @@ void sema_check(struct SemaCtx *sema, struct AstNode *root) {
   // collection of global decl
   for (int i = 0; i < root->as.program.count; i++) {
     struct AstNode *decl = root->as.program.declaration[i];
-    struct Symbol *sym = symbol_new(decl);
+    struct Symbol *sym = symbol_new(sema->arena, decl);
     switch (decl->kind) {
     case AST_FUNCTION_DECL:
       sym->kind = SYMBOL_FUNC;

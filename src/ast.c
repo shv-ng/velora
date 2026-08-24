@@ -1,5 +1,6 @@
 
 #include "ast.h"
+#include "arena.h"
 #include "error.h"
 #include "lexer.h"
 #include "types.h"
@@ -8,8 +9,8 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-static struct AstNode *astnode_new(enum AstKind kind) {
-  struct AstNode *node = malloc(sizeof(struct AstNode));
+static struct AstNode *astnode_new(struct Parser *p, enum AstKind kind) {
+  struct AstNode *node = arena_calloc(p->arena, 1, sizeof(struct AstNode));
   node->resolved_type = &type_unknown;
   node->kind = kind;
   return node;
@@ -50,21 +51,21 @@ static void expect(struct Parser *p, enum TokenKind kind) {
   print_error(err, p->lexer->file_name, p->lexer->contents);
 
   p->error_count++;
-
   return;
 }
 
 static struct AstNode *parse_expr(struct Parser *p) {
+
   switch (p->current_token.kind) {
   case TOK_INT_LITERAL: {
+
     struct Token int_tok = p->current_token;
     expect(p, TOK_INT_LITERAL);
 
-    struct AstNode *node = astnode_new(AST_INT_LITERAL);
+    struct AstNode *node = astnode_new(p, AST_INT_LITERAL);
     node->as.int_literal.value = atoll(int_tok.val);
     node->span = int_tok.span;
 
-    free(int_tok.val);
     return node;
   }
   default: {
@@ -87,7 +88,7 @@ static struct AstNode *parse_return_stmt(struct Parser *p) {
   struct Span start = p->current_token.span;
   expect(p, TOK_KW_RETURN);
 
-  struct AstNode *return_stmt = astnode_new(AST_RETURN_STMT);
+  struct AstNode *return_stmt = astnode_new(p, AST_RETURN_STMT);
 
   if (p->current_token.kind != TOK_SEMICOLON) {
     return_stmt->as.return_stmt.expr = parse_expr(p);
@@ -105,14 +106,19 @@ static struct AstNode *parse_block(struct Parser *p, char *name) {
   expect(p, TOK_LBRACE);
 
   int capacity = 10;
-  struct AstNode **statements = malloc(sizeof(struct AstNode *) * capacity);
+  struct AstNode **statements =
+      arena_malloc(p->arena, sizeof(struct AstNode *) * capacity);
   int count = 0;
 
   while (p->current_token.kind != TOK_EOF &&
          p->current_token.kind != TOK_RBRACE) {
     if (count >= capacity) {
+      size_t old_size = capacity * sizeof(struct AstNode *);
+
       capacity *= 2;
-      statements = realloc(statements, sizeof(struct AstNode *) * capacity);
+      size_t new_size = capacity * sizeof(struct AstNode *);
+
+      statements = arena_realloc(p->arena, statements, old_size, new_size);
     }
     struct AstNode *stmt = NULL;
 
@@ -138,7 +144,7 @@ static struct AstNode *parse_block(struct Parser *p, char *name) {
     }
   }
 
-  struct AstNode *block = astnode_new(AST_BLOCK_DECL);
+  struct AstNode *block = astnode_new(p, AST_BLOCK_DECL);
 
   block->as.block.name = name;
   block->as.block.statements = statements;
@@ -152,7 +158,7 @@ static struct AstNode *parse_block(struct Parser *p, char *name) {
 
 static struct AstNode *parse_type(struct Parser *p) {
   struct Span start = p->current_token.span;
-  struct AstNode *type = astnode_new(AST_TYPE_UNKNOWN);
+  struct AstNode *type = astnode_new(p, AST_TYPE_UNKNOWN);
 
   if (p->current_token.kind == TOK_IDENTIFIER) {
     struct Token name_tok = p->current_token;
@@ -191,7 +197,7 @@ static struct AstNode *parse_func_decl(struct Parser *p, char *name) {
     return NULL;
   }
 
-  struct AstNode *func = astnode_new(AST_FUNCTION_DECL);
+  struct AstNode *func = astnode_new(p, AST_FUNCTION_DECL);
 
   func->as.function.name = name;
   func->as.function.return_type = return_type;
@@ -217,12 +223,16 @@ struct AstNode *parse_program(struct Parser *p) {
   int capacity = 10;
   int count = 0;
 
-  struct AstNode **declaration = malloc(sizeof(struct AstNode *) * capacity);
+  struct AstNode **declaration =
+      arena_malloc(p->arena, sizeof(struct AstNode *) * capacity);
 
   while (p->current_token.kind != TOK_EOF) {
     if (count >= capacity) {
+      size_t old_size = capacity * sizeof(struct AstNode *);
+
       capacity *= 2;
-      declaration = realloc(declaration, sizeof(struct AstNode *) * capacity);
+      size_t new_size = capacity * sizeof(struct AstNode *);
+      declaration = arena_realloc(p->arena, declaration, old_size, new_size);
     }
     if (p->current_token.kind == TOK_IDENTIFIER) {
       struct AstNode *decl = parse_declaration(p);
@@ -243,7 +253,7 @@ struct AstNode *parse_program(struct Parser *p) {
     }
   }
 
-  struct AstNode *program = astnode_new(AST_PROGRAM);
+  struct AstNode *program = astnode_new(p, AST_PROGRAM);
   program->as.program.count = count;
   program->as.program.declaration = declaration;
 
@@ -254,6 +264,7 @@ struct Parser parser_new(struct Lexer *l) {
   struct Parser p = (struct Parser){
       .lexer = l,
       .error_count = 0,
+      .arena = l->arena,
   };
 
   p.current_token = next_token(l);
@@ -311,35 +322,4 @@ void print_ast(struct AstNode *node, int indent) {
            node->as.int_literal.value, type_str(node->resolved_type));
     break;
   }
-}
-
-void ast_free(struct AstNode *node) {
-  switch (node->kind) {
-  case AST_PROGRAM:
-    for (int i = 0; i < node->as.program.count; i++) {
-      ast_free(node->as.program.declaration[i]);
-    }
-    free(node->as.program.declaration);
-    break;
-  case AST_FUNCTION_DECL:
-    ast_free(node->as.function.return_type);
-    ast_free(node->as.function.block);
-    break;
-  case AST_BLOCK_DECL:
-    free(node->as.block.name);
-    for (int i = 0; i < node->as.block.count; i++) {
-      ast_free(node->as.block.statements[i]);
-    }
-    free(node->as.block.statements);
-    break;
-  case AST_RETURN_STMT:
-    ast_free(node->as.return_stmt.expr);
-    break;
-  case AST_TYPE_NAMED:
-    free(node->as.type_named.name);
-    break;
-  default:
-    break;
-  }
-  free(node);
 }
