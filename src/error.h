@@ -12,6 +12,11 @@ enum ErrorKind {
   ERR_SYNTAX,
   ERR_TYPE_MISMATCH,
   ERR_CODEGEN,
+  ERR_MEMORY,
+};
+
+struct ErrMemory {
+  const char *message;
 };
 
 struct ErrCodegen {
@@ -37,6 +42,7 @@ struct Error {
     struct ErrSyntax syntax;
     struct ErrTypeMismatch type_mismatch;
     struct ErrCodegen codegen;
+    struct ErrMemory memory;
   } as;
 };
 

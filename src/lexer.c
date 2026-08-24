@@ -1,4 +1,5 @@
 #include "lexer.h"
+#include "arena.h"
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
@@ -52,8 +53,9 @@ struct Span merge_span(struct Span s1, struct Span s2) {
   return span;
 }
 
-struct Lexer lexer_new(char *file_name, char *contents) {
+struct Lexer lexer_new(struct Arena *arena, char *file_name, char *contents) {
   return (struct Lexer){
+      .arena = arena,
       .file_name = file_name,
       .contents = contents,
       .pos = 0,
@@ -157,7 +159,6 @@ struct Token next_token(struct Lexer *l) {
     for (int k = 0; keywords[k].word; k++) {
       if (strcmp(t.val, keywords[k].word) == 0) {
         t.kind = keywords[k].kind;
-        free(t.val);
         break;
       }
     }

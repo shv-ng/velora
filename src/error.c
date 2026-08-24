@@ -103,6 +103,10 @@ void print_error(struct Error error, const char *file_name,
     fprintf(stderr, "%scodegen error: %s%s\n", ANSI_COLOR_BOLD,
             error.as.codegen.message, ANSI_COLOR_RESET);
     break;
+  case ERR_MEMORY:
+    fprintf(stderr, "%smemory error: %s%s\n", ANSI_COLOR_BOLD,
+            error.as.memory.message, ANSI_COLOR_RESET);
+    break;
   }
 
   print_error_body(file_name, contents, error.span);

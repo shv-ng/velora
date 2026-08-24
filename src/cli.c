@@ -1,3 +1,4 @@
+#include "arena.h"
 #include "ast.h"
 #include "codegen.h"
 #include "error.h"
@@ -38,7 +39,9 @@ static int execute_build(int argc, char *argv[]) {
   int err_code = 0;
   int err_count = 0;
 
-  struct Lexer lexer = lexer_new(file_name, contents);
+  struct Arena *arena = arena_new(NULL, 1024 * 1024);
+
+  struct Lexer lexer = lexer_new(arena, file_name, contents);
 
   struct Parser parser = parser_new(&lexer);
 
@@ -68,14 +71,9 @@ static int execute_build(int argc, char *argv[]) {
 
   codegen_free(&codegen);
 
-scope_cleanup:
-  scope_free(sema.current_scope);
+cleanup:
+  arena_free(arena);
 
-ast_cleanup:
-  ast_free(program_ast);
-
-content_cleanup:
-  free(contents);
 
   if (err_code == 1) {
     fprintf(stderr, "%d error generated\n", err_count);
