@@ -1,6 +1,7 @@
 #ifndef SYMBOL_H
 #define SYMBOL_H
 
+#include "arena.h"
 #include "ast.h"
 #include "hashmap.h"
 #include "types.h"
@@ -24,11 +25,11 @@ struct Symbol {
 struct Scope {
   struct Hashmap *hashmap;
   struct Scope *parent;
+  struct Arena *a;
 };
 
-struct Symbol *symbol_new(struct AstNode *decl);
-struct Scope *scope_new(struct Scope *parent);
-void scope_free(struct Scope *s);
+struct Symbol *symbol_new(struct Arena *a, struct AstNode *decl);
+struct Scope *scope_new(struct Arena *a, struct Scope *parent);
 struct Symbol *scope_define(struct Scope *s, const char *name,
                             struct Symbol *sym);
 struct Symbol *scope_lookup(struct Scope *s, const char *name);

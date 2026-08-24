@@ -3,18 +3,13 @@
 #include "hashmap.h"
 #include <stdlib.h>
 
-struct Scope *scope_new(struct Scope *parent) {
-  struct Scope *s = malloc(sizeof(struct Scope));
+struct Scope *scope_new(struct Arena *a, struct Scope *parent) {
+  struct Scope *s = arena_malloc(a, sizeof(struct Scope));
 
   s->parent = parent;
-  s->hashmap = hashmap_new();
+  s->hashmap = hashmap_new(a);
 
   return s;
-}
-
-void scope_free(struct Scope *s) {
-  hashmap_free(s->hashmap);
-  free(s);
 }
 
 struct Symbol *scope_define(struct Scope *s, const char *name,
@@ -36,8 +31,8 @@ struct Symbol *scope_lookup(struct Scope *s, const char *name) {
   return NULL;
 }
 
-struct Symbol *symbol_new(struct AstNode *decl) {
-  struct Symbol *sym = malloc(sizeof(struct Symbol));
+struct Symbol *symbol_new(struct Arena *a, struct AstNode *decl) {
+  struct Symbol *sym = arena_malloc(a, sizeof(struct Symbol));
   sym->decl = decl;
 
   sym->is_defined = true;
@@ -46,7 +41,7 @@ struct Symbol *symbol_new(struct AstNode *decl) {
 
   switch (decl->kind) {
   case AST_FUNCTION_DECL:
-      sym->name = decl->as.function.name;
+    sym->name = decl->as.function.name;
     break;
   default:
     break;

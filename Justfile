@@ -7,4 +7,4 @@ build:
           $(llvm-config --cflags --ldflags --libs core analysis)
 
 run *args: build 
-  @./tmp/velora {{args}}
+  @./dist/velora {{args}}

@@ -18,20 +18,18 @@ intmax_t file_get_size(char *file_name) {
   return (intmax_t)sb.st_size;
 }
 
-char *file_read(char *file_name, intmax_t file_size) {
+char *file_read(struct Arena *a, char *file_name, intmax_t file_size) {
 
-  char *contents = malloc(file_size + 1);
-  if (contents == NULL) {
-    perror("malloc");
+  char *contents = arena_malloc(a, file_size + 1);
+  if (!contents) {
     return NULL;
   }
 
   contents[file_size] = '\0';
 
   FILE *file = fopen(file_name, "rb");
-  if (file == NULL) {
+  if (!file) {
     perror("fopen");
-    free(contents);
     return NULL;
   }
 
@@ -42,7 +40,6 @@ char *file_read(char *file_name, intmax_t file_size) {
             "but got %zu: %s.\n",
             file_name, file_size, bytes_read, strerror(errno));
 
-    free(contents);
     contents = NULL;
   }
 
