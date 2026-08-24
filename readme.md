@@ -18,7 +18,7 @@ Download the latest binary from [releases](https://github.com/shv-ng/velora/rele
 
 ### Linux
 ```bash
-curl https://github.com/shv-ng/velora/blob/main/install.sh | bash
+curl https://raw.githubusercontent.com/shv-ng/velora/refs/heads/main/install.sh | bash
 ```
 
 ## Usage
