@@ -1,5 +1,6 @@
 #ifndef LEXER_H
 #define LEXER_H
+#include "arena.h"
 #include <stdint.h>
 #include <sys/types.h>
 
@@ -48,12 +49,13 @@ struct Lexer {
   char *contents;
   char *file_name;
   int pos;
+  struct Arena *arena;
   struct Span current_span;
 };
 
 char *token_kind_str(enum TokenKind kind);
 struct Span merge_span(struct Span s1, struct Span s2);
-struct Lexer lexer_new(char *file, char *src);
+struct Lexer lexer_new(struct Arena *arena, char *file, char *src);
 
 struct Token next_token(struct Lexer *l);
 

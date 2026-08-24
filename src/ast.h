@@ -66,6 +66,7 @@ struct Parser {
   struct Lexer *lexer;
   struct Token current_token;
   struct Token next_token;
+  struct Arena *arena;
   int error_count;
 };
 
