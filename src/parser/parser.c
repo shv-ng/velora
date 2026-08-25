@@ -1,4 +1,5 @@
 #include "parser_internal.h"
+#include <stddef.h>
 
 struct Parser parser_new(struct Lexer *l) {
   struct Parser p = (struct Parser){
@@ -14,24 +15,19 @@ struct Parser parser_new(struct Lexer *l) {
 }
 
 struct AstNode *parse_program(struct Parser *p) {
-  int capacity = 10;
-  int count = 0;
+  size_t capacity = 10;
+  size_t count = 0;
 
   struct AstNode **declaration =
       arena_malloc(p->arena, sizeof(struct AstNode *) * capacity);
 
   while (p->current_token.kind != TOK_EOF) {
-    if (count >= capacity) {
-      size_t old_size = capacity * sizeof(struct AstNode *);
-
-      capacity *= 2;
-      size_t new_size = capacity * sizeof(struct AstNode *);
-      declaration = arena_realloc(p->arena, declaration, old_size, new_size);
-    }
     if (p->current_token.kind == TOK_IDENTIFIER) {
       struct AstNode *decl = parse_declaration(p);
+
       if (decl != NULL) {
-        declaration[count++] = decl;
+        da_append(p->arena, (void ***)&declaration, (void *)decl, &count,
+                  &capacity);
       }
 
     } else {

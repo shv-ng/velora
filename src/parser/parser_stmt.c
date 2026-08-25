@@ -1,4 +1,5 @@
 #include "parser_internal.h"
+#include <stddef.h>
 
 struct AstNode *parse_return_stmt(struct Parser *p) {
   struct Span start = p->current_token.span;
@@ -21,21 +22,14 @@ struct AstNode *parse_block(struct Parser *p, char *name) {
   struct Span start = p->current_token.span;
   expect(p, TOK_LBRACE);
 
-  int capacity = 10;
+  size_t capacity = 10;
+  size_t count = 0;
+
   struct AstNode **statements =
       arena_malloc(p->arena, sizeof(struct AstNode *) * capacity);
-  int count = 0;
 
   while (p->current_token.kind != TOK_EOF &&
          p->current_token.kind != TOK_RBRACE) {
-    if (count >= capacity) {
-      size_t old_size = capacity * sizeof(struct AstNode *);
-
-      capacity *= 2;
-      size_t new_size = capacity * sizeof(struct AstNode *);
-
-      statements = arena_realloc(p->arena, statements, old_size, new_size);
-    }
     struct AstNode *stmt = NULL;
 
     switch (p->current_token.kind) {
@@ -56,7 +50,8 @@ struct AstNode *parse_block(struct Parser *p, char *name) {
     }
     }
     if (stmt != NULL) {
-      statements[count++] = stmt;
+      da_append(p->arena, (void ***)&statements, (void *)stmt, &count,
+                &capacity);
     }
   }
 
