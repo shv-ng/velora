@@ -1,5 +1,4 @@
 #include "error.h"
-#include "lexer.h"
 #include <stdio.h>
 
 static const char *get_line_ptr(const char *contents, int target_line) {

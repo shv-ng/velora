@@ -1,6 +1,6 @@
 #pragma once
 
-#include "lexer.h"
+#include "../token/token.h"
 
 #define ANSI_COLOR_RED "\033[1;31m"
 #define ANSI_COLOR_BLUE "\033[1;34m"
@@ -47,4 +47,3 @@ struct Error {
 
 void print_error(struct Error error, const char *file_name,
                  const char *contents);
-
