@@ -1,4 +1,3 @@
-
 #include "ast.h"
 #include "arena.h"
 #include "error.h"
@@ -25,11 +24,15 @@ static void synchronise(struct Parser *p) {
   // dumber error recovery
   while (p->current_token.kind != TOK_EOF) {
     switch (p->current_token.kind) {
-    case TOK_EOF:
     case TOK_SEMICOLON:
+      advance(p);
+      return;
+
+    case TOK_EOF:
     case TOK_LBRACE:
     case TOK_RBRACE:
       return;
+
     default:
       advance(p);
     }
