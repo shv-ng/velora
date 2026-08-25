@@ -1,5 +1,5 @@
-#ifndef ARENA_H
-#define ARENA_H
+#pragma once
+
 #include <stddef.h>
 #include <stdio.h>
 
@@ -27,4 +27,3 @@ char *arena_strdup(struct Arena *a, const char *s);
 char *arena_strndup(struct Arena *a, const char *s, size_t size);
 void arena_free(struct Arena *a);
 
-#endif

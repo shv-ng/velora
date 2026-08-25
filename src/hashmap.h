@@ -1,5 +1,4 @@
-#ifndef HASHMAP_H
-#define HASHMAP_H
+#pragma once
 
 #include "arena.h"
 
@@ -19,5 +18,3 @@ struct Hashmap {
 struct Hashmap *hashmap_new(struct Arena *a);
 void hashmap_set(struct Hashmap *hmap, const char *key, void *value);
 void *hashmap_get(struct Hashmap *hmap, const char *key);
-
-#endif

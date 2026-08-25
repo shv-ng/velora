@@ -1,5 +1,4 @@
-#ifndef SEMA_H
-#define SEMA_H
+#pragma once
 
 #include "ast.h"
 #include "symbol.h"
@@ -18,4 +17,3 @@ struct SemaCtx {
 struct SemaCtx sema_new(struct Parser *p);
 void sema_check(struct SemaCtx *sema, struct AstNode *root);
 
-#endif

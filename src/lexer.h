@@ -1,5 +1,5 @@
-#ifndef LEXER_H
-#define LEXER_H
+#pragma once
+
 #include "arena.h"
 #include <stdint.h>
 #include <sys/types.h>
@@ -59,4 +59,3 @@ struct Lexer lexer_new(struct Arena *a, char *file, char *src);
 
 struct Token next_token(struct Lexer *l);
 
-#endif

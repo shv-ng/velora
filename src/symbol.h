@@ -1,5 +1,4 @@
-#ifndef SYMBOL_H
-#define SYMBOL_H
+#pragma once
 
 #include "arena.h"
 #include "ast.h"
@@ -34,4 +33,3 @@ struct Symbol *scope_define(struct Scope *s, const char *name,
                             struct Symbol *sym);
 struct Symbol *scope_lookup(struct Scope *s, const char *name);
 
-#endif

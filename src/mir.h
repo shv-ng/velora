@@ -1,5 +1,4 @@
-#ifndef MIR_H
-#define MIR_H
+#pragma once
 
 enum MirOp {
   MIR_CONST,
@@ -25,4 +24,3 @@ struct MirFunc {
   int count;
 };
 
-#endif

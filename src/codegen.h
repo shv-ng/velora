@@ -1,5 +1,4 @@
-#ifndef CODEGEN_H
-#define CODEGEN_H
+#pragma once
 
 #include "ast.h"
 #include "sema.h"
@@ -24,4 +23,3 @@ struct CodegenCtx codegen_new(struct SemaCtx *sema);
 void codegen_emit(struct CodegenCtx *ctx, struct AstNode *root);
 void codegen_free(struct CodegenCtx *ctx);
 
-#endif

@@ -1,6 +1,4 @@
-#ifndef CLI_H
-#define CLI_H
+#pragma once
 
 int cli_new(int argc, char *argv[]);
 
-#endif

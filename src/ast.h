@@ -1,5 +1,4 @@
-#ifndef AST_H
-#define AST_H
+#pragma once
 
 #include "lexer.h"
 #include <stdbool.h>
@@ -75,5 +74,3 @@ struct Parser parser_new(struct Lexer *l);
 struct AstNode *parse_program(struct Parser *p);
 
 void print_ast(struct AstNode *node, int indent);
-
-#endif

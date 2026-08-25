@@ -1,5 +1,4 @@
-#ifndef ERROR_H
-#define ERROR_H
+#pragma once
 
 #include "lexer.h"
 
@@ -49,4 +48,3 @@ struct Error {
 void print_error(struct Error error, const char *file_name,
                  const char *contents);
 
-#endif
