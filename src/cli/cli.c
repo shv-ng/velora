@@ -1,12 +1,9 @@
-#include "arena.h"
-#include "ast.h"
-#include "codegen.h"
-#include "file.h"
-#include "lexer.h"
-#include "sema.h"
+#include "cli.h"
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #ifndef VERSION
 #define VERSION "dev"
 #endif
@@ -18,8 +15,6 @@
 #ifndef DATE
 #define DATE "unknown"
 #endif
-
-#include <stdio.h>
 
 static int execute_build(int argc, char *argv[]) {
   if (argc < 2) {
