@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../error.h"
+#include "../error/error.h"
 #include "codegen.h"
 
 void codegen_func(struct CodegenCtx *ctx, struct AstNode *node);

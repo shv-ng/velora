@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../arena.h"
-#include "../error.h"
+#include "../error/error.h"
 #include "parser.h"
 
 void advance(struct Parser *p);

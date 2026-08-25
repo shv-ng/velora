@@ -1,5 +1,6 @@
 #pragma once
 
+#include "error/error.h"
 #include <stddef.h>
 #include <stdio.h>
 
@@ -26,4 +27,3 @@ void *arena_realloc(struct Arena *a, void *ptr, size_t old_size,
 char *arena_strdup(struct Arena *a, const char *s);
 char *arena_strndup(struct Arena *a, const char *s, size_t size);
 void arena_free(struct Arena *a);
-

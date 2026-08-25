@@ -3,7 +3,7 @@
 #include "../arena.h"
 #include "../ast/ast.h"
 #include "../hashmap.h"
-#include "../types.h"
+#include "../types/types.h"
 
 enum SymbolKind {
   SYMBOL_VAR,

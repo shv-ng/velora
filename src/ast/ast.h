@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../token/token.h"
-#include "../types.h"
+#include "../types/types.h"
 #include "ast_block.h"
 #include "ast_function.h"
 #include "ast_literals.h"

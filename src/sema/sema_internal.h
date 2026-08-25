@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../error.h"
+#include "../error/error.h"
 #include "sema.h"
 
 void sema_node(struct SemaCtx *sema, struct AstNode *node, struct Type *hint);

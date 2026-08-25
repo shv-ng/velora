@@ -3,7 +3,7 @@
 #include "../arena.h"
 #include "../ast/ast.h"
 #include "../parser/parser.h"
-#include "../types.h"
+#include "../types/types.h"
 #include "symbol.h"
 
 struct SemaCtx {
