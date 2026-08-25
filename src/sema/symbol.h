@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../arena.h"
 #include "../ast/ast.h"
-#include "../hashmap.h"
 #include "../types/types.h"
+#include "../utils/arena.h"
+#include "../utils/hashmap.h"
 
 enum SymbolKind {
   SYMBOL_VAR,

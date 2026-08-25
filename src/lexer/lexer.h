@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../arena.h"
 #include "../token/token.h"
+#include "../utils/arena.h"
 #include <stdint.h>
 #include <sys/types.h>
 

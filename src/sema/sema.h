@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../arena.h"
 #include "../ast/ast.h"
 #include "../parser/parser.h"
 #include "../types/types.h"
+#include "../utils/arena.h"
 #include "symbol.h"
 
 struct SemaCtx {

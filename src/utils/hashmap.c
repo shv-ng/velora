@@ -1,6 +1,5 @@
 #include "hashmap.h"
 #include "arena.h"
-#include <stdlib.h>
 #include <string.h>
 
 static unsigned long hash(const char *str, int capacity) {

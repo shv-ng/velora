@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../arena.h"
+#include "../utils/arena.h"
 #include "../error/error.h"
 #include "parser.h"
 
