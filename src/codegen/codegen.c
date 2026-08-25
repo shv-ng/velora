@@ -1,104 +1,7 @@
-
-#include "codegen.h"
-#include "ast.h"
-#include "error.h"
-#include "sema.h"
-#include "types.h"
+#include "codegen_internal.h"
 #include <llvm-c/Analysis.h>
-#include <llvm-c/Core.h>
-#include <llvm-c/Target.h>
 #include <llvm-c/TargetMachine.h>
-#include <llvm-c/Types.h>
 #include <stdlib.h>
-#include <sys/wait.h>
-
-void codegen_stmt(struct CodegenCtx *ctx, struct AstNode *node);
-
-static LLVMTypeRef type_to_llvm(struct CodegenCtx *ctx, struct Type *type) {
-  switch (type->kind) {
-  case TYPE_I8:
-    return LLVMInt8TypeInContext(ctx->context);
-  case TYPE_I32:
-    return LLVMInt32TypeInContext(ctx->context);
-  case TYPE_VOID:
-    return LLVMVoidTypeInContext(ctx->context);
-  case TYPE_UNKNOWN:
-  case TYPE_FUNC:
-    return NULL;
-  }
-}
-
-static LLVMValueRef codegen_int_literal(struct CodegenCtx *ctx,
-                                        struct AstNode *node) {
-  LLVMTypeRef t = type_to_llvm(ctx, node->resolved_type);
-  return LLVMConstInt(t, (unsigned long long)node->as.int_literal.value, 1);
-}
-
-LLVMValueRef codegen_expr(struct CodegenCtx *ctx, struct AstNode *node) {
-  switch (node->kind) {
-  case AST_INT_LITERAL:
-    return codegen_int_literal(ctx, node);
-  default:
-    ctx->error_count += 1;
-
-    struct Error err = {.span = node->span,
-                        .kind = ERR_CODEGEN,
-                        .as.codegen = (struct ErrCodegen){
-                            .message = "unhandled node kind in expr"}};
-
-    print_error(err, ctx->file_name, ctx->contents);
-
-    break;
-  }
-  return NULL;
-}
-
-void codegen_return(struct CodegenCtx *ctx, struct AstNode *node) {
-  LLVMValueRef value = codegen_expr(ctx, node->as.return_stmt.expr);
-  LLVMBuildRet(ctx->builder, value);
-}
-
-void codegen_block(struct CodegenCtx *ctx, struct AstNode *node) {
-  for (int i = 0; i < node->as.block.count; i++) {
-    codegen_stmt(ctx, node->as.block.statements[i]);
-  }
-}
-
-void codegen_stmt(struct CodegenCtx *ctx, struct AstNode *node) {
-  switch (node->kind) {
-  case AST_BLOCK_DECL:
-    codegen_block(ctx, node);
-    break;
-  case AST_RETURN_STMT:
-    codegen_return(ctx, node);
-    break;
-  default:
-    ctx->error_count += 1;
-
-    struct Error err = {
-        .span = node->span,
-        .kind = ERR_CODEGEN,
-        .as.codegen = (struct ErrCodegen){.message = "unhandled node in stmt"}};
-
-    print_error(err, ctx->file_name, ctx->contents);
-
-    break;
-  }
-}
-void codegen_func(struct CodegenCtx *ctx, struct AstNode *node) {
-  LLVMTypeRef ret_type = type_to_llvm(ctx, node->resolved_type);
-  LLVMTypeRef func_type = LLVMFunctionType(ret_type, NULL, 0, 0);
-
-  LLVMValueRef func =
-      LLVMAddFunction(ctx->module, node->as.function.name, func_type);
-  ctx->current_func = func;
-
-  LLVMBasicBlockRef entry =
-      LLVMAppendBasicBlockInContext(ctx->context, func, "entry");
-  LLVMPositionBuilderAtEnd(ctx->builder, entry);
-
-  codegen_stmt(ctx, node->as.function.block);
-}
 
 struct CodegenCtx codegen_new(struct SemaCtx *sema) {
 
@@ -112,6 +15,23 @@ struct CodegenCtx codegen_new(struct SemaCtx *sema) {
   ctx.error_count = 0;
 
   return ctx;
+}
+
+void codegen_emit(struct CodegenCtx *ctx, struct AstNode *root) {
+  for (int i = 0; i < root->as.program.count; i++) {
+    struct AstNode *decl = root->as.program.declaration[i];
+
+    switch (decl->kind) {
+    case AST_FUNCTION_DECL:
+      codegen_func(ctx, decl);
+      break;
+
+    default:
+      break;
+    }
+  }
+
+  codegen_binary(ctx);
 }
 
 void codegen_binary(struct CodegenCtx *ctx) {
@@ -188,23 +108,6 @@ void codegen_binary(struct CodegenCtx *ctx) {
 
     print_error(error, ctx->file_name, ctx->contents);
   }
-}
-
-void codegen_emit(struct CodegenCtx *ctx, struct AstNode *root) {
-  for (int i = 0; i < root->as.program.count; i++) {
-    struct AstNode *decl = root->as.program.declaration[i];
-
-    switch (decl->kind) {
-    case AST_FUNCTION_DECL:
-      codegen_func(ctx, decl);
-      break;
-
-    default:
-      break;
-    }
-  }
-
-  codegen_binary(ctx);
 }
 
 void codegen_free(struct CodegenCtx *ctx) {
