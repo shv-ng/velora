@@ -1,10 +1,9 @@
 #pragma once
 
-#include "arena.h"
-#include "ast.h"
-#include "hashmap.h"
-#include "types.h"
-#include <stdbool.h>
+#include "../arena.h"
+#include "../ast/ast.h"
+#include "../hashmap.h"
+#include "../types.h"
 
 enum SymbolKind {
   SYMBOL_VAR,
@@ -32,4 +31,3 @@ struct Scope *scope_new(struct Arena *a, struct Scope *parent);
 struct Symbol *scope_define(struct Scope *s, const char *name,
                             struct Symbol *sym);
 struct Symbol *scope_lookup(struct Scope *s, const char *name);
-

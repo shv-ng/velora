@@ -1,6 +1,4 @@
-
 #include "symbol.h"
-#include "hashmap.h"
 #include <stdlib.h>
 
 struct Scope *scope_new(struct Arena *a, struct Scope *parent) {

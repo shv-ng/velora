@@ -1,6 +1,9 @@
 #pragma once
 
-#include "ast.h"
+#include "../arena.h"
+#include "../ast/ast.h"
+#include "../parser/parser.h"
+#include "../types.h"
 #include "symbol.h"
 
 struct SemaCtx {
@@ -16,4 +19,3 @@ struct SemaCtx {
 
 struct SemaCtx sema_new(struct Parser *p);
 void sema_check(struct SemaCtx *sema, struct AstNode *root);
-
