@@ -42,7 +42,7 @@ void sema_node(struct SemaCtx *sema, struct AstNode *node, struct Type *hint) {
     sema_func(sema, node);
     break;
   case AST_BLOCK_DECL:
-    sema_block(sema, node);
+    sema_block(sema, node, hint);
     break;
   case AST_RETURN_STMT:
     sema_return_stmt(sema, node);

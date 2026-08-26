@@ -7,7 +7,7 @@ static void indentation(int indent) {
 }
 
 void print_ast(struct AstNode *node, int indent) {
-  if (node == NULL)
+  if (!node)
     return;
 
   indentation(indent);
@@ -39,6 +39,9 @@ void print_ast(struct AstNode *node, int indent) {
     for (int i = 0; i < node->as.block.count; i++) {
       print_ast(node->as.block.statements[i], indent + 1);
     }
+    if (node->as.block.trailing_expr) {
+      print_ast(node->as.block.trailing_expr, indent + 1);
+    }
     break;
   case AST_RETURN_STMT:
     printf("AstReturnStmt: (resolved_type: %s)\n",
@@ -48,6 +51,10 @@ void print_ast(struct AstNode *node, int indent) {
   case AST_INT_LITERAL:
     printf("AstIntLiteral: (value: %lld, resolved_type: %s)\n",
            node->as.int_literal.value, type_str(node->resolved_type));
+    break;
+  case AST_EXPR_STMT:
+    printf("AstExprStmt: (resolved_type: %s)\n", type_str(node->resolved_type));
+    print_ast(node->as.expr_stmt.expr, indent + 1);
     break;
   }
 }

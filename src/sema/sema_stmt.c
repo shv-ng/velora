@@ -1,6 +1,6 @@
 #include "sema_internal.h"
 
-void sema_block(struct SemaCtx *sema, struct AstNode *node) {
+void sema_block(struct SemaCtx *sema, struct AstNode *node, struct Type *hint) {
   struct Scope *prev = sema->current_scope;
 
   sema->current_scope = scope_new(sema->arena, sema->current_scope);
@@ -10,9 +10,9 @@ void sema_block(struct SemaCtx *sema, struct AstNode *node) {
     sema_node(sema, node->as.block.statements[i], NULL);
   }
 
-  if (node->as.block.count > 0) {
-    node->resolved_type =
-        node->as.block.statements[node->as.block.count - 1]->resolved_type;
+  if (node->as.block.trailing_expr != NULL) {
+    sema_node(sema, node->as.block.trailing_expr, hint);
+    node->resolved_type = node->as.block.trailing_expr->resolved_type;
   }
 
   sema->current_scope = prev;

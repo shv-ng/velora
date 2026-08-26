@@ -3,6 +3,7 @@
 #include "../token/token.h"
 #include "../types/types.h"
 #include "ast_block.h"
+#include "ast_expr_stmt.h"
 #include "ast_function.h"
 #include "ast_literals.h"
 #include "ast_program.h"
@@ -21,6 +22,8 @@ enum AstKind {
   AST_BLOCK_DECL, // {...}
 
   AST_RETURN_STMT, // return ...;
+  AST_EXPR_STMT,   // expr ;
+
   AST_INT_LITERAL, // 42
 };
 
@@ -35,6 +38,7 @@ struct AstNode {
     struct AstTypeNamed type_named;
     struct AstBlockDecl block;
     struct AstReturnStmt return_stmt;
+    struct AstExprStmt expr_stmt;
     struct AstIntLiteral int_literal;
   } as;
 };
