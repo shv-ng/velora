@@ -98,12 +98,19 @@ void print_error(struct Error error, const char *file_name,
             error.as.type_mismatch.expected, error.as.type_mismatch.found,
             ANSI_COLOR_RESET);
     break;
+  case ERR_MISSING_RETURN:
+    fprintf(stderr,
+            "%sfunction '%s' must return '%s' but has no return "
+            "statement%s\n",
+            ANSI_COLOR_BOLD, error.as.missing_return.fn_name,
+            error.as.missing_return.expected, ANSI_COLOR_RESET);
+    break;
   case ERR_CODEGEN:
-    fprintf(stderr, "%scodegen error: %s%s\n", ANSI_COLOR_BOLD,
+    fprintf(stderr, "%scodegen: %s%s\n", ANSI_COLOR_BOLD,
             error.as.codegen.message, ANSI_COLOR_RESET);
     break;
   case ERR_MEMORY:
-    fprintf(stderr, "%smemory error: %s%s\n", ANSI_COLOR_BOLD,
+    fprintf(stderr, "%smemory: %s%s\n", ANSI_COLOR_BOLD,
             error.as.memory.message, ANSI_COLOR_RESET);
     break;
   }

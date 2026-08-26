@@ -74,9 +74,8 @@ struct AstNode *parse_block(struct Parser *p, char *name) {
   block->as.block.statements = statements;
   block->as.block.count = count;
 
-  expect(p, TOK_RBRACE);
-
   struct Span end = p->current_token.span;
+  expect(p, TOK_RBRACE);
 
   block->span = merge_span(start, end);
 
