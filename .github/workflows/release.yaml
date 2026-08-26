@@ -55,7 +55,7 @@ jobs:
           fi
 
           mkdir -p dist
-          clang ./src/*.c \
+          clang ./src/*.c ./src/*/*.c\
             -o dist/${{ matrix.artifact }} \
             -Wall -Wextra \
             -DVERSION=\"${{ github.ref_name }}\" \
