@@ -3,6 +3,7 @@
 void sema_unary_expr(struct SemaCtx *sema, struct AstNode *node,
                      struct Type *hint) {
   sema_node(sema, node->as.unary_expr.expr, hint);
+
   node->resolved_type = node->as.unary_expr.expr->resolved_type;
 }
 
