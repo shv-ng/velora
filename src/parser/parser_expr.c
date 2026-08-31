@@ -48,11 +48,11 @@ static int infix_bp(enum TokenKind kind) {
   case TOK_SLASH:
   case TOK_MODULO:
     return 20;
-  case TOK_LEFT_SHIFT:
-  case TOK_RIGHT_SHIFT:
-    return 15;
   case TOK_PLUS:
   case TOK_MINUS:
+    return 15;
+  case TOK_LEFT_SHIFT:
+  case TOK_RIGHT_SHIFT:
     return 10;
   case TOK_CARET:
     return 5;
