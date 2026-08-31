@@ -1,5 +1,5 @@
 (* Program Structure *)
-program             = package_decl import_decl* declaration*
+program             = package_decl import_decl * declaration* 
 
 package_decl        = 'package' identifier ';'
 

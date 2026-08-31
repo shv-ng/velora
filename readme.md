@@ -14,7 +14,7 @@ A programming language.
 
 ## Install
 
-Download the latest binary from [releases](https://github.com/shv-ng/velora/releases).
+Download the latest binary from [releases](https://github.com/shv-ng/velora/releases). 
 
 ### Linux
 ```bash

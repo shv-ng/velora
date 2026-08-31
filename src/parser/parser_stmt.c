@@ -8,7 +8,7 @@ struct AstNode *parse_return_stmt(struct Parser *p) {
   struct AstNode *return_stmt = astnode_new(p, AST_RETURN_STMT);
 
   if (p->current_token.kind != TOK_SEMICOLON) {
-    return_stmt->as.return_stmt.expr = parse_expr(p);
+    return_stmt->as.return_stmt.expr = parse_expr(p, 0);
   }
 
   struct Span end = p->current_token.span;
@@ -43,7 +43,7 @@ struct AstNode *parse_block(struct Parser *p, char *name) {
       break;
     default: {
       // try it as expr first
-      struct AstNode *expr = parse_expr(p);
+      struct AstNode *expr = parse_expr(p, 0);
       // it's statement
       if (p->current_token.kind == TOK_SEMICOLON) {
         advance(p);

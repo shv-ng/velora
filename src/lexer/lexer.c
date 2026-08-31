@@ -79,6 +79,54 @@ struct Token next_token(struct Lexer *l) {
   case '}':
     advance(l);
     return make_tok(l, TOK_RBRACE);
+  case '+':
+    advance(l);
+    return make_tok(l, TOK_PLUS);
+  case '-':
+    advance(l);
+    return make_tok(l, TOK_MINUS);
+  case '*':
+    advance(l);
+    return make_tok(l, TOK_STAR);
+  case '/':
+    advance(l);
+    return make_tok(l, TOK_SLASH);
+  case '%':
+    advance(l);
+    return make_tok(l, TOK_MODULO);
+  case '&':
+    advance(l);
+    return make_tok(l, TOK_AMPERSAND);
+  case '|':
+    advance(l);
+    return make_tok(l, TOK_PIPE);
+  case '^':
+    advance(l);
+    return make_tok(l, TOK_CARET);
+  case '~':
+    advance(l);
+    return make_tok(l, TOK_TIDLE);
+  case '!':
+    advance(l);
+    return make_tok(l, TOK_BANG);
+  case '<': {
+    advance(l);
+    c = peek(l);
+    if (c == '<') {
+      advance(l);
+      return make_tok(l, TOK_LEFT_SHIFT);
+    }
+    return make_tok(l, TOK_LEFT_ARROW);
+  }
+  case '>': {
+    advance(l);
+    c = peek(l);
+    if (c == '>') {
+      advance(l);
+      return make_tok(l, TOK_RIGHT_SHIFT);
+    }
+    return make_tok(l, TOK_RIGHT_ARROW);
+  }
   }
 
   if (isdigit(c)) {
@@ -121,3 +169,4 @@ struct Token next_token(struct Lexer *l) {
   advance(l);
   return make_tok(l, TOK_ERROR);
 }
+

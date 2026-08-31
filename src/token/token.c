@@ -27,7 +27,35 @@ char *token_kind_str(enum TokenKind kind) {
   case TOK_KW_RETURN:
     return "'return' keyword";
   case TOK_KW_FUNC:
-    return "'fn' Keyword";
+    return "'fn' keyword";
+  case TOK_PLUS:
+    return "'+' symbol";
+  case TOK_MINUS:
+    return "'-' symbol";
+  case TOK_STAR:
+    return "'*' symbol";
+  case TOK_SLASH:
+    return "'/' symbol";
+  case TOK_MODULO:
+    return "'%' symbol";
+  case TOK_AMPERSAND:
+    return "'&' symbol";
+  case TOK_PIPE:
+    return "'|' symbol";
+  case TOK_CARET:
+    return "'^' symbol";
+  case TOK_TIDLE:
+    return "'~' symbol";
+  case TOK_LEFT_SHIFT:
+    return "'<<' symbol";
+  case TOK_RIGHT_SHIFT:
+    return "'>>' symbol";
+  case TOK_BANG:
+    return "'!' symbol";
+  case TOK_LEFT_ARROW:
+    return "'<' symbol";
+  case TOK_RIGHT_ARROW:
+    return "'>' symbol";
   }
 }
 

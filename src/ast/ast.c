@@ -1,5 +1,44 @@
 #include "ast.h"
+#include "ast_binary_expr.h"
+#include "ast_unary_expr.h"
 #include <stdio.h>
+
+static char *unaryop_to_str(enum UnaryOp op) {
+  switch (op) {
+  case OP_NEGATIVE:
+    return "-";
+  case OP_BITWISE_NOT:
+    return "~";
+  case OP_UNKNOWN_UNARY_OP:
+    return "unknown";
+  }
+}
+static char *binaryop_to_str(enum BinaryOp op) {
+  switch (op) {
+  case OP_ADD:
+    return "+";
+  case OP_SUB:
+    return "-";
+  case OP_MULIPLY:
+    return "*";
+  case OP_DIVIDE:
+    return "/";
+  case OP_MODULO:
+    return "%";
+  case OP_LEFT_SHIFT:
+    return "<<";
+  case OP_RIGHT_SHIFT:
+    return ">>";
+  case OP_BITWISE_XOR:
+    return "^";
+  case OP_BITWISE_OR:
+    return "|";
+  case OP_BITWISE_AND:
+    return "&";
+  case OP_UNKNOWN_BINARY_OP:
+    return "unknown";
+  }
+}
 
 static void indentation(int indent) {
   for (int i = 0; i < indent; i++)
@@ -56,5 +95,17 @@ void print_ast(struct AstNode *node, int indent) {
     printf("AstExprStmt: (resolved_type: %s)\n", type_str(node->resolved_type));
     print_ast(node->as.expr_stmt.expr, indent + 1);
     break;
+  case AST_BINARY_EXPR:
+    printf("AstBinaryExpr: (op: %s, resolved_type: %s)\n",
+           binaryop_to_str(node->as.binary_expr.op),
+           type_str(node->resolved_type));
+    print_ast(node->as.binary_expr.left, indent + 1);
+    print_ast(node->as.binary_expr.right, indent + 1);
+
+  case AST_UNARY_EXPR:
+    printf("AstUnaryExpr: (op: %s, is_prefix: %d, resolved_type: %s)\n",
+           unaryop_to_str(node->as.unary_expr.op),
+           node->as.unary_expr.is_prefix, type_str(node->resolved_type));
+    print_ast(node->as.unary_expr.expr, indent + 1);
   }
 }
