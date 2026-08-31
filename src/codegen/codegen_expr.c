@@ -30,7 +30,7 @@ LLVMValueRef codegen_binary_expr(struct CodegenCtx *ctx, struct AstNode *node) {
   case OP_BITWISE_OR:
     return LLVMBuildOr(ctx->builder, left_val, right_val, "or");
   case OP_BITWISE_AND:
-    return LLVMBuildOr(ctx->builder, left_val, right_val, "and");
+    return LLVMBuildAnd(ctx->builder, left_val, right_val, "and");
   default:
     return NULL;
   }
