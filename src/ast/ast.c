@@ -101,11 +101,13 @@ void print_ast(struct AstNode *node, int indent) {
            type_str(node->resolved_type));
     print_ast(node->as.binary_expr.left, indent + 1);
     print_ast(node->as.binary_expr.right, indent + 1);
+    break;
 
   case AST_UNARY_EXPR:
     printf("AstUnaryExpr: (op: %s, is_prefix: %d, resolved_type: %s)\n",
            unaryop_to_str(node->as.unary_expr.op),
            node->as.unary_expr.is_prefix, type_str(node->resolved_type));
     print_ast(node->as.unary_expr.expr, indent + 1);
+    break;
   }
 }

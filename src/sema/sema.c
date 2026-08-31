@@ -53,6 +53,12 @@ void sema_node(struct SemaCtx *sema, struct AstNode *node, struct Type *hint) {
   case AST_TYPE_NAMED:
     node->resolved_type = resolve_type_node(node);
     break;
+  case AST_BINARY_EXPR:
+    sema_binary_expr(sema, node, hint);
+    break;
+  case AST_UNARY_EXPR:
+    sema_unary_expr(sema, node, hint);
+    break;
   default:
     break;
   }
