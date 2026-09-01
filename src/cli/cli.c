@@ -38,6 +38,7 @@ static int execute_build(int argc, char *argv[]) {
     goto cleanup;
   }
 
+
   struct Lexer lexer = lexer_new(a, file_name, contents);
   struct Parser parser = parser_new(&lexer);
 

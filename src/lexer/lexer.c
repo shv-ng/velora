@@ -1,10 +1,5 @@
-#include "lexer.h"
+#include "lexer_internal.h"
 #include <ctype.h>
-#include <string.h>
-
-static char advance(struct Lexer *l);
-static void skip_whitespace(struct Lexer *l);
-static struct Token make_tok(struct Lexer *l, enum TokenKind kind);
 
 struct Lexer lexer_new(struct Arena *a, char *file_name, char *contents) {
   return (struct Lexer){
@@ -14,39 +9,6 @@ struct Lexer lexer_new(struct Arena *a, char *file_name, char *contents) {
       .pos = 0,
       .current_span = (struct Span){
           .start_col = 1, .end_col = 1, .start_line = 1, .end_line = 1}};
-}
-
-static char peek(struct Lexer *l) { return l->contents[l->pos]; };
-static char peek_next(struct Lexer *l) { return l->contents[l->pos + 1]; };
-
-static char advance(struct Lexer *l) {
-  char c = peek(l);
-  if (c == '\n' || c == '\r') {
-
-    l->current_span.end_line++;
-    l->current_span.end_col = 1;
-
-    if (c == '\r' && peek_next(l) == '\n') {
-      l->pos++;
-    }
-  } else {
-    l->current_span.end_col++;
-  }
-
-  l->pos++;
-  return c;
-};
-
-static void skip_whitespace(struct Lexer *l) {
-  while (peek(l) == ' ' || peek(l) == '\t' || peek(l) == '\n' ||
-         peek(l) == '\r')
-
-    advance(l);
-};
-
-static struct Token make_tok(struct Lexer *l, enum TokenKind kind) {
-  return (struct Token){
-      .file_name = l->file_name, .span = l->current_span, .kind = kind};
 }
 
 struct Token next_token(struct Lexer *l) {
@@ -130,43 +92,13 @@ struct Token next_token(struct Lexer *l) {
   }
 
   if (isdigit(c)) {
-    int start = l->pos;
-    while (isdigit(peek(l))) {
-      advance(l);
-    }
-    int length = l->pos - start;
-
-    struct Token t = make_tok(l, TOK_INT_LITERAL);
-    t.val = arena_strndup(l->arena, l->contents + start, length);
-    return t;
+    return lexer_num(l);
   }
 
   if (isalpha(c) || c == '_') {
-    int start = l->pos;
-    while (isalpha(peek(l)) || isdigit(peek(l)) || peek(l) == '_') {
-      advance(l);
-    }
-    int length = l->pos - start;
-
-    struct Token t = make_tok(l, TOK_IDENTIFIER);
-    t.val = arena_strndup(l->arena, l->contents + start, length);
-
-    static struct Keyword keywords[] = {
-        {"return", TOK_KW_RETURN},
-        {"fn", TOK_KW_FUNC},
-        {NULL, 0},
-    };
-
-    for (int k = 0; keywords[k].word; k++) {
-      if (strcmp(t.val, keywords[k].word) == 0) {
-        t.kind = keywords[k].kind;
-        break;
-      }
-    }
-    return t;
+    return lexer_identifier(l); // it'll also handle keywords
   }
 
   advance(l);
   return make_tok(l, TOK_ERROR);
 }
-
