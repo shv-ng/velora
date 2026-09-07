@@ -4,7 +4,7 @@
 struct Token lexer_num(struct Lexer *l) {
   int start = l->pos;
   while (isdigit(peek(l))) {
-    advance(l);
+    lexer_advance(l);
   }
   int length = l->pos - start;
 

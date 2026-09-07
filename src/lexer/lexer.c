@@ -24,67 +24,67 @@ struct Token next_token(struct Lexer *l) {
   case '\0':
     return make_tok(l, TOK_EOF);
   case ';':
-    advance(l);
+    lexer_advance(l);
     return make_tok(l, TOK_SEMICOLON);
   case ':':
-    advance(l);
+    lexer_advance(l);
     return make_tok(l, TOK_COLON);
   case '(':
-    advance(l);
+    lexer_advance(l);
     return make_tok(l, TOK_LPAREN);
   case ')':
-    advance(l);
+    lexer_advance(l);
     return make_tok(l, TOK_RPAREN);
   case '{':
-    advance(l);
+    lexer_advance(l);
     return make_tok(l, TOK_LBRACE);
   case '}':
-    advance(l);
+    lexer_advance(l);
     return make_tok(l, TOK_RBRACE);
   case '+':
-    advance(l);
+    lexer_advance(l);
     return make_tok(l, TOK_PLUS);
   case '-':
-    advance(l);
+    lexer_advance(l);
     return make_tok(l, TOK_MINUS);
   case '*':
-    advance(l);
+    lexer_advance(l);
     return make_tok(l, TOK_STAR);
   case '/':
-    advance(l);
+    lexer_advance(l);
     return make_tok(l, TOK_SLASH);
   case '%':
-    advance(l);
+    lexer_advance(l);
     return make_tok(l, TOK_MODULO);
   case '&':
-    advance(l);
+    lexer_advance(l);
     return make_tok(l, TOK_AMPERSAND);
   case '|':
-    advance(l);
+    lexer_advance(l);
     return make_tok(l, TOK_PIPE);
   case '^':
-    advance(l);
+    lexer_advance(l);
     return make_tok(l, TOK_CARET);
   case '~':
-    advance(l);
+    lexer_advance(l);
     return make_tok(l, TOK_TIDLE);
   case '!':
-    advance(l);
+    lexer_advance(l);
     return make_tok(l, TOK_BANG);
   case '<': {
-    advance(l);
+    lexer_advance(l);
     c = peek(l);
     if (c == '<') {
-      advance(l);
+      lexer_advance(l);
       return make_tok(l, TOK_LEFT_SHIFT);
     }
     return make_tok(l, TOK_LEFT_ARROW);
   }
   case '>': {
-    advance(l);
+    lexer_advance(l);
     c = peek(l);
     if (c == '>') {
-      advance(l);
+      lexer_advance(l);
       return make_tok(l, TOK_RIGHT_SHIFT);
     }
     return make_tok(l, TOK_RIGHT_ARROW);
@@ -99,6 +99,6 @@ struct Token next_token(struct Lexer *l) {
     return lexer_identifier(l); // it'll also handle keywords
   }
 
-  advance(l);
+  lexer_advance(l);
   return make_tok(l, TOK_ERROR);
 }

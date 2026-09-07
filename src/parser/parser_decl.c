@@ -5,10 +5,26 @@ struct AstNode *parse_declaration(struct Parser *p) {
   expect(p, TOK_IDENTIFIER);
   expect(p, TOK_COLON);
 
-  if (p->current_token.kind == TOK_KW_FUNC) {
+  switch (p->current_token.kind) {
+  case TOK_KW_FUNC:
     return parse_func_decl(p, name_tok.val);
+  case TOK_IDENTIFIER:
+    return parse_type(p);
+
+  default: {
+    struct Error err = {
+        .kind = ERR_SYNTAX,
+        .span = p->current_token.span,
+        .as.syntax.found = token_kind_str(p->current_token.kind),
+    };
+
+    print_error(err, p->lexer->file_name, p->lexer->contents);
+    p->error_count++;
+
+    parser_advance(p);
+    return NULL;
   }
-  return NULL;
+  }
 }
 
 struct AstNode *parse_func_decl(struct Parser *p, char *name) {

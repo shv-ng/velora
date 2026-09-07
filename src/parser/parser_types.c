@@ -19,7 +19,7 @@ struct AstNode *parse_type(struct Parser *p) {
         .as.syntax.found = token_kind_str(p->current_token.kind),
     };
     print_error(err, p->lexer->file_name, p->lexer->contents);
-    advance(p);
+    parser_advance(p);
     p->error_count++;
   }
   struct Span end = p->current_token.span;

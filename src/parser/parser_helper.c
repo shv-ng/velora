@@ -7,7 +7,7 @@ struct AstNode *astnode_new(struct Parser *p, enum AstKind kind) {
   return node;
 }
 
-void advance(struct Parser *p) {
+void parser_advance(struct Parser *p) {
   p->current_token = p->next_token;
   p->next_token = next_token(p->lexer);
 }
@@ -17,7 +17,7 @@ void synchronise(struct Parser *p) {
   while (p->current_token.kind != TOK_EOF) {
     switch (p->current_token.kind) {
     case TOK_SEMICOLON:
-      advance(p);
+      parser_advance(p);
       return;
 
     case TOK_EOF:
@@ -26,14 +26,14 @@ void synchronise(struct Parser *p) {
       return;
 
     default:
-      advance(p);
+      parser_advance(p);
     }
   }
 }
 
 void expect(struct Parser *p, enum TokenKind kind) {
   if (p->current_token.kind == kind) {
-    advance(p);
+    parser_advance(p);
     return;
   }
 

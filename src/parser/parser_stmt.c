@@ -41,16 +41,22 @@ struct AstNode *parse_block(struct Parser *p, char *name) {
     case TOK_KW_RETURN:
       stmt = parse_return_stmt(p);
       break;
+    case TOK_IDENTIFIER:
+      stmt = parse_declaration(p);
+      break;
     default: {
       // try it as expr first
       struct AstNode *expr = parse_expr(p, 0);
       // it's statement
       if (p->current_token.kind == TOK_SEMICOLON) {
-        advance(p);
+        parser_advance(p);
         stmt = astnode_new(p, AST_EXPR_STMT);
         stmt->as.expr_stmt.expr = expr;
+
+      // it's a trailing_expr
       } else if (p->current_token.kind == TOK_RBRACE) {
         block->as.block.trailing_expr = expr;
+
       } else {
         struct Error err = {
             .kind = ERR_SYNTAX,

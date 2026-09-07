@@ -5,7 +5,7 @@
 struct Token lexer_identifier(struct Lexer *l) {
   int start = l->pos;
   while (isalpha(peek(l)) || isdigit(peek(l)) || peek(l) == '_') {
-    advance(l);
+    lexer_advance(l);
   }
   int length = l->pos - start;
 

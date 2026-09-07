@@ -5,7 +5,7 @@
 #include "../utils/da.h"
 #include "parser.h"
 
-void advance(struct Parser *p);
+void parser_advance(struct Parser *p);
 void synchronise(struct Parser *p);
 void expect(struct Parser *p, enum TokenKind kind);
 

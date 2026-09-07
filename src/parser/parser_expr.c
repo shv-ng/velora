@@ -74,7 +74,7 @@ struct AstNode *parse_expr(struct Parser *p, int min_bp) {
 
     node->as.unary_expr.op = token_to_unaryOp(p->current_token.kind);
 
-    advance(p);
+    parser_advance(p);
     node->as.unary_expr.is_prefix = true;
     node->as.unary_expr.expr = parse_expr(p, 100);
 
@@ -88,7 +88,7 @@ struct AstNode *parse_expr(struct Parser *p, int min_bp) {
     if (bp <= min_bp)
       break;
     enum BinaryOp op = token_to_binaryOp(p->current_token.kind);
-    advance(p);
+    parser_advance(p);
 
     struct AstNode *right = parse_expr(p, bp);
 

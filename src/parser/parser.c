@@ -39,7 +39,7 @@ struct AstNode *parse_program(struct Parser *p) {
       print_error(err, p->lexer->file_name, p->lexer->contents);
       p->error_count++;
 
-      advance(p);
+      parser_advance(p);
     }
   }
 

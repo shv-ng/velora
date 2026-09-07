@@ -15,7 +15,7 @@ struct AstNode *parse_primary(struct Parser *p) {
   }
 
   if (p->current_token.kind == TOK_LPAREN) {
-    advance(p);
+    parser_advance(p);
 
     struct AstNode *expr = parse_expr(p, 0);
 

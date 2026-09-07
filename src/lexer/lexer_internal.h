@@ -2,7 +2,7 @@
 
 #include "lexer.h"
 
-char advance(struct Lexer *l);
+char lexer_advance(struct Lexer *l);
 char peek(struct Lexer *l);
 char peek_next(struct Lexer *l);
 

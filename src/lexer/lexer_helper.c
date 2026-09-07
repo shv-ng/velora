@@ -3,7 +3,7 @@
 char peek(struct Lexer *l) { return l->contents[l->pos]; };
 char peek_next(struct Lexer *l) { return l->contents[l->pos + 1]; };
 
-char advance(struct Lexer *l) {
+char lexer_advance(struct Lexer *l) {
   char c = peek(l);
   if (c == '\n' || c == '\r') {
 
@@ -25,7 +25,7 @@ void skip_whitespace(struct Lexer *l) {
   while (peek(l) == ' ' || peek(l) == '\t' || peek(l) == '\n' ||
          peek(l) == '\r')
 
-    advance(l);
+    lexer_advance(l);
 };
 
 struct Token make_tok(struct Lexer *l, enum TokenKind kind) {
