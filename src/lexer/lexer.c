@@ -71,6 +71,9 @@ struct Token next_token(struct Lexer *l) {
   case '!':
     lexer_advance(l);
     return make_tok(l, TOK_BANG);
+  case '=':
+    lexer_advance(l);
+    return make_tok(l, TOK_EQUAL);
   case '<': {
     lexer_advance(l);
     c = peek(l);

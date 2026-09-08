@@ -109,5 +109,15 @@ void print_ast(struct AstNode *node, int indent) {
            node->as.unary_expr.is_prefix, type_str(node->resolved_type));
     print_ast(node->as.unary_expr.expr, indent + 1);
     break;
+  case AST_VAR_DECL:
+    printf("AstVarDecl: (name: %s, resolved_type: %s)\n",
+           node->as.var_decl.name, type_str(node->resolved_type));
+    print_ast(node->as.var_decl.type, indent + 1);
+    print_ast(node->as.var_decl.expr, indent + 1);
+    break;
+  case AST_IDENTIFIER:
+    printf("AstIdentifier: (name: %s, resolved_type: %s)\n",
+           node->as.identifer.name, type_str(node->resolved_type));
+    break;
   }
 }

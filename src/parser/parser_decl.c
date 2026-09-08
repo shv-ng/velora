@@ -1,15 +1,21 @@
+#include "parser.h"
 #include "parser_internal.h"
 
 struct AstNode *parse_declaration(struct Parser *p) {
   struct Token name_tok = p->current_token;
+
   expect(p, TOK_IDENTIFIER);
   expect(p, TOK_COLON);
 
   switch (p->current_token.kind) {
   case TOK_KW_FUNC:
     return parse_func_decl(p, name_tok.val);
-  case TOK_IDENTIFIER:
-    return parse_type(p);
+  case TOK_IDENTIFIER: {
+    struct AstNode *type = parse_type(p);
+    if (p->current_token.kind == TOK_EQUAL) {
+      return parse_var_decl(p, name_tok.val, type);
+    }
+  }
 
   default: {
     struct Error err = {
@@ -50,4 +56,18 @@ struct AstNode *parse_func_decl(struct Parser *p, char *name) {
   struct Span end = p->current_token.span;
   func->span = merge_span(start, end);
   return func;
+}
+
+struct AstNode *parse_var_decl(struct Parser *p, char *name,
+                               struct AstNode *type) {
+
+  expect(p, TOK_EQUAL);
+
+  struct AstNode *node = astnode_new(p, AST_VAR_DECL);
+  node->as.var_decl.name = name;
+  node->as.var_decl.type = type;
+  node->as.var_decl.expr = parse_expr(p, 0);
+  expect(p, TOK_SEMICOLON);
+
+  return node;
 }

@@ -56,6 +56,8 @@ char *token_kind_str(enum TokenKind kind) {
     return "'<' symbol";
   case TOK_RIGHT_ARROW:
     return "'>' symbol";
+  case TOK_EQUAL:
+    return "'=' symbol";
   }
 }
 

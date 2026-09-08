@@ -20,6 +20,7 @@ enum TokenKind {
   TOK_KW_RETURN, // "return"
   TOK_KW_FUNC,   // "fn"
 
+  TOK_EQUAL,        // =
   TOK_PLUS,        // +
   TOK_MINUS,       // -
   TOK_STAR,        // *

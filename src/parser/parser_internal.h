@@ -13,6 +13,8 @@ struct AstNode *astnode_new(struct Parser *p, enum AstKind kind);
 
 struct AstNode *parse_declaration(struct Parser *p);
 struct AstNode *parse_func_decl(struct Parser *p, char *name);
+struct AstNode *parse_var_decl(struct Parser *p, char *name,
+                               struct AstNode *type);
 
 struct AstNode *parse_expr(struct Parser *p, int min_bp);
 

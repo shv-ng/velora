@@ -6,17 +6,20 @@
 #include "ast_block.h"
 #include "ast_expr_stmt.h"
 #include "ast_function.h"
+#include "ast_identifier.h"
 #include "ast_literals.h"
 #include "ast_program.h"
 #include "ast_return_stmt.h"
 #include "ast_types.h"
 #include "ast_unary_expr.h"
+#include "ast_var_decl.h"
 
 struct AstNode;
 
 enum AstKind {
   AST_PROGRAM,
   AST_FUNCTION_DECL, // fn(...)...{}
+  AST_VAR_DECL,      // x:i32 = 69;
 
   AST_TYPE_UNKNOWN,
   AST_TYPE_NAMED, // i32, User
@@ -27,6 +30,7 @@ enum AstKind {
   AST_EXPR_STMT,   // expr ;
 
   AST_INT_LITERAL, // 42
+  AST_IDENTIFIER,
 
   AST_BINARY_EXPR, // .. op ..
   AST_UNARY_EXPR,  //  op ..   | .. op
@@ -40,6 +44,7 @@ struct AstNode {
   union {
     struct AstProgram program;
     struct AstFunctionDecl function;
+    struct AstVarDecl var_decl;
     struct AstTypeNamed type_named;
     struct AstBlockDecl block;
     struct AstReturnStmt return_stmt;
@@ -47,6 +52,7 @@ struct AstNode {
     struct AstIntLiteral int_literal;
     struct AstBinaryExpr binary_expr;
     struct AstUnaryExpr unary_expr;
+    struct AstIdentifier identifer;
   } as;
 };
 

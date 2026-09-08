@@ -33,3 +33,5 @@ void sema_func(struct SemaCtx *sema, struct AstNode *node) {
 
   sema->current_return_type = prev_type;
 }
+
+void sema_var_decl(){}
