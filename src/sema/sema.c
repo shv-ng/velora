@@ -59,6 +59,9 @@ void sema_node(struct SemaCtx *sema, struct AstNode *node, struct Type *hint) {
   case AST_UNARY_EXPR:
     sema_unary_expr(sema, node, hint);
     break;
+  case AST_VAR_DECL:
+    sema_var_decl(sema, node);
+    break;
   default:
     break;
   }

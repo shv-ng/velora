@@ -1,4 +1,6 @@
+#include "sema.h"
 #include "sema_internal.h"
+#include "symbol.h"
 #include <stdbool.h>
 
 void sema_func(struct SemaCtx *sema, struct AstNode *node) {
@@ -34,4 +36,11 @@ void sema_func(struct SemaCtx *sema, struct AstNode *node) {
   sema->current_return_type = prev_type;
 }
 
-void sema_var_decl(){}
+void sema_var_decl(struct SemaCtx *sema, struct AstNode *node) {
+  sema_node(sema, node->as.var_decl.type, NULL);
+
+  node->resolved_type = node->as.var_decl.type->resolved_type;
+  sema_node(sema, node->as.var_decl.expr, node->resolved_type);
+  scope_define(sema->current_scope, node->as.var_decl.name,
+               symbol_new(sema->arena, node));
+}
