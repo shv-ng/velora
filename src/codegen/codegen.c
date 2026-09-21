@@ -30,8 +30,9 @@ void codegen_emit(struct CodegenCtx *ctx, struct AstNode *root) {
       break;
     }
   }
-
-  codegen_binary(ctx);
+  if (ctx->error_count == 0) {
+    codegen_binary(ctx);
+  }
 }
 
 void codegen_binary(struct CodegenCtx *ctx) {
@@ -43,6 +44,7 @@ void codegen_binary(struct CodegenCtx *ctx) {
                           .as.codegen = (struct ErrCodegen){.message = err}};
 
     print_error(error, ctx->file_name, ctx->contents);
+    return;
   }
 
   LLVMDisposeMessage(err);
@@ -63,6 +65,7 @@ void codegen_binary(struct CodegenCtx *ctx) {
   // get target from triple
   LLVMTargetRef target;
   char *target_err = NULL;
+
   if (LLVMGetTargetFromTriple(triple, &target, &target_err)) {
     ctx->error_count += 1;
     struct Error error = {.kind = ERR_CODEGEN,
@@ -70,12 +73,10 @@ void codegen_binary(struct CodegenCtx *ctx) {
                               (struct ErrCodegen){.message = target_err}};
 
     print_error(error, ctx->file_name, ctx->contents);
-  }
-  LLVMDisposeMessage(target_err);
-
-  if (ctx->error_count != 0) {
     return;
   }
+
+  LLVMDisposeMessage(target_err);
 
   // create target machine and config module
   LLVMTargetMachineRef machine = LLVMCreateTargetMachine(
@@ -98,6 +99,7 @@ void codegen_binary(struct CodegenCtx *ctx) {
                               (struct ErrCodegen){.message = emit_err}};
 
     print_error(error, ctx->file_name, ctx->contents);
+    return;
   }
   LLVMDisposeMessage(emit_err);
   LLVMDisposeTargetMachine(machine);
@@ -111,6 +113,7 @@ void codegen_binary(struct CodegenCtx *ctx) {
         .as.codegen = (struct ErrCodegen){.message = "fail to run clang"}};
 
     print_error(error, ctx->file_name, ctx->contents);
+    return;
   }
 }
 

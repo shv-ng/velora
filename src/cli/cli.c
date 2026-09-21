@@ -66,7 +66,6 @@ static int execute_build(int argc, char *argv[]) {
   if (codegen.error_count != 0) {
     err_count += codegen.error_count;
     err_code = 1;
-    goto cleanup;
   }
 
   codegen_free(&codegen);
