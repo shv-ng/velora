@@ -1,10 +1,10 @@
 #include "sema_internal.h"
 #include "symbol.h"
 
-static void report_unused(struct SemaCtx *sema) {
-  for (size_t i = 0; i < sema->current_scope->count; i++) {
+static void report_unused(struct SemaCtx *ctx) {
+  for (size_t i = 0; i < ctx->current_scope->count; i++) {
 
-    struct Symbol *sym = sema->current_scope->symbols[i];
+    struct Symbol *sym = ctx->current_scope->symbols[i];
 
     if (!sym->is_used) {
 
@@ -14,62 +14,62 @@ static void report_unused(struct SemaCtx *sema) {
           .as.unused_identifier.name = sym->name,
       };
 
-      sema->error_count++;
-      print_error(err, sema->file_name, sema->contents);
+      ctx->error_count++;
+      print_error(err, ctx->file_name, ctx->contents);
     }
   }
 }
 
-void sema_block(struct SemaCtx *sema, struct AstNode *node, struct Type *hint) {
-  struct Scope *prev = sema->current_scope;
+void sema_block(struct SemaCtx *ctx, struct AstNode *node, struct Type *hint) {
+  struct Scope *prev = ctx->current_scope;
 
-  sema->current_scope = scope_new(sema->arena, sema->current_scope);
+  ctx->current_scope = scope_new(ctx->arena, ctx->current_scope);
 
   node->resolved_type = &type_void;
   for (int i = 0; i < node->as.block.count; i++) {
-    sema_node(sema, node->as.block.statements[i], NULL);
+    sema_node(ctx, node->as.block.statements[i], NULL);
   }
 
   if (node->as.block.trailing_expr != NULL) {
-    sema_node(sema, node->as.block.trailing_expr, hint);
+    sema_node(ctx, node->as.block.trailing_expr, hint);
     node->resolved_type = node->as.block.trailing_expr->resolved_type;
   }
 
   // report unused
-  report_unused(sema);
+  report_unused(ctx);
 
-  sema->current_scope = prev;
+  ctx->current_scope = prev;
 }
 
-void sema_return_stmt(struct SemaCtx *sema, struct AstNode *node) {
+void sema_return_stmt(struct SemaCtx *ctx, struct AstNode *node) {
 
   if (!node->as.return_stmt.expr) {
     struct Error err = {.kind = ERR_SYNTAX,
                         .span = node->span,
                         .as.syntax = {
-                            .expected = type_str(sema->current_return_type),
+                            .expected = type_str(ctx->current_return_type),
                         }};
-    sema->error_count++;
-    print_error(err, sema->file_name, sema->contents);
+    ctx->error_count++;
+    print_error(err, ctx->file_name, ctx->contents);
     return;
   }
 
-  sema_node(sema, node->as.return_stmt.expr, sema->current_return_type);
+  sema_node(ctx, node->as.return_stmt.expr, ctx->current_return_type);
   struct Type *actual = node->as.return_stmt.expr->resolved_type;
   node->resolved_type = actual;
 
-  if (!type_equal(actual, sema->current_return_type)) {
+  if (!type_equal(actual, ctx->current_return_type)) {
     struct Error err = {
         .kind = ERR_TYPE_MISMATCH,
         .span = node->span,
         .as.type_mismatch =
             {
-                .expected = type_str(sema->current_return_type),
+                .expected = type_str(ctx->current_return_type),
                 .found = type_str(actual),
                 .context = "return statement",
             },
     };
-    sema->error_count++;
-    print_error(err, sema->file_name, sema->contents);
+    ctx->error_count++;
+    print_error(err, ctx->file_name, ctx->contents);
   }
 }

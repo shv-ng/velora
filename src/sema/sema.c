@@ -3,26 +3,26 @@
 #include <string.h>
 
 struct SemaCtx sema_new(struct Parser *p) {
-  struct SemaCtx sema;
+  struct SemaCtx ctx;
 
-  sema.error_count = 0;
-  sema.current_return_type = &type_unknown;
-  sema.current_scope = scope_new(p->arena, NULL);
-  sema.file_name = p->lexer->file_name;
-  sema.contents = p->lexer->contents;
-  sema.arena = p->arena;
+  ctx.error_count = 0;
+  ctx.current_return_type = &type_unknown;
+  ctx.current_scope = scope_new(p->arena, NULL);
+  ctx.file_name = p->lexer->file_name;
+  ctx.contents = p->lexer->contents;
+  ctx.arena = p->arena;
 
-  return sema;
+  return ctx;
 }
 
-void sema_check(struct SemaCtx *sema, struct AstNode *root) {
+void sema_check(struct SemaCtx *ctx, struct AstNode *root) {
   // collection of global decl
   for (int i = 0; i < root->as.program.count; i++) {
     struct AstNode *decl = root->as.program.declaration[i];
-    struct Symbol *sym = symbol_new(sema->arena, decl);
+    struct Symbol *sym = symbol_new(ctx->arena, decl);
     switch (decl->kind) {
     case AST_FUNCTION_DECL:
-      scope_define(sema->current_scope, decl->as.function.name, sym);
+      scope_define(ctx->current_scope, decl->as.function.name, sym);
       break;
     default:
       break;
@@ -31,20 +31,20 @@ void sema_check(struct SemaCtx *sema, struct AstNode *root) {
 
   // recursive semantic analysis+type checking
   for (int i = 0; i < root->as.program.count; i++) {
-    sema_node(sema, root->as.program.declaration[i], NULL);
+    sema_node(ctx, root->as.program.declaration[i], NULL);
   }
 }
 
-void sema_node(struct SemaCtx *sema, struct AstNode *node, struct Type *hint) {
+void sema_node(struct SemaCtx *ctx, struct AstNode *node, struct Type *hint) {
   switch (node->kind) {
   case AST_FUNCTION_DECL:
-    sema_func(sema, node);
+    sema_func(ctx, node);
     break;
   case AST_BLOCK_DECL:
-    sema_block(sema, node, hint);
+    sema_block(ctx, node, hint);
     break;
   case AST_RETURN_STMT:
-    sema_return_stmt(sema, node);
+    sema_return_stmt(ctx, node);
     break;
   case AST_INT_LITERAL:
     node->resolved_type = hint ? hint : &type_unknown;
@@ -53,16 +53,16 @@ void sema_node(struct SemaCtx *sema, struct AstNode *node, struct Type *hint) {
     node->resolved_type = resolve_type_node(node);
     break;
   case AST_BINARY_EXPR:
-    sema_binary_expr(sema, node, hint);
+    sema_binary_expr(ctx, node, hint);
     break;
   case AST_UNARY_EXPR:
-    sema_unary_expr(sema, node, hint);
+    sema_unary_expr(ctx, node, hint);
     break;
   case AST_VAR_DECL:
-    sema_var_decl(sema, node);
+    sema_var_decl(ctx, node);
     break;
   case AST_IDENTIFIER:
-    sema_identifier(sema, node, hint);
+    sema_identifier(ctx, node, hint);
     break;
   default:
     break;

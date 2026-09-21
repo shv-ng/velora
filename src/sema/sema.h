@@ -18,4 +18,4 @@ struct SemaCtx {
 };
 
 struct SemaCtx sema_new(struct Parser *p);
-void sema_check(struct SemaCtx *sema, struct AstNode *root);
+void sema_check(struct SemaCtx *ctx, struct AstNode *root);
