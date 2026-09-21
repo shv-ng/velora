@@ -73,6 +73,10 @@ void codegen_binary(struct CodegenCtx *ctx) {
   }
   LLVMDisposeMessage(target_err);
 
+  if (ctx->error_count != 0) {
+    return;
+  }
+
   // create target machine and config module
   LLVMTargetMachineRef machine = LLVMCreateTargetMachine(
       target, triple, "generic", "", LLVMCodeGenLevelDefault, LLVMRelocDefault,
