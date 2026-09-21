@@ -4,6 +4,7 @@
 #include "../types/types.h"
 #include "../utils/arena.h"
 #include "../utils/hashmap.h"
+#include <stddef.h>
 
 enum SymbolKind {
   SYMBOL_VAR,
@@ -23,7 +24,10 @@ struct Symbol {
 struct Scope {
   struct Hashmap *hashmap;
   struct Scope *parent;
-  struct Arena *a;
+  struct Arena *arena;
+
+  struct Symbol **symbols;
+  size_t count, capacity;
 };
 
 struct Symbol *symbol_new(struct Arena *a, struct AstNode *decl);

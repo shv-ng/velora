@@ -1,4 +1,5 @@
 #include "symbol.h"
+#include "../utils/da.h"
 #include <stdlib.h>
 
 struct Scope *scope_new(struct Arena *a, struct Scope *parent) {
@@ -6,6 +7,11 @@ struct Scope *scope_new(struct Arena *a, struct Scope *parent) {
 
   s->parent = parent;
   s->hashmap = hashmap_new(a);
+  s->arena = a;
+
+  s->count = 0;
+  s->capacity = 10;
+  s->symbols = arena_malloc(a, sizeof(struct Symbol *) * s->capacity);
 
   return s;
 }
@@ -16,6 +22,10 @@ struct Symbol *scope_define(struct Scope *s, const char *name,
     return NULL;
   }
   hashmap_set(s->hashmap, name, symbol);
+
+  da_append(s->arena, (void ***)&s->symbols, (void *)symbol, &s->count,
+            &s->capacity);
+
   return symbol;
 }
 
@@ -36,11 +46,19 @@ struct Symbol *symbol_new(struct Arena *a, struct AstNode *decl) {
   sym->is_defined = true;
   sym->is_moved = false;
   sym->is_used = false;
+  sym->type = decl->resolved_type;
 
   switch (decl->kind) {
   case AST_FUNCTION_DECL:
     sym->name = decl->as.function.name;
+    sym->kind = SYMBOL_FUNC;
     break;
+
+  case AST_VAR_DECL:
+    sym->name = decl->as.var_decl.name;
+    sym->kind = SYMBOL_VAR;
+    break;
+
   default:
     break;
   }

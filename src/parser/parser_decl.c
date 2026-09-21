@@ -13,7 +13,7 @@ struct AstNode *parse_declaration(struct Parser *p) {
   case TOK_IDENTIFIER: {
     struct AstNode *type = parse_type(p);
     if (p->current_token.kind == TOK_EQUAL) {
-      return parse_var_decl(p, name_tok.val, type);
+      return parse_var_decl(p, name_tok.val, type, name_tok.span);
     }
   }
 
@@ -59,7 +59,7 @@ struct AstNode *parse_func_decl(struct Parser *p, char *name) {
 }
 
 struct AstNode *parse_var_decl(struct Parser *p, char *name,
-                               struct AstNode *type) {
+                               struct AstNode *type, struct Span start) {
 
   expect(p, TOK_EQUAL);
 
@@ -67,7 +67,9 @@ struct AstNode *parse_var_decl(struct Parser *p, char *name,
   node->as.var_decl.name = name;
   node->as.var_decl.type = type;
   node->as.var_decl.expr = parse_expr(p, 0);
+  struct Span end = p->current_token.span;
   expect(p, TOK_SEMICOLON);
+  node->span = merge_span(start, end);
 
   return node;
 }

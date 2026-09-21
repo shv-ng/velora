@@ -26,6 +26,7 @@ struct AstNode *parse_primary(struct Parser *p) {
   if (p->current_token.kind == TOK_IDENTIFIER) {
     struct AstNode *node = astnode_new(p, AST_IDENTIFIER);
     node->as.identifer.name = p->current_token.val;
+    node->span = p->current_token.span;
 
     parser_advance(p);
 

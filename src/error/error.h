@@ -10,9 +10,19 @@
 enum ErrorKind {
   ERR_SYNTAX,
   ERR_TYPE_MISMATCH,
-ERR_MISSING_RETURN,
+  ERR_MISSING_RETURN,
+  ERR_UNDEFINED_IDENTIFIER,
+  ERR_UNUSED_IDENTIFIER,
   ERR_CODEGEN,
   ERR_MEMORY,
+};
+
+struct ErrUnusedIdentifier {
+  const char *name;
+};
+
+struct ErrUndefinedIdentifier {
+  const char *name;
 };
 
 struct ErrMemory {
@@ -23,7 +33,7 @@ struct ErrCodegen {
   const char *message;
 };
 
-struct ErrMissingReturn{
+struct ErrMissingReturn {
   const char *expected;
   const char *fn_name;
 };
@@ -49,6 +59,8 @@ struct Error {
     struct ErrCodegen codegen;
     struct ErrMemory memory;
     struct ErrMissingReturn missing_return;
+    struct ErrUndefinedIdentifier undefined_identifier;
+    struct ErrUnusedIdentifier unused_identifier;
   } as;
 };
 

@@ -1,4 +1,24 @@
 #include "sema_internal.h"
+#include "symbol.h"
+
+static void report_unused(struct SemaCtx *sema) {
+  for (size_t i = 0; i < sema->current_scope->count; i++) {
+
+    struct Symbol *sym = sema->current_scope->symbols[i];
+
+    if (!sym->is_used) {
+
+      struct Error err = {
+          .kind = ERR_UNUSED_IDENTIFIER,
+          .span = sym->decl->span,
+          .as.unused_identifier.name = sym->name,
+      };
+
+      sema->error_count++;
+      print_error(err, sema->file_name, sema->contents);
+    }
+  }
+}
 
 void sema_block(struct SemaCtx *sema, struct AstNode *node, struct Type *hint) {
   struct Scope *prev = sema->current_scope;
@@ -14,6 +34,9 @@ void sema_block(struct SemaCtx *sema, struct AstNode *node, struct Type *hint) {
     sema_node(sema, node->as.block.trailing_expr, hint);
     node->resolved_type = node->as.block.trailing_expr->resolved_type;
   }
+
+  // report unused
+  report_unused(sema);
 
   sema->current_scope = prev;
 }

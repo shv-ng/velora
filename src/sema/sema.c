@@ -22,7 +22,6 @@ void sema_check(struct SemaCtx *sema, struct AstNode *root) {
     struct Symbol *sym = symbol_new(sema->arena, decl);
     switch (decl->kind) {
     case AST_FUNCTION_DECL:
-      sym->kind = SYMBOL_FUNC;
       scope_define(sema->current_scope, decl->as.function.name, sym);
       break;
     default:
@@ -61,6 +60,9 @@ void sema_node(struct SemaCtx *sema, struct AstNode *node, struct Type *hint) {
     break;
   case AST_VAR_DECL:
     sema_var_decl(sema, node);
+    break;
+  case AST_IDENTIFIER:
+    sema_identifier(sema, node, hint);
     break;
   default:
     break;

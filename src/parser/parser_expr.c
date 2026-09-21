@@ -73,10 +73,12 @@ struct AstNode *parse_expr(struct Parser *p, int min_bp) {
     struct AstNode *node = astnode_new(p, AST_UNARY_EXPR);
 
     node->as.unary_expr.op = token_to_unaryOp(p->current_token.kind);
+    struct Span prev_span = p->current_token.span;
 
     parser_advance(p);
     node->as.unary_expr.is_prefix = true;
     node->as.unary_expr.expr = parse_expr(p, 100);
+    node->span = merge_span(prev_span, node->as.unary_expr.expr->span);
 
     left = node;
   } else {
@@ -92,10 +94,11 @@ struct AstNode *parse_expr(struct Parser *p, int min_bp) {
 
     struct AstNode *right = parse_expr(p, bp);
 
-    struct AstNode*expr = astnode_new(p, AST_BINARY_EXPR);
+    struct AstNode *expr = astnode_new(p, AST_BINARY_EXPR);
     expr->as.binary_expr.left = left;
     expr->as.binary_expr.op = op;
     expr->as.binary_expr.right = right;
+    expr->span = merge_span(left->span, right->span);
 
     left = expr;
   }

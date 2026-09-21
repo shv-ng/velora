@@ -113,6 +113,14 @@ void print_error(struct Error error, const char *file_name,
     fprintf(stderr, "%smemory: %s%s\n", ANSI_COLOR_BOLD,
             error.as.memory.message, ANSI_COLOR_RESET);
     break;
+  case ERR_UNDEFINED_IDENTIFIER:
+    fprintf(stderr, "%sundefined identifier: '%s' %s\n", ANSI_COLOR_BOLD,
+            error.as.undefined_identifier.name, ANSI_COLOR_RESET);
+    break;
+  case ERR_UNUSED_IDENTIFIER:
+    fprintf(stderr, "%sunused identifier: '%s' %s\n", ANSI_COLOR_BOLD,
+            error.as.unused_identifier.name, ANSI_COLOR_RESET);
+    break;
   }
 
   print_error_body(file_name, contents, error.span);
