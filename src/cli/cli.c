@@ -58,10 +58,10 @@ static int execute_build(int argc, char *argv[]) {
     err_code = 1;
     goto cleanup;
   }
-  print_ast(program_ast, 2);
+  // print_ast(program_ast, 2);
 
   struct CodegenCtx codegen = codegen_new(&sema);
-  codegen_emit(&codegen, program_ast);
+  codegen_node(&codegen, program_ast);
 
   if (codegen.error_count != 0) {
     err_count += codegen.error_count;

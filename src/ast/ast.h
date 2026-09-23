@@ -15,6 +15,7 @@
 #include "ast_var_decl.h"
 
 struct AstNode;
+struct Symbol;
 
 enum AstKind {
   AST_PROGRAM,
@@ -40,6 +41,7 @@ struct AstNode {
   enum AstKind kind;
   struct Type *resolved_type;
   struct Span span;
+  struct Symbol *symbol;
 
   union {
     struct AstProgram program;

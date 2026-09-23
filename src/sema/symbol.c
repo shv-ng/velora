@@ -29,6 +29,10 @@ struct Symbol *scope_define(struct Scope *s, const char *name,
   return symbol;
 }
 
+struct Symbol *scope_lookup_current(struct Scope *s, const char *name) {
+  return hashmap_get(s->hashmap, name);
+}
+
 struct Symbol *scope_lookup(struct Scope *s, const char *name) {
   for (; s; s = s->parent) {
     struct Symbol *sym = (struct Symbol *)hashmap_get(s->hashmap, name);

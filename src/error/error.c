@@ -114,12 +114,16 @@ void print_error(struct Error error, const char *file_name,
             error.as.memory.message, ANSI_COLOR_RESET);
     break;
   case ERR_UNDEFINED_IDENTIFIER:
-    fprintf(stderr, "%sundefined identifier: '%s' %s\n", ANSI_COLOR_BOLD,
+    fprintf(stderr, "%scannot find '%s' in this scope%s\n", ANSI_COLOR_BOLD,
             error.as.undefined_identifier.name, ANSI_COLOR_RESET);
     break;
   case ERR_UNUSED_IDENTIFIER:
-    fprintf(stderr, "%sunused identifier: '%s' %s\n", ANSI_COLOR_BOLD,
+    fprintf(stderr, "%s'%s' is defined but never used%s\n", ANSI_COLOR_BOLD,
             error.as.unused_identifier.name, ANSI_COLOR_RESET);
+    break;
+  case ERR_REDECLARATION:
+    fprintf(stderr, "%s'%s' already defined in this scope%s\n", ANSI_COLOR_BOLD,
+            error.as.redeclaration.name, ANSI_COLOR_RESET);
     break;
   }
 

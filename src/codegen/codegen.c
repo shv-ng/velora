@@ -1,3 +1,4 @@
+#include "codegen.h"
 #include "codegen_internal.h"
 #include <llvm-c/Analysis.h>
 #include <llvm-c/TargetMachine.h>
@@ -17,23 +18,16 @@ struct CodegenCtx codegen_new(struct SemaCtx *sema) {
   return ctx;
 }
 
-void codegen_emit(struct CodegenCtx *ctx, struct AstNode *root) {
+void codegen_program(struct CodegenCtx *ctx, struct AstNode *root) {
   for (int i = 0; i < root->as.program.count; i++) {
     struct AstNode *decl = root->as.program.declaration[i];
-
-    switch (decl->kind) {
-    case AST_FUNCTION_DECL:
-      codegen_func(ctx, decl);
-      break;
-
-    default:
-      break;
-    }
+    codegen_node(ctx, decl);
   }
   if (ctx->error_count == 0) {
     codegen_binary(ctx);
   }
 }
+
 
 void codegen_binary(struct CodegenCtx *ctx) {
   // verify llvm mod

@@ -13,8 +13,13 @@ enum ErrorKind {
   ERR_MISSING_RETURN,
   ERR_UNDEFINED_IDENTIFIER,
   ERR_UNUSED_IDENTIFIER,
+  ERR_REDECLARATION,
   ERR_CODEGEN,
   ERR_MEMORY,
+};
+
+struct ErrRedeclaration {
+  const char *name;
 };
 
 struct ErrUnusedIdentifier {
@@ -61,6 +66,7 @@ struct Error {
     struct ErrMissingReturn missing_return;
     struct ErrUndefinedIdentifier undefined_identifier;
     struct ErrUnusedIdentifier unused_identifier;
+    struct ErrRedeclaration redeclaration;
   } as;
 };
 

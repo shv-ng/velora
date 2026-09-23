@@ -1,4 +1,7 @@
+#include "codegen.h"
 #include "codegen_internal.h"
+#include <llvm-c/Core.h>
+#include <stdio.h>
 
 void codegen_func(struct CodegenCtx *ctx, struct AstNode *node) {
   LLVMTypeRef ret_type = type_to_llvm(ctx, node->resolved_type);
@@ -12,5 +15,16 @@ void codegen_func(struct CodegenCtx *ctx, struct AstNode *node) {
       LLVMAppendBasicBlockInContext(ctx->context, func, "entry");
   LLVMPositionBuilderAtEnd(ctx->builder, entry);
 
-  codegen_stmt(ctx, node->as.function.block);
+  codegen_node(ctx, node->as.function.block);
+}
+
+void codegen_var_decl(struct CodegenCtx *ctx, struct AstNode *node) {
+  LLVMValueRef slot =
+      LLVMBuildAlloca(ctx->builder, type_to_llvm(ctx, node->resolved_type),
+                      node->as.var_decl.name);
+  node->symbol->llvm_slot = slot;
+
+  LLVMValueRef value = codegen_expr(ctx, node->as.var_decl.expr);
+
+  LLVMBuildStore(ctx->builder, value, slot);
 }

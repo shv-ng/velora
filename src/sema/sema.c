@@ -21,9 +21,21 @@ void sema_check(struct SemaCtx *ctx, struct AstNode *root) {
     struct AstNode *decl = root->as.program.declaration[i];
     struct Symbol *sym = symbol_new(ctx->arena, decl);
     switch (decl->kind) {
-    case AST_FUNCTION_DECL:
-      scope_define(ctx->current_scope, decl->as.function.name, sym);
+    case AST_FUNCTION_DECL: {
+      struct Symbol *exiting =
+          scope_define(ctx->current_scope, decl->as.function.name, sym);
+
+      if (!exiting) {
+        ctx->error_count++;
+        struct Error err = {.kind = ERR_REDECLARATION,
+                            .span = decl->span,
+                            .as.redeclaration.name = decl->as.function.name};
+        print_error(err, ctx->file_name, ctx->contents);
+      }
+
+      decl->symbol = sym;
       break;
+    }
     default:
       break;
     }

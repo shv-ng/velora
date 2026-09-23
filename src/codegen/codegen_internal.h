@@ -3,7 +3,10 @@
 #include "../error/error.h"
 #include "codegen.h"
 
+void codegen_program(struct CodegenCtx *ctx, struct AstNode *node);
+
 void codegen_func(struct CodegenCtx *ctx, struct AstNode *node);
+void codegen_var_decl(struct CodegenCtx *ctx, struct AstNode *node);
 
 void codegen_return(struct CodegenCtx *ctx, struct AstNode *node);
 void codegen_block(struct CodegenCtx *ctx, struct AstNode *node);

@@ -60,5 +60,7 @@ void sema_identifier(struct SemaCtx *ctx, struct AstNode *node,
   }
 
   node->resolved_type = sym->type;
+  node->symbol = sym;
+
   sym->is_used = true;
 }

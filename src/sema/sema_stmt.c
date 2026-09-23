@@ -6,8 +6,7 @@ static void report_unused(struct SemaCtx *ctx) {
 
     struct Symbol *sym = ctx->current_scope->symbols[i];
 
-    if (!sym->is_used) {
-
+    if (!sym->is_used && sym->name[0] != '_') {
       struct Error err = {
           .kind = ERR_UNUSED_IDENTIFIER,
           .span = sym->decl->span,

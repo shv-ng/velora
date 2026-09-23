@@ -41,6 +41,19 @@ void sema_var_decl(struct SemaCtx *ctx, struct AstNode *node) {
 
   node->resolved_type = node->as.var_decl.type->resolved_type;
   sema_node(ctx, node->as.var_decl.expr, node->resolved_type);
-  scope_define(ctx->current_scope, node->as.var_decl.name,
-               symbol_new(ctx->arena, node));
+
+  if (scope_lookup_current(ctx->current_scope, node->as.var_decl.name)) {
+    ctx->error_count++;
+    struct Error err = {.kind = ERR_REDECLARATION,
+                        .span = node->span,
+                        .as.redeclaration.name = node->as.var_decl.name};
+    print_error(err, ctx->file_name, ctx->contents);
+    return;
+  }
+
+  struct Symbol *sym = symbol_new(ctx->arena, node);
+  node->symbol = sym;
+
+  scope_define(ctx->current_scope, node->as.var_decl.name, sym);
+
 }
