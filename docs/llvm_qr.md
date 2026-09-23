@@ -71,4 +71,48 @@ it can be `ret`(return), `br` (branch), `switch`, `unreachable`
 
 `br` -> jump to another block
 
-# TODO: continue learning, then about the how llvm work with memory, then implemnent the var
+## memory
+
+```
+
+     high address
++-------------------+
+|       stack    |  |   <- fn frames, local vars, alloca 
+|                v  |      grows downward
++-------------------+
+|                   |   <- gap (if they meet, its' stack overflow
+|               ^   |
+|       heap    |   |      grows upwards
++-------------------+
+|       BSS         |   <- uninitialised globals (zeroed at startup)
++-------------------+
+|       data        |   <- initialised globals, string literals
++-------------------+
+|       text        |   <- compiled instuctions (read only)
++-------------------+
+      low address
+
+```
+
+### stack
+
+auto shrink when fn return, no need to do anything in llvm
+
+#### lifecyle / common pattern
+
+1. LLVMBuild + Alloca = emit alloca instuctions
+    returns ptr to stack slot
+1. LLVMBuild + Store = emit instuction that store value in given stack slot
+1. LLVMBuild + Load2 = emit instuctions that load value from the stack slot,
+    returns loaded value
+
+
+### heap
+there's no direct way to manage heap with llvm, will tackle when we encounter 
+problem related to heap, or when we implement that.
+
+
+## where to store slot/ptr? 
+simple ans is just in the `Symbol` struct. everything is already handled in sema like scope based, 
+etc etc 
+
