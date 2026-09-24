@@ -8,3 +8,6 @@ build:
 
 run *args: build 
   @./dist/velora {{args}}
+
+map:
+  @npx markmap-cli docs/markmap.md --watch
