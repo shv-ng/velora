@@ -38,7 +38,6 @@ static int execute_build(int argc, char *argv[]) {
     goto cleanup;
   }
 
-
   struct Lexer lexer = lexer_new(a, file_name, contents);
   struct Parser parser = parser_new(&lexer);
 
@@ -51,14 +50,22 @@ static int execute_build(int argc, char *argv[]) {
   }
 
   struct SemaCtx sema = sema_new(&parser);
-  sema_check(&sema, program_ast);
+  sema_node(&sema, program_ast, NULL);
 
   if (sema.error_count != 0) {
     err_count += sema.error_count;
     err_code = 1;
     goto cleanup;
   }
-  // print_ast(program_ast, 2);
+  print_ast(program_ast, 2);
+
+  if (!ast_all_type_resolve(program_ast)) {
+    fprintf(stderr, "ICE: unresolved types before codegen\n");
+
+    err_code = 1;
+    err_count++;
+    goto cleanup;
+  }
 
   struct CodegenCtx codegen = codegen_new(&sema);
   codegen_node(&codegen, program_ast);

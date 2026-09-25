@@ -1,3 +1,4 @@
+#include "parser.h"
 #include "parser_internal.h"
 #include <stddef.h>
 
@@ -18,6 +19,84 @@ struct AstNode *parse_return_stmt(struct Parser *p) {
   return return_stmt;
 }
 
+bool is_valid_lvalue(struct AstNode *lhs) {
+  switch (lhs->kind) {
+  case AST_IDENTIFIER:
+    return true;
+  default:
+    return false;
+  }
+}
+
+struct AstNode *parse_stmt(struct Parser *p, struct AstNode *block) {
+  if (p->current_token.kind == TOK_KW_RETURN) {
+    return parse_return_stmt(p);
+  }
+  if (p->current_token.kind == TOK_IDENTIFIER) {
+    if (p->next_token.kind == TOK_COLON) {
+      return parse_declaration(p);
+    }
+  }
+
+  struct AstNode *expr = parse_expr(p, 0);
+
+  // it's statement
+  if (p->current_token.kind == TOK_SEMICOLON) {
+    parser_advance(p);
+
+    struct AstNode *stmt = astnode_new(p, AST_EXPR_STMT);
+    stmt->as.expr_stmt.expr = expr;
+
+    return stmt;
+  }
+
+  // it's a trailing_expr
+  if (p->current_token.kind == TOK_RBRACE) {
+    block->as.block.trailing_expr = expr;
+    return NULL;
+  }
+
+  if (p->current_token.kind == TOK_EQUAL) {
+    if (!is_valid_lvalue(expr)) {
+      struct Error err = {
+          .kind = ERR_INVALID_LVALUE,
+          .span = expr->span,
+      };
+
+      print_error(err, p->lexer->file_name, p->lexer->contents);
+      p->error_count++;
+      synchronise(p);
+
+      return NULL;
+    }
+
+    expect(p, TOK_EQUAL);
+    struct AstNode *rhs = parse_expr(p, 0);
+
+    struct Span end = p->current_token.span;
+    expect(p, TOK_SEMICOLON);
+
+    struct AstNode *stmt = astnode_new(p, AST_ASSIGNMENT);
+
+    stmt->as.assignment.lhs = expr;
+    stmt->as.assignment.rhs = rhs;
+    stmt->span = merge_span(expr->span, end);
+
+    return stmt;
+  }
+
+  struct Error err = {
+      .kind = ERR_SYNTAX,
+      .span = p->current_token.span,
+      .as.syntax.found = token_kind_str(p->current_token.kind),
+  };
+  print_error(err, p->lexer->file_name, p->lexer->contents);
+  p->error_count++;
+
+  synchronise(p);
+  return NULL;
+}
+
 struct AstNode *parse_block(struct Parser *p, char *name) {
   struct Span start = p->current_token.span;
 
@@ -35,44 +114,9 @@ struct AstNode *parse_block(struct Parser *p, char *name) {
 
   while (p->current_token.kind != TOK_EOF &&
          p->current_token.kind != TOK_RBRACE) {
-    struct AstNode *stmt = NULL;
 
-    switch (p->current_token.kind) {
-    case TOK_KW_RETURN:
-      stmt = parse_return_stmt(p);
-      break;
-    case TOK_IDENTIFIER:
-      if (p->next_token.kind == TOK_COLON) {
-        stmt = parse_declaration(p);
-        break;
-      }
-    default: {
-      // try it as expr first
-      struct AstNode *expr = parse_expr(p, 0);
-      // it's statement
-      if (p->current_token.kind == TOK_SEMICOLON) {
-        parser_advance(p);
-        stmt = astnode_new(p, AST_EXPR_STMT);
-        stmt->as.expr_stmt.expr = expr;
+    struct AstNode *stmt = parse_stmt(p, block);
 
-        // it's a trailing_expr
-      } else if (p->current_token.kind == TOK_RBRACE) {
-        block->as.block.trailing_expr = expr;
-
-      } else {
-        struct Error err = {
-            .kind = ERR_SYNTAX,
-            .span = p->current_token.span,
-            .as.syntax.found = token_kind_str(p->current_token.kind),
-        };
-        print_error(err, p->lexer->file_name, p->lexer->contents);
-        p->error_count++;
-
-        synchronise(p);
-        continue;
-      }
-    }
-    }
     if (stmt != NULL) {
       da_append(p->arena, (void ***)&statements, (void *)stmt, &count,
                 &capacity);

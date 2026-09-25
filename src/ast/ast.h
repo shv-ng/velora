@@ -2,6 +2,7 @@
 
 #include "../token/token.h"
 #include "../types/types.h"
+#include "ast_assignment.h"
 #include "ast_binary_expr.h"
 #include "ast_block.h"
 #include "ast_expr_stmt.h"
@@ -21,6 +22,7 @@ enum AstKind {
   AST_PROGRAM,
   AST_FUNCTION_DECL, // fn(...)...{}
   AST_VAR_DECL,      // x:i32 = 69;
+  AST_ASSIGNMENT,    // x = 42;
 
   AST_TYPE_UNKNOWN,
   AST_TYPE_NAMED, // i32, User
@@ -55,6 +57,7 @@ struct AstNode {
     struct AstBinaryExpr binary_expr;
     struct AstUnaryExpr unary_expr;
     struct AstIdentifier identifer;
+    struct AstAssignment assignment;
   } as;
 };
 

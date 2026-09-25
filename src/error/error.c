@@ -125,6 +125,11 @@ void print_error(struct Error error, const char *file_name,
     fprintf(stderr, "%s'%s' already defined in this scope%s\n", ANSI_COLOR_BOLD,
             error.as.redeclaration.name, ANSI_COLOR_RESET);
     break;
+
+  case ERR_INVALID_LVALUE:
+    fprintf(stderr, "%sexpression is not assignable%s\n", ANSI_COLOR_BOLD,
+            ANSI_COLOR_RESET);
+    break;
   }
 
   print_error_body(file_name, contents, error.span);

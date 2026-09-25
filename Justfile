@@ -7,7 +7,4 @@ build:
           $(llvm-config --cflags --ldflags --libs core analysis)
 
 run *args: build 
-  @./dist/velora {{args}}
-
-map:
-  @npx markmap-cli docs/markmap.md --watch
+  @./dist/velora run {{args}}

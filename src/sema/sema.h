@@ -18,4 +18,6 @@ struct SemaCtx {
 };
 
 struct SemaCtx sema_new(struct Parser *p);
-void sema_check(struct SemaCtx *ctx, struct AstNode *root);
+void sema_node(struct SemaCtx *ctx, struct AstNode *root, struct Type *hint);
+
+bool ast_all_type_resolve(struct AstNode *node);

@@ -119,5 +119,11 @@ void print_ast(struct AstNode *node, int indent) {
     printf("AstIdentifier: (name: %s, resolved_type: %s)\n",
            node->as.identifer.name, type_str(node->resolved_type));
     break;
+  case AST_ASSIGNMENT:
+    printf("AstAssignment: (resolved_type: %s)\n",
+           type_str(node->resolved_type));
+    print_ast(node->as.assignment.lhs, indent + 1);
+    print_ast(node->as.assignment.rhs, indent + 1);
+    break;
   }
 }

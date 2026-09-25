@@ -15,7 +15,7 @@ struct SemaCtx sema_new(struct Parser *p) {
   return ctx;
 }
 
-void sema_check(struct SemaCtx *ctx, struct AstNode *root) {
+void sema_program(struct SemaCtx *ctx, struct AstNode *root) {
   // collection of global decl
   for (int i = 0; i < root->as.program.count; i++) {
     struct AstNode *decl = root->as.program.declaration[i];
@@ -45,10 +45,15 @@ void sema_check(struct SemaCtx *ctx, struct AstNode *root) {
   for (int i = 0; i < root->as.program.count; i++) {
     sema_node(ctx, root->as.program.declaration[i], NULL);
   }
+
+  root->resolved_type = &type_void;
 }
 
 void sema_node(struct SemaCtx *ctx, struct AstNode *node, struct Type *hint) {
   switch (node->kind) {
+  case AST_PROGRAM:
+    sema_program(ctx, node);
+    break;
   case AST_FUNCTION_DECL:
     sema_func(ctx, node);
     break;
