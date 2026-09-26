@@ -61,7 +61,7 @@ jobs:
             -DVERSION=\"${{ github.ref_name }}\" \
             -DCOMMIT=\"$(git rev-parse --short HEAD)\" \
             -DDATE=\"$(date +%Y-%m-%d)\" \
-            $(llvm-config --cflags --ldflags --libs core analysis native) \
+            $(llvm-config --cflags --ldflags --libs core analysis native --link-static) \
             -lpthread -lm -ldl
 
       # - name: Build (windows)
