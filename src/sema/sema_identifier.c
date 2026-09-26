@@ -1,7 +1,6 @@
 #include "sema_internal.h"
 
-void sema_identifier(struct SemaCtx *ctx, struct AstNode *node,
-                     struct Type *hint) {
+void sema_identifier(struct SemaCtx *ctx, struct AstNode *node, struct Type *hint) {
   struct Symbol *sym =
       scope_lookup(ctx->current_scope, node->as.identifer.name);
 

@@ -57,8 +57,8 @@ static int execute_build(int argc, char *argv[]) {
     err_code = 1;
     goto cleanup;
   }
-  
-  ast_print_tree(program_ast, 5);
+
+  // ast_print_tree(program_ast, 5);
 
   struct CodegenCtx codegen = codegen_new(&sema);
   codegen_node(&codegen, program_ast);

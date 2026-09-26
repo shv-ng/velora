@@ -73,7 +73,7 @@ void codegen_compile_binary(struct CodegenCtx *ctx) {
   LLVMDisposeMessage(emit_err);
   LLVMDisposeTargetMachine(machine);
 
-  int status = system("clang /tmp/velora_out.o -o /tmp/main -static");
+  int status = system("clang /tmp/velora_out.o -o /tmp/main -static -O3");
 
   if (status == -1) {
     ctx->error_count += 1;

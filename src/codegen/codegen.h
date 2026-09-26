@@ -16,7 +16,11 @@ struct CodegenCtx {
   char *file_name;
 };
 
+// initialise CodegenCtx from SemaCtx that use everywhere by passing as ctx
 struct CodegenCtx codegen_new(struct SemaCtx *sema);
 
-void codegen_node(struct CodegenCtx *ctx, struct AstNode *root);
+// node dispatcher, for codegen recursively from a given node
+void codegen_node(struct CodegenCtx *ctx, struct AstNode *node);
+
+// clean up memory, and llvm stuffs
 void codegen_free(struct CodegenCtx *ctx);

@@ -47,6 +47,7 @@ void ast_print_tree(struct AstNode *node, int indent) {
   if (!node)
     return;
 
+  // add extra space before each node printing
   ast_indentation(indent);
 
   switch (node->kind) {
@@ -70,7 +71,7 @@ void ast_print_tree(struct AstNode *node, int indent) {
     printf("AstTypeNamed: (name: %s, resolved_type: %s)\n",
            node->as.type_named.name, type_str(node->resolved_type));
     break;
-  case AST_BLOCK_DECLARAION:
+  case AST_BLOCK_DECLARATION:
     printf("AstBlockDeclaration: (name: %s, resolved_type: %s)\n",
            node->as.block.name, type_str(node->resolved_type));
     for (int i = 0; i < node->as.block.count; i++) {

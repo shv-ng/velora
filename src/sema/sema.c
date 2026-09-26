@@ -23,7 +23,7 @@ void sema_node(struct SemaCtx *ctx, struct AstNode *node, struct Type *hint) {
   case AST_FUNCTION_DECLARATION:
     sema_function_declaration(ctx, node);
     break;
-  case AST_BLOCK_DECLARAION:
+  case AST_BLOCK_DECLARATION:
     sema_block_declaration(ctx, node, hint);
     break;
   case AST_RETURN_STATEMENT:

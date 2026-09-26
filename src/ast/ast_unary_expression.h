@@ -8,7 +8,6 @@ enum UnaryOperator {
   OP_BITWISE_NOT,
 };
 
-// ast node for unary
 struct AstUnaryExpression {
   struct AstNode *expression;
   enum UnaryOperator op;

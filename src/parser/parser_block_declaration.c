@@ -7,7 +7,7 @@ struct AstNode *parse_block_declaration(struct ParserCtx *ctx, char *name) {
 
   parser_expect(ctx, TOK_LBRACE);
 
-  struct AstNode *block = astnode_new(ctx, AST_BLOCK_DECLARAION);
+  struct AstNode *block = astnode_new(ctx, AST_BLOCK_DECLARATION);
   block->as.block.trailing_expression = NULL;
   block->as.block.name = name;
 

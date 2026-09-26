@@ -47,7 +47,7 @@ bool sema_check_type_resolve(struct SemaCtx *ctx, struct AstNode *node) {
     return false;
   case AST_TYPE_NAMED:
     break;
-  case AST_BLOCK_DECLARAION: {
+  case AST_BLOCK_DECLARATION: {
     if (!sema_check_type_resolve(ctx, node->as.block.trailing_expression)) {
       return false;
     }

@@ -3,12 +3,16 @@
 #include "codegen.h"
 #include <llvm-c/Types.h>
 
+// get llvm type from ast type, assign at sema stage
 LLVMTypeRef type_to_llvm(struct CodegenCtx *ctx, struct Type *type);
-LLVMValueRef codegen_binary_expression(struct CodegenCtx *ctx, struct AstNode *node);
+
+LLVMValueRef codegen_binary_expression(struct CodegenCtx *ctx,
+                                       struct AstNode *node);
 LLVMValueRef codegen_expression(struct CodegenCtx *ctx, struct AstNode *node);
 LLVMValueRef codegen_identifier(struct CodegenCtx *ctx, struct AstNode *node);
 LLVMValueRef codegen_int_literal(struct CodegenCtx *ctx, struct AstNode *node);
-LLVMValueRef codegen_unary_expression(struct CodegenCtx *ctx, struct AstNode *node);
+LLVMValueRef codegen_unary_expression(struct CodegenCtx *ctx,
+                                      struct AstNode *node);
 void codegen_block(struct CodegenCtx *ctx, struct AstNode *node);
 void codegen_compile_binary(struct CodegenCtx *ctx);
 void codegen_function_declaration(struct CodegenCtx *ctx, struct AstNode *node);

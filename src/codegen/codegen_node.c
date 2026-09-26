@@ -15,7 +15,7 @@ void codegen_node(struct CodegenCtx *ctx, struct AstNode *node) {
   case AST_VARIABLE_DECLARATION:
     codegen_variable_declaration(ctx, node);
     break;
-  case AST_BLOCK_DECLARAION:
+  case AST_BLOCK_DECLARATION:
     codegen_block(ctx, node);
     break;
   case AST_RETURN_STATEMENT:

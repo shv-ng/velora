@@ -15,7 +15,6 @@ enum BinaryOperator {
   OP_BITWISE_AND,
 };
 
-// ast for expr contains recursive expr as rhs, and lhs and the op 
 struct AstBinaryExpression {
   struct AstNode *left;
   struct AstNode *right;

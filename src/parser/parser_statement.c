@@ -14,6 +14,7 @@ struct AstNode *parse_statement(struct ParserCtx *ctx, struct AstNode *block) {
   if (ctx->current_token.kind == TOK_KW_RETURN) {
     return parse_return_statement(ctx);
   }
+
   if (ctx->current_token.kind == TOK_IDENTIFIER) {
     if (ctx->next_token.kind == TOK_COLON) {
       return parse_declaration(ctx);
