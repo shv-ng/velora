@@ -1,8 +1,6 @@
 #pragma once
 
-#include "../ast/ast.h"
 #include "../sema/sema.h"
-#include <llvm-c/Core.h>
 #include <llvm-c/Types.h>
 
 struct CodegenCtx {

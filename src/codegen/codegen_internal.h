@@ -1,19 +1,18 @@
 #pragma once
 
-#include "../error/error.h"
 #include "codegen.h"
-
-void codegen_program(struct CodegenCtx *ctx, struct AstNode *node);
-
-void codegen_func(struct CodegenCtx *ctx, struct AstNode *node);
-void codegen_var_decl(struct CodegenCtx *ctx, struct AstNode *node);
-
-void codegen_return(struct CodegenCtx *ctx, struct AstNode *node);
-void codegen_block(struct CodegenCtx *ctx, struct AstNode *node);
-void codegen_stmt(struct CodegenCtx *ctx, struct AstNode *node);
-
-LLVMValueRef codegen_int_literal(struct CodegenCtx *ctx, struct AstNode *node);
-LLVMValueRef codegen_expr(struct CodegenCtx *ctx, struct AstNode *node);
+#include <llvm-c/Types.h>
 
 LLVMTypeRef type_to_llvm(struct CodegenCtx *ctx, struct Type *type);
-void codegen_binary(struct CodegenCtx *ctx);
+LLVMValueRef codegen_binary_expression(struct CodegenCtx *ctx, struct AstNode *node);
+LLVMValueRef codegen_expression(struct CodegenCtx *ctx, struct AstNode *node);
+LLVMValueRef codegen_identifier(struct CodegenCtx *ctx, struct AstNode *node);
+LLVMValueRef codegen_int_literal(struct CodegenCtx *ctx, struct AstNode *node);
+LLVMValueRef codegen_unary_expression(struct CodegenCtx *ctx, struct AstNode *node);
+void codegen_block(struct CodegenCtx *ctx, struct AstNode *node);
+void codegen_compile_binary(struct CodegenCtx *ctx);
+void codegen_function_declaration(struct CodegenCtx *ctx, struct AstNode *node);
+void codegen_node(struct CodegenCtx *ctx, struct AstNode *node);
+void codegen_program(struct CodegenCtx *ctx, struct AstNode *node);
+void codegen_return_statement(struct CodegenCtx *ctx, struct AstNode *node);
+void codegen_variable_declaration(struct CodegenCtx *ctx, struct AstNode *node);

@@ -2,17 +2,15 @@
 
 #include "../token/token.h"
 #include "../utils/arena.h"
-#include <stdint.h>
-#include <sys/types.h>
 
-struct Lexer {
+struct LexerCtx {
   char *contents;
   char *file_name;
   int pos;
   struct Arena *arena;
-  struct Span current_span;
+  struct Span span;
 };
 
-struct Lexer lexer_new(struct Arena *a, char *file, char *src);
+struct LexerCtx lexer_new(struct Arena *a, char *file, char *src);
 
-struct Token next_token(struct Lexer *l);
+struct Token lexer_next_token(struct LexerCtx *ctx);

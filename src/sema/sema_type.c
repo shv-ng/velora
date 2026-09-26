@@ -1,7 +1,7 @@
 #include "sema_internal.h"
 #include <string.h>
 
-struct Type *resolve_type_node(struct AstNode *node) {
+struct Type *sema_resolve_type_node(struct AstNode *node) {
   struct Type *t = &type_unknown;
   switch (node->kind) {
   case AST_TYPE_NAMED: {

@@ -1,7 +1,8 @@
 #pragma once
 
-enum BinaryOp {
-  OP_UNKNOWN_BINARY_OP,
+// enum for binary operator.
+enum BinaryOperator {
+  OP_UNKNOWN_BINARY_OPERATOR,
   OP_ADD,
   OP_SUB,
   OP_MULIPLY,
@@ -14,8 +15,9 @@ enum BinaryOp {
   OP_BITWISE_AND,
 };
 
-struct AstBinaryExpr {
+// ast for expr contains recursive expr as rhs, and lhs and the op 
+struct AstBinaryExpression {
   struct AstNode *left;
   struct AstNode *right;
-  enum BinaryOp op;
+  enum BinaryOperator op;
 };

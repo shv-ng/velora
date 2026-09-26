@@ -9,26 +9,26 @@ void codegen_node(struct CodegenCtx *ctx, struct AstNode *node) {
   case AST_PROGRAM:
     codegen_program(ctx, node);
     break;
-  case AST_FUNCTION_DECL:
-    codegen_func(ctx, node);
+  case AST_FUNCTION_DECLARATION:
+    codegen_function_declaration(ctx, node);
     break;
-  case AST_VAR_DECL:
-    codegen_var_decl(ctx, node);
+  case AST_VARIABLE_DECLARATION:
+    codegen_variable_declaration(ctx, node);
     break;
-  case AST_BLOCK_DECL:
+  case AST_BLOCK_DECLARAION:
     codegen_block(ctx, node);
     break;
-  case AST_RETURN_STMT:
-    codegen_return(ctx, node);
+  case AST_RETURN_STATEMENT:
+    codegen_return_statement(ctx, node);
     break;
   case AST_ASSIGNMENT:
   case AST_TYPE_UNKNOWN:
   case AST_TYPE_NAMED:
-  case AST_EXPR_STMT:
+  case AST_EXPRESSION_STATEMENT:
   case AST_INT_LITERAL:
   case AST_IDENTIFIER:
-  case AST_BINARY_EXPR:
-  case AST_UNARY_EXPR:
+  case AST_BINARY_EXPRESSION:
+  case AST_UNARY_EXPRESSION:
     ctx->error_count++;
     struct Error err = {.span = node->span,
                         .kind = ERR_CODEGEN,

@@ -1,10 +1,9 @@
-#include "parser.h"
 #include "parser_internal.h"
 #include <stdbool.h>
 #include <stdlib.h>
 #include <sys/types.h>
 
-static enum UnaryOp token_to_unaryOp(enum TokenKind kind) {
+static enum UnaryOperator token_to_unaryOperator(enum TokenKind kind) {
   switch (kind) {
   case TOK_MINUS:
     return OP_NEGATIVE;
@@ -15,7 +14,7 @@ static enum UnaryOp token_to_unaryOp(enum TokenKind kind) {
   }
 }
 
-static enum BinaryOp token_to_binaryOp(enum TokenKind kind) {
+static enum BinaryOperator token_to_binaryOperator(enum TokenKind kind) {
   switch (kind) {
   case TOK_PLUS:
     return OP_ADD;
@@ -38,7 +37,7 @@ static enum BinaryOp token_to_binaryOp(enum TokenKind kind) {
   case TOK_RIGHT_SHIFT:
     return OP_RIGHT_SHIFT;
   default:
-    return OP_UNKNOWN_BINARY_OP;
+    return OP_UNKNOWN_BINARY_OPERATOR;
   }
 }
 
@@ -65,39 +64,41 @@ static int infix_bp(enum TokenKind kind) {
   }
 }
 
-struct AstNode *parse_expr(struct Parser *p, int min_bp) {
+struct AstNode *parse_expression(struct ParserCtx *ctx, int min_bp) {
   struct AstNode *left = NULL;
 
-  if (p->current_token.kind == TOK_MINUS ||
-      p->current_token.kind == TOK_TIDLE) {
-    struct AstNode *node = astnode_new(p, AST_UNARY_EXPR);
+  if (ctx->current_token.kind == TOK_MINUS ||
+      ctx->current_token.kind == TOK_TIDLE) {
+    struct AstNode *node = astnode_new(ctx, AST_UNARY_EXPRESSION);
 
-    node->as.unary_expr.op = token_to_unaryOp(p->current_token.kind);
-    struct Span prev_span = p->current_token.span;
+    node->as.unary_expression.op =
+        token_to_unaryOperator(ctx->current_token.kind);
+    struct Span prev_span = ctx->current_token.span;
 
-    parser_advance(p);
-    node->as.unary_expr.is_prefix = true;
-    node->as.unary_expr.expr = parse_expr(p, 100);
-    node->span = merge_span(prev_span, node->as.unary_expr.expr->span);
+    parser_advance(ctx);
+    node->as.unary_expression.is_prefix = true;
+    node->as.unary_expression.expression = parse_expression(ctx, 100);
+    node->span =
+        merge_span(prev_span, node->as.unary_expression.expression->span);
 
     left = node;
   } else {
-    left = parse_primary(p);
+    left = parse_primary(ctx);
   }
 
   for (;;) {
-    int bp = infix_bp(p->current_token.kind);
+    int bp = infix_bp(ctx->current_token.kind);
     if (bp <= min_bp)
       break;
-    enum BinaryOp op = token_to_binaryOp(p->current_token.kind);
-    parser_advance(p);
+    enum BinaryOperator op = token_to_binaryOperator(ctx->current_token.kind);
+    parser_advance(ctx);
 
-    struct AstNode *right = parse_expr(p, bp);
+    struct AstNode *right = parse_expression(ctx, bp);
 
-    struct AstNode *expr = astnode_new(p, AST_BINARY_EXPR);
-    expr->as.binary_expr.left = left;
-    expr->as.binary_expr.op = op;
-    expr->as.binary_expr.right = right;
+    struct AstNode *expr = astnode_new(ctx, AST_BINARY_EXPRESSION);
+    expr->as.binary_expression.left = left;
+    expr->as.binary_expression.op = op;
+    expr->as.binary_expression.right = right;
     expr->span = merge_span(left->span, right->span);
 
     left = expr;

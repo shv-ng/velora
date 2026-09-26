@@ -17,7 +17,6 @@ struct SemaCtx {
   int error_count;
 };
 
-struct SemaCtx sema_new(struct Parser *p);
+struct SemaCtx sema_new(struct ParserCtx *p);
 void sema_node(struct SemaCtx *ctx, struct AstNode *root, struct Type *hint);
 
-bool ast_all_type_resolve(struct AstNode *node);

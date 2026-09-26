@@ -1,23 +1,23 @@
 #include "parser_internal.h"
 
-struct AstNode *astnode_new(struct Parser *p, enum AstKind kind) {
-  struct AstNode *node = arena_calloc(p->arena, 1, sizeof(struct AstNode));
+struct AstNode *astnode_new(struct ParserCtx *ctx, enum AstKind kind) {
+  struct AstNode *node = arena_calloc(ctx->arena, 1, sizeof(struct AstNode));
   node->resolved_type = &type_unknown;
   node->kind = kind;
   return node;
 }
 
-void parser_advance(struct Parser *p) {
-  p->current_token = p->next_token;
-  p->next_token = next_token(p->lexer);
+void parser_advance(struct ParserCtx *ctx) {
+  ctx->current_token = ctx->next_token;
+  ctx->next_token = lexer_next_token(ctx->lexer);
 }
 
-void synchronise(struct Parser *p) {
+void parser_synchronise(struct ParserCtx *ctx) {
   // dumber error recovery
-  while (p->current_token.kind != TOK_EOF) {
-    switch (p->current_token.kind) {
+  while (ctx->current_token.kind != TOK_EOF) {
+    switch (ctx->current_token.kind) {
     case TOK_SEMICOLON:
-      parser_advance(p);
+      parser_advance(ctx);
       return;
 
     case TOK_EOF:
@@ -26,25 +26,25 @@ void synchronise(struct Parser *p) {
       return;
 
     default:
-      parser_advance(p);
+      parser_advance(ctx);
     }
   }
 }
 
-void expect(struct Parser *p, enum TokenKind kind) {
-  if (p->current_token.kind == kind) {
-    parser_advance(p);
+void parser_expect(struct ParserCtx *ctx, enum TokenKind kind) {
+  if (ctx->current_token.kind == kind) {
+    parser_advance(ctx);
     return;
   }
 
   struct Error err = {
       .kind = ERR_SYNTAX,
-      .span = p->current_token.span,
+      .span = ctx->current_token.span,
       .as.syntax.expected = token_kind_str(kind),
-      .as.syntax.found = token_kind_str(p->current_token.kind),
+      .as.syntax.found = token_kind_str(ctx->current_token.kind),
   };
-  print_error(err, p->lexer->file_name, p->lexer->contents);
+  print_error(err, ctx->lexer->file_name, ctx->lexer->contents);
 
-  p->error_count++;
+  ctx->error_count++;
   return;
 }

@@ -38,8 +38,8 @@ static int execute_build(int argc, char *argv[]) {
     goto cleanup;
   }
 
-  struct Lexer lexer = lexer_new(a, file_name, contents);
-  struct Parser parser = parser_new(&lexer);
+  struct LexerCtx lexer = lexer_new(a, file_name, contents);
+  struct ParserCtx parser = parser_new(&lexer);
 
   struct AstNode *program_ast = parse_program(&parser);
 
@@ -57,15 +57,8 @@ static int execute_build(int argc, char *argv[]) {
     err_code = 1;
     goto cleanup;
   }
-  print_ast(program_ast, 2);
-
-  if (!ast_all_type_resolve(program_ast)) {
-    fprintf(stderr, "ICE: unresolved types before codegen\n");
-
-    err_code = 1;
-    err_count++;
-    goto cleanup;
-  }
+  
+  ast_print_tree(program_ast, 5);
 
   struct CodegenCtx codegen = codegen_new(&sema);
   codegen_node(&codegen, program_ast);

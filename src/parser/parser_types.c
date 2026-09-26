@@ -1,12 +1,12 @@
 #include "parser_internal.h"
 
-struct AstNode *parse_type(struct Parser *p) {
-  struct Span start = p->current_token.span;
-  struct AstNode *type = astnode_new(p, AST_TYPE_UNKNOWN);
+struct AstNode *parse_type(struct ParserCtx *ctx) {
+  struct Span start = ctx->current_token.span;
+  struct AstNode *type = astnode_new(ctx, AST_TYPE_UNKNOWN);
 
-  if (p->current_token.kind == TOK_IDENTIFIER) {
-    struct Token name_tok = p->current_token;
-    expect(p, TOK_IDENTIFIER);
+  if (ctx->current_token.kind == TOK_IDENTIFIER) {
+    struct Token name_tok = ctx->current_token;
+    parser_expect(ctx, TOK_IDENTIFIER);
 
     type->kind = AST_TYPE_NAMED;
     type->as.type_named.name = name_tok.val;
@@ -15,14 +15,14 @@ struct AstNode *parse_type(struct Parser *p) {
   if (type->kind == AST_TYPE_UNKNOWN) {
     struct Error err = {
         .kind = ERR_SYNTAX,
-        .span = p->current_token.span,
-        .as.syntax.found = token_kind_str(p->current_token.kind),
+        .span = ctx->current_token.span,
+        .as.syntax.found = token_kind_str(ctx->current_token.kind),
     };
-    print_error(err, p->lexer->file_name, p->lexer->contents);
-    parser_advance(p);
-    p->error_count++;
+    print_error(err, ctx->lexer->file_name, ctx->lexer->contents);
+    parser_advance(ctx);
+    ctx->error_count++;
   }
-  struct Span end = p->current_token.span;
+  struct Span end = ctx->current_token.span;
   type->span = merge_span(start, end);
   return type;
 }

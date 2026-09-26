@@ -1,4 +1,5 @@
 #include "codegen_internal.h"
+#include <llvm-c/Core.h>
 
 LLVMTypeRef type_to_llvm(struct CodegenCtx *ctx, struct Type *type) {
   switch (type->kind) {

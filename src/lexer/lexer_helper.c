@@ -1,34 +1,44 @@
 #include "lexer_internal.h"
 
-char peek(struct Lexer *l) { return l->contents[l->pos]; };
-char peek_next(struct Lexer *l) { return l->contents[l->pos + 1]; };
+// return what char is currenty pos marking
+char lexer_peek(struct LexerCtx *ctx) { return ctx->contents[ctx->pos]; };
 
-char lexer_advance(struct Lexer *l) {
-  char c = peek(l);
+// return what char is after pos mark
+char lexer_peek_next(struct LexerCtx *ctx) {
+  return ctx->contents[ctx->pos + 1];
+};
+
+// return current char and move forward, also can handle new line char like
+// '\n', '\r\n', '\r'
+char lexer_advance(struct LexerCtx *ctx) {
+  char c = lexer_peek(ctx);
   if (c == '\n' || c == '\r') {
 
-    l->current_span.end_line++;
-    l->current_span.end_col = 1;
+    ctx->span.end_line++;
+    ctx->span.end_col = 1;
 
-    if (c == '\r' && peek_next(l) == '\n') {
-      l->pos++;
+    if (c == '\r' && lexer_peek_next(ctx) == '\n') {
+      ctx->pos++;
     }
   } else {
-    l->current_span.end_col++;
+    ctx->span.end_col++;
   }
 
-  l->pos++;
+  ctx->pos++;
   return c;
 };
 
-void skip_whitespace(struct Lexer *l) {
-  while (peek(l) == ' ' || peek(l) == '\t' || peek(l) == '\n' ||
-         peek(l) == '\r')
+void lexer_skip_whitespace(struct LexerCtx *ctx) {
+  while (lexer_peek(ctx) == ' ' || lexer_peek(ctx) == '\t' ||
+         lexer_peek(ctx) == '\n' || lexer_peek(ctx) == '\r')
 
-    lexer_advance(l);
+    lexer_advance(ctx);
 };
 
-struct Token make_tok(struct Lexer *l, enum TokenKind kind) {
+struct Token lexer_make_tok(struct LexerCtx *ctx, enum TokenKind kind) {
   return (struct Token){
-      .file_name = l->file_name, .span = l->current_span, .kind = kind};
+      .file_name = ctx->file_name,
+      .span = ctx->span,
+      .kind = kind,
+  };
 }

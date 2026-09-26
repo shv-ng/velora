@@ -1,25 +1,25 @@
-#include "sema.h"
 #include "sema_internal.h"
-#include "symbol.h"
 #include <stdbool.h>
 
-void sema_func(struct SemaCtx *ctx, struct AstNode *node) {
+void sema_function_declaration(struct SemaCtx *ctx, struct AstNode *node) {
   struct Type *prev_type = ctx->current_return_type;
 
   sema_node(ctx, node->as.function.return_type, prev_type);
 
-  ctx->current_return_type = resolve_type_node(node->as.function.return_type);
+  ctx->current_return_type = sema_resolve_type_node(node->as.function.return_type);
   node->resolved_type = ctx->current_return_type;
 
   sema_node(ctx, node->as.function.block, ctx->current_return_type);
 
   if (!type_equal(ctx->current_return_type, &type_void)) {
+
     struct AstNode *block = node->as.function.block;
-    bool has_expr = block->as.block.trailing_expr != NULL;
+
+    bool has_expr = block->as.block.trailing_expression != NULL;
     bool has_return =
         block->as.block.count > 0 &&
         block->as.block.statements[block->as.block.count - 1]->kind ==
-            AST_RETURN_STMT;
+            AST_RETURN_STATEMENT;
 
     if (!has_expr && !has_return) {
       struct Error err = {.kind = ERR_MISSING_RETURN,
@@ -34,26 +34,4 @@ void sema_func(struct SemaCtx *ctx, struct AstNode *node) {
   }
 
   ctx->current_return_type = prev_type;
-}
-
-void sema_var_decl(struct SemaCtx *ctx, struct AstNode *node) {
-  sema_node(ctx, node->as.var_decl.type, NULL);
-
-  node->resolved_type = node->as.var_decl.type->resolved_type;
-  sema_node(ctx, node->as.var_decl.expr, node->resolved_type);
-
-  if (scope_lookup_current(ctx->current_scope, node->as.var_decl.name)) {
-    ctx->error_count++;
-    struct Error err = {.kind = ERR_REDECLARATION,
-                        .span = node->span,
-                        .as.redeclaration.name = node->as.var_decl.name};
-    print_error(err, ctx->file_name, ctx->contents);
-    return;
-  }
-
-  struct Symbol *sym = symbol_new(ctx->arena, node);
-  node->symbol = sym;
-
-  scope_define(ctx->current_scope, node->as.var_decl.name, sym);
-
 }

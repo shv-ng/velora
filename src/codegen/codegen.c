@@ -1,13 +1,10 @@
 #include "codegen.h"
-#include "codegen_internal.h"
-#include <llvm-c/Analysis.h>
-#include <llvm-c/TargetMachine.h>
-#include <stdlib.h>
+#include <llvm-c/Core.h>
 
-struct CodegenCtx codegen_new(struct SemaCtx *sema) {
+struct CodegenCtx codegen_new(struct SemaCtx *sema_ctx) {
 
-  struct CodegenCtx ctx = {.file_name = sema->file_name,
-                           .contents = sema->contents};
+  struct CodegenCtx ctx = {.file_name = sema_ctx->file_name,
+                           .contents = sema_ctx->contents};
 
   ctx.context = LLVMContextCreate();
   ctx.module = LLVMModuleCreateWithNameInContext(ctx.file_name, ctx.context);
@@ -16,99 +13,6 @@ struct CodegenCtx codegen_new(struct SemaCtx *sema) {
   ctx.error_count = 0;
 
   return ctx;
-}
-
-void codegen_program(struct CodegenCtx *ctx, struct AstNode *root) {
-  for (int i = 0; i < root->as.program.count; i++) {
-    struct AstNode *decl = root->as.program.declaration[i];
-    codegen_node(ctx, decl);
-  }
-  if (ctx->error_count == 0) {
-    codegen_binary(ctx);
-  }
-}
-
-
-void codegen_binary(struct CodegenCtx *ctx) {
-  // verify llvm mod
-  char *err = NULL;
-  if (LLVMVerifyModule(ctx->module, LLVMPrintMessageAction, &err)) {
-    ctx->error_count += 1;
-    struct Error error = {.kind = ERR_CODEGEN,
-                          .as.codegen = (struct ErrCodegen){.message = err}};
-
-    print_error(error, ctx->file_name, ctx->contents);
-    return;
-  }
-
-  LLVMDisposeMessage(err);
-
-  // get target triple: TODO: will change as per user given
-  char *triple = LLVMGetDefaultTargetTriple();
-
-  // initialise targets
-  // LLVMInitializeAllTargetInfos();
-  // LLVMInitializeAllTargets();
-  // LLVMInitializeAllTargetMCs();
-  // LLVMInitializeAllAsmParsers();
-  // LLVMInitializeAllAsmPrinters();
-  LLVMInitializeNativeTarget();
-  LLVMInitializeNativeAsmPrinter();
-  LLVMInitializeNativeAsmParser();
-
-  // get target from triple
-  LLVMTargetRef target;
-  char *target_err = NULL;
-
-  if (LLVMGetTargetFromTriple(triple, &target, &target_err)) {
-    ctx->error_count += 1;
-    struct Error error = {.kind = ERR_CODEGEN,
-                          .as.codegen =
-                              (struct ErrCodegen){.message = target_err}};
-
-    print_error(error, ctx->file_name, ctx->contents);
-    return;
-  }
-
-  LLVMDisposeMessage(target_err);
-
-  // create target machine and config module
-  LLVMTargetMachineRef machine = LLVMCreateTargetMachine(
-      target, triple, "generic", "", LLVMCodeGenLevelDefault, LLVMRelocDefault,
-      LLVMCodeModelDefault);
-
-  LLVMTargetDataRef data_layout = LLVMCreateTargetDataLayout(machine);
-  LLVMSetModuleDataLayout(ctx->module, data_layout);
-  LLVMSetTarget(ctx->module, triple);
-  LLVMDisposeTargetData(data_layout);
-  LLVMDisposeMessage(triple);
-
-  // emit object file
-  char *emit_err = NULL;
-  if (LLVMTargetMachineEmitToFile(machine, ctx->module, "/tmp/velora_out.o",
-                                  LLVMObjectFile, &emit_err)) {
-    ctx->error_count += 1;
-    struct Error error = {.kind = ERR_CODEGEN,
-                          .as.codegen =
-                              (struct ErrCodegen){.message = emit_err}};
-
-    print_error(error, ctx->file_name, ctx->contents);
-    return;
-  }
-  LLVMDisposeMessage(emit_err);
-  LLVMDisposeTargetMachine(machine);
-
-  int status = system("clang /tmp/velora_out.o -o /tmp/main -static");
-
-  if (status == -1) {
-    ctx->error_count += 1;
-    struct Error error = {
-        .kind = ERR_CODEGEN,
-        .as.codegen = (struct ErrCodegen){.message = "fail to run clang"}};
-
-    print_error(error, ctx->file_name, ctx->contents);
-    return;
-  }
 }
 
 void codegen_free(struct CodegenCtx *ctx) {

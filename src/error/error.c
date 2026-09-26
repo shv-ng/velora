@@ -79,7 +79,7 @@ static void print_error_body(const char *file_name, const char *contents,
 void print_error(struct Error error, const char *file_name,
                  const char *contents) {
   // error header
-  fprintf(stderr, "%serror:%s ", ANSI_COLOR_RED, ANSI_COLOR_RESET);
+  fprintf(stderr, "%serror%s: ", ANSI_COLOR_RED, ANSI_COLOR_RESET);
 
   switch (error.kind) {
   case ERR_SYNTAX:
@@ -128,6 +128,10 @@ void print_error(struct Error error, const char *file_name,
 
   case ERR_INVALID_LVALUE:
     fprintf(stderr, "%sexpression is not assignable%s\n", ANSI_COLOR_BOLD,
+            ANSI_COLOR_RESET);
+    break;
+  case ERR_UNRESOLVED_TYPE:
+    fprintf(stderr, "%sICE: unresolved types before codegen%s\n", ANSI_COLOR_BOLD,
             ANSI_COLOR_RESET);
     break;
   }

@@ -53,13 +53,13 @@ struct Symbol *symbol_new(struct Arena *a, struct AstNode *decl) {
   sym->type = decl->resolved_type;
 
   switch (decl->kind) {
-  case AST_FUNCTION_DECL:
+  case AST_FUNCTION_DECLARATION:
     sym->name = decl->as.function.name;
     sym->kind = SYMBOL_FUNC;
     break;
 
-  case AST_VAR_DECL:
-    sym->name = decl->as.var_decl.name;
+  case AST_VARIABLE_DECLARATION:
+    sym->name = decl->as.variable_declaration.name;
     sym->kind = SYMBOL_VAR;
     break;
 
