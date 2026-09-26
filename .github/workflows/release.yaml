@@ -42,27 +42,26 @@ jobs:
           fetch-depth: 0
 
       - name: Install LLVM
-        env: 
-          HOMEBREW_NO_REQUIRE_TAP_TRUST: 1
-        run: ${{ matrix.install }}
-
+        run: sudo apt-get install -y llvm-dev clang libzstd-dev libstdc++-14-dev zlib1g-dev
+      
       - name: Build (unix)
         if: runner.os != 'Windows'
         run: |
-          # add homebrew llvm to path on mac
           if [ "$RUNNER_OS" = "macOS" ]; then
             export PATH="$(brew --prefix llvm)/bin:$PATH"
           fi
-
+      
           mkdir -p dist
-          clang ./src/*.c ./src/*/*.c\
+          clang ./src/*.c ./src/*/*.c \
             -o dist/${{ matrix.artifact }} \
             -Wall -Wextra \
             -DVERSION=\"${{ github.ref_name }}\" \
             -DCOMMIT=\"$(git rev-parse --short HEAD)\" \
             -DDATE=\"$(date +%Y-%m-%d)\" \
-            $(llvm-config --cflags --ldflags --libs core analysis native) \
-            -lpthread -lm -ldl
+            $(llvm-config --cflags --ldflags --libs core analysis native --link-static) \
+            -lpthread -ldl -static-libgcc \
+            -Wl,-Bstatic -lzstd -lz -lstdc++ \
+            -Wl,-Bdynamic -lm -lc -lgcc_s
 
       # - name: Build (windows)
       #   if: runner.os == 'Windows'
