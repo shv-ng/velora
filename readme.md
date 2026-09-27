@@ -9,8 +9,7 @@ A programming language.
 
 ## Requirements
 
-- llvm-18
-- clang
+- [clang](https://clang.llvm.org/) or [gcc](https://gcc.gnu.org/) for linking
 
 ## Install
 
@@ -38,3 +37,4 @@ arguments:
     -h, --help       print this msg
     -v, --version    print version
 ```
+
