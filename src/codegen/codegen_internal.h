@@ -25,3 +25,6 @@ LLVMTargetMachineRef codegen_create_machine(struct CodegenCtx *ctx);
 void codegen_compile_binary(struct CodegenCtx *ctx);
 bool codegen_emit_object(struct CodegenCtx *ctx, LLVMTargetMachineRef machine,
                          const char *path);
+
+bool codegen_link_binary(struct CodegenCtx *ctx, const char *obj_path,
+                         const char *out_path);
