@@ -38,7 +38,7 @@ enum ErrorKind {
 };
 
 struct ErrorCtx {
-  int *count;
+  int count;
 
   const char *file_name;
   const char *content;

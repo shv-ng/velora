@@ -43,33 +43,31 @@ static int execute_build(int argc, char *argv[]) {
   struct AstNode *program_ast = parse_program(&parser);
 
   if (parser.err->count != 0) {
-    err_count += *parser.err->count;
+    err_count += parser.err->count;
     err_code = 1;
     goto cleanup;
   }
-
-  ast_print_tree(program_ast, 2);
 
   struct SemaCtx sema = sema_new(&parser);
 
   sema_node(&sema, program_ast, NULL);
 
   if (sema.err->count != 0) {
-    err_count += *sema.err->count;
+    err_count += sema.err->count;
     err_code = 1;
     goto cleanup;
   }
 
+  ast_print_tree(program_ast, 2);
   struct CodegenCtx codegen = codegen_new(&sema);
   codegen_node(&codegen, program_ast);
 
   if (codegen.err->count != 0) {
-    err_count += *codegen.err->count;
+    err_count += codegen.err->count;
     err_code = 1;
   }
 
   codegen_free(&codegen);
-
 cleanup:
   arena_free(a);
 

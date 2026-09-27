@@ -45,6 +45,9 @@ void sema_node(struct SemaCtx *ctx, struct AstNode *node, struct Type *hint) {
   case AST_IDENTIFIER:
     sema_identifier(ctx, node, hint);
     break;
+  case AST_ASSIGNMENT:
+    sema_assignment(ctx, node);
+    break;
   default:
     break;
   }

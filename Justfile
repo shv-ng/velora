@@ -8,3 +8,6 @@ build:
 
 run *args: build 
   @./dist/velora run {{args}}
+
+format:
+  @clang-format -i src/**/*.c src/**/*.h 
