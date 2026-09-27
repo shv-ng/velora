@@ -10,10 +10,6 @@ struct AstNode *parse_function_declaration(struct ParserCtx *ctx, char *name) {
   struct AstNode *return_type = parse_type(ctx);
   struct AstNode *block = parse_block_declaration(ctx, name);
 
-  if (ctx->error_count > 0) {
-    return NULL;
-  }
-
   struct AstNode *func = astnode_new(ctx, AST_FUNCTION_DECLARATION);
 
   func->as.function.name = name;

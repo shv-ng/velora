@@ -7,19 +7,13 @@ static void sema_report_unused(struct SemaCtx *ctx) {
     struct Symbol *sym = ctx->current_scope->symbols[i];
 
     if (!sym->is_used && sym->name[0] != '_') {
-      struct Error err = {
-          .kind = ERR_UNUSED_IDENTIFIER,
-          .span = sym->decl->span,
-          .as.unused_identifier.name = sym->name,
-      };
-
-      ctx->error_count++;
-      print_error(err, ctx->file_name, ctx->contents);
+      emit_error(ctx->err, sym->decl->span, ERR_UNUSED_IDENTIFIER, sym->name);
     }
   }
 }
 
-void sema_block_declaration(struct SemaCtx *ctx, struct AstNode *node, struct Type *hint) {
+void sema_block_declaration(struct SemaCtx *ctx, struct AstNode *node,
+                            struct Type *hint) {
   struct Scope *prev = ctx->current_scope;
 
   ctx->current_scope = scope_new(ctx->arena, ctx->current_scope);
@@ -39,4 +33,3 @@ void sema_block_declaration(struct SemaCtx *ctx, struct AstNode *node, struct Ty
 
   ctx->current_scope = prev;
 }
-

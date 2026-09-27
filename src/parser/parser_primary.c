@@ -33,15 +33,8 @@ struct AstNode *parse_primary(struct ParserCtx *ctx) {
     return node;
   }
 
-  struct Error err = {
-      .kind = ERR_SYNTAX,
-      .span = ctx->current_token.span,
-      .as.syntax.expected = "expression",
-      .as.syntax.found = token_kind_str(ctx->current_token.kind),
-  };
-
-  print_error(err, ctx->lexer->file_name, ctx->lexer->contents);
-  ctx->error_count++;
+  emit_error(ctx->err, ctx->current_token.span, ERR_EXPECTED_FOUND,
+             "expression", token_kind_str(ctx->current_token.kind));
 
   parser_synchronise(ctx);
   return NULL;

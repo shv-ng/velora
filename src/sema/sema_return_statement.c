@@ -3,13 +3,8 @@
 void sema_return_statement(struct SemaCtx *ctx, struct AstNode *node) {
 
   if (!node->as.return_statement.expression) {
-    struct Error err = {.kind = ERR_SYNTAX,
-                        .span = node->span,
-                        .as.syntax = {
-                            .expected = type_str(ctx->current_return_type),
-                        }};
-    ctx->error_count++;
-    print_error(err, ctx->file_name, ctx->contents);
+    emit_error(ctx->err, node->span, ERR_UNEXPECTED,
+               type_str(ctx->current_return_type));
     return;
   }
 
@@ -21,17 +16,8 @@ void sema_return_statement(struct SemaCtx *ctx, struct AstNode *node) {
   node->resolved_type = actual;
 
   if (!type_equal(actual, ctx->current_return_type)) {
-    struct Error err = {
-        .kind = ERR_TYPE_MISMATCH,
-        .span = node->span,
-        .as.type_mismatch =
-            {
-                .expected = type_str(ctx->current_return_type),
-                .found = type_str(actual),
-                .context = "return statement",
-            },
-    };
-    ctx->error_count++;
-    print_error(err, ctx->file_name, ctx->contents);
+    emit_error(ctx->err, node->span, ERR_TYPE_MISMATCH_CONTEXT,
+               type_str(ctx->current_return_type), type_str(actual),
+               "return statement");
   }
 }

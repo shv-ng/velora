@@ -1,5 +1,7 @@
 #pragma once
 
+#define NO_SPAN (struct Span){0}
+
 enum TokenKind {
   TOK_EOF,
   TOK_ERROR,
@@ -20,12 +22,12 @@ enum TokenKind {
   TOK_KW_RETURN, // "return"
   TOK_KW_FUNC,   // "fn"
 
-  TOK_EQUAL,        // =
-  TOK_PLUS,        // +
-  TOK_MINUS,       // -
-  TOK_STAR,        // *
-  TOK_SLASH,       // /
-  TOK_MODULO,      // %
+  TOK_EQUAL,  // =
+  TOK_PLUS,   // +
+  TOK_MINUS,  // -
+  TOK_STAR,   // *
+  TOK_SLASH,  // /
+  TOK_MODULO, // %
 
   // bitwise
   TOK_AMPERSAND,   // &
@@ -34,7 +36,6 @@ enum TokenKind {
   TOK_TIDLE,       // ~
   TOK_LEFT_SHIFT,  // <<
   TOK_RIGHT_SHIFT, // >>
-
 
   TOK_BANG,        // !
   TOK_LEFT_ARROW,  // <

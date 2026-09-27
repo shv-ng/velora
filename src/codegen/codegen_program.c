@@ -5,7 +5,7 @@ void codegen_program(struct CodegenCtx *ctx, struct AstNode *root) {
     struct AstNode *decl = root->as.program.declaration[i];
     codegen_node(ctx, decl);
   }
-  if (ctx->error_count == 0) {
+  if (ctx->err->count == 0) {
     codegen_compile_binary(ctx);
   }
 }

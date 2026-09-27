@@ -41,13 +41,8 @@ struct AstNode *parse_statement(struct ParserCtx *ctx, struct AstNode *block) {
 
   if (ctx->current_token.kind == TOK_EQUAL) {
     if (!parser_is_valid_lvalue(expr)) {
-      struct Error err = {
-          .kind = ERR_INVALID_LVALUE,
-          .span = expr->span,
-      };
 
-      print_error(err, ctx->lexer->file_name, ctx->lexer->contents);
-      ctx->error_count++;
+      emit_error(ctx->err, expr->span, ERR_INVALID_LVALUE);
       parser_synchronise(ctx);
 
       return NULL;
@@ -68,15 +63,9 @@ struct AstNode *parse_statement(struct ParserCtx *ctx, struct AstNode *block) {
     return stmt;
   }
 
-  struct Error err = {
-      .kind = ERR_SYNTAX,
-      .span = ctx->current_token.span,
-      .as.syntax.found = token_kind_str(ctx->current_token.kind),
-  };
-  print_error(err, ctx->lexer->file_name, ctx->lexer->contents);
-  ctx->error_count++;
+  emit_error(ctx->err, ctx->current_token.span, ERR_UNEXPECTED,
+             token_kind_str(ctx->current_token.kind));
 
   parser_synchronise(ctx);
   return NULL;
 }
-

@@ -7,70 +7,42 @@
 #define ANSI_COLOR_BOLD "\033[1m"
 #define ANSI_COLOR_RESET "\033[0m"
 
+// the num represent how much variable needed
 enum ErrorKind {
-  ERR_SYNTAX,
+  // 0: expected value;  1: what found
+  ERR_EXPECTED_FOUND,
+  // 0: what found
+  ERR_UNEXPECTED,
+  // 0: expected type;  1: what type found
   ERR_TYPE_MISMATCH,
+  // 0: expected type;  1: what type found; 2: context
+  ERR_TYPE_MISMATCH_CONTEXT,
+  // 0: fn name; 1: return type
   ERR_MISSING_RETURN,
+  // 0: identifier name
   ERR_UNDEFINED_IDENTIFIER,
-  ERR_UNUSED_IDENTIFIER,
-  ERR_REDECLARATION,
+  // 0: msg
   ERR_CODEGEN,
+  // 0: identifier name
+  ERR_UNUSED_IDENTIFIER,
+  // 0: identifier name
+  ERR_REDECLARATION,
+  // nothing neeed
   ERR_INVALID_LVALUE,
+  // nothing neeed
   ERR_UNRESOLVED_TYPE,
+  // 0: msg
   ERR_MEMORY,
+  // 0: msg
+  ERR_FILE,
 };
 
-struct ErrRedeclaration {
-  const char *name;
+struct ErrorCtx {
+  int *count;
+
+  const char *file_name;
+  const char *content;
 };
 
-struct ErrUnusedIdentifier {
-  const char *name;
-};
-
-struct ErrUndefinedIdentifier {
-  const char *name;
-};
-
-struct ErrMemory {
-  const char *message;
-};
-
-struct ErrCodegen {
-  const char *message;
-};
-
-struct ErrMissingReturn {
-  const char *expected;
-  const char *fn_name;
-};
-
-struct ErrTypeMismatch {
-  const char *expected;
-  const char *found;
-  const char *context;
-};
-
-struct ErrSyntax {
-  const char *expected;
-  const char *found;
-};
-
-struct Error {
-  enum ErrorKind kind;
-  struct Span span;
-
-  union {
-    struct ErrSyntax syntax;
-    struct ErrTypeMismatch type_mismatch;
-    struct ErrCodegen codegen;
-    struct ErrMemory memory;
-    struct ErrMissingReturn missing_return;
-    struct ErrUndefinedIdentifier undefined_identifier;
-    struct ErrUnusedIdentifier unused_identifier;
-    struct ErrRedeclaration redeclaration;
-  } as;
-};
-
-void print_error(struct Error error, const char *file_name,
-                 const char *contents);
+void emit_error(struct ErrorCtx *err, struct Span span, enum ErrorKind kind,
+                ...);

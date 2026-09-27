@@ -6,13 +6,7 @@ bool sema_check_type_resolve(struct SemaCtx *ctx, struct AstNode *node) {
   }
 
   if (node->resolved_type->kind == TYPE_UNKNOWN) {
-    ctx->error_count++;
-    struct Error err = {
-        .kind = ERR_UNRESOLVED_TYPE,
-        .span = node->span,
-    };
-    print_error(err, ctx->file_name, ctx->contents);
-
+    emit_error(ctx->err, node->span, ERR_UNRESOLVED_TYPE);
     return false;
   }
 
@@ -33,7 +27,8 @@ bool sema_check_type_resolve(struct SemaCtx *ctx, struct AstNode *node) {
     break;
   case AST_VARIABLE_DECLARATION:
     if (!sema_check_type_resolve(ctx, node->as.variable_declaration.type) ||
-        !sema_check_type_resolve(ctx, node->as.variable_declaration.expression)) {
+        !sema_check_type_resolve(ctx,
+                                 node->as.variable_declaration.expression)) {
       return false;
     }
     break;
@@ -65,7 +60,8 @@ bool sema_check_type_resolve(struct SemaCtx *ctx, struct AstNode *node) {
     }
     break;
   case AST_EXPRESSION_STATEMENT:
-    if (!sema_check_type_resolve(ctx, node->as.expression_statement.expression)) {
+    if (!sema_check_type_resolve(ctx,
+                                 node->as.expression_statement.expression)) {
       return false;
     }
     break;

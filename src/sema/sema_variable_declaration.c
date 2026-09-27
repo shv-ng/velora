@@ -7,12 +7,10 @@ void sema_variable_declaration(struct SemaCtx *ctx, struct AstNode *node) {
 
   sema_node(ctx, node->as.variable_declaration.expression, node->resolved_type);
 
-  if (scope_lookup_current(ctx->current_scope, node->as.variable_declaration.name)) {
-    ctx->error_count++;
-    struct Error err = {.kind = ERR_REDECLARATION,
-                        .span = node->span,
-                        .as.redeclaration.name = node->as.variable_declaration.name};
-    print_error(err, ctx->file_name, ctx->contents);
+  if (scope_lookup_current(ctx->current_scope,
+                           node->as.variable_declaration.name)) {
+    emit_error(ctx->err, node->span, ERR_REDECLARATION,
+               node->as.variable_declaration.name);
     return;
   }
 
@@ -20,5 +18,4 @@ void sema_variable_declaration(struct SemaCtx *ctx, struct AstNode *node) {
   node->symbol = sym;
 
   scope_define(ctx->current_scope, node->as.variable_declaration.name, sym);
-
 }

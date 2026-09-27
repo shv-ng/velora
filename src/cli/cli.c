@@ -23,14 +23,13 @@ static int execute_build(int argc, char *argv[]) {
   }
 
   char *file_name = argv[1];
-  intmax_t file_size = file_get_size(file_name);
 
   struct Arena *a = arena_new();
 
   int err_code = 0;
   int err_count = 0;
 
-  char *contents = file_read(a, file_name, file_size);
+  char *contents = file_read(a, file_name);
 
   if (!contents) {
     err_count += 1;
@@ -43,28 +42,29 @@ static int execute_build(int argc, char *argv[]) {
 
   struct AstNode *program_ast = parse_program(&parser);
 
-  if (parser.error_count != 0) {
-    err_count += parser.error_count;
+  if (parser.err->count != 0) {
+    err_count += *parser.err->count;
     err_code = 1;
     goto cleanup;
   }
+
+  ast_print_tree(program_ast, 2);
 
   struct SemaCtx sema = sema_new(&parser);
+
   sema_node(&sema, program_ast, NULL);
 
-  if (sema.error_count != 0) {
-    err_count += sema.error_count;
+  if (sema.err->count != 0) {
+    err_count += *sema.err->count;
     err_code = 1;
     goto cleanup;
   }
-
-  // ast_print_tree(program_ast, 5);
 
   struct CodegenCtx codegen = codegen_new(&sema);
   codegen_node(&codegen, program_ast);
 
-  if (codegen.error_count != 0) {
-    err_count += codegen.error_count;
+  if (codegen.err->count != 0) {
+    err_count += *codegen.err->count;
     err_code = 1;
   }
 

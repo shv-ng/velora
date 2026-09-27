@@ -6,7 +6,8 @@ void sema_function_declaration(struct SemaCtx *ctx, struct AstNode *node) {
 
   sema_node(ctx, node->as.function.return_type, prev_type);
 
-  ctx->current_return_type = sema_resolve_type_node(node->as.function.return_type);
+  ctx->current_return_type =
+      sema_resolve_type_node(node->as.function.return_type);
   node->resolved_type = ctx->current_return_type;
 
   sema_node(ctx, node->as.function.block, ctx->current_return_type);
@@ -22,14 +23,9 @@ void sema_function_declaration(struct SemaCtx *ctx, struct AstNode *node) {
             AST_RETURN_STATEMENT;
 
     if (!has_expr && !has_return) {
-      struct Error err = {.kind = ERR_MISSING_RETURN,
-                          .span = node->as.function.block->span,
-                          .as.missing_return = {
-                              .expected = type_str(ctx->current_return_type),
-                              .fn_name = node->as.function.name,
-                          }};
-      ctx->error_count++;
-      print_error(err, ctx->file_name, ctx->contents);
+
+      emit_error(ctx->err, node->as.function.block->span, ERR_MISSING_RETURN,
+                 node->as.function.name, type_str(ctx->current_return_type));
     }
   }
 

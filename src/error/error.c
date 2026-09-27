@@ -1,5 +1,7 @@
 #include "error.h"
+#include <stdarg.h>
 #include <stdio.h>
+#include <sys/types.h>
 
 static const char *get_line_ptr(const char *contents, int target_line) {
   int current_line = 1;
@@ -76,65 +78,58 @@ static void print_error_body(const char *file_name, const char *contents,
   fprintf(stderr, "\n");
 }
 
-void print_error(struct Error error, const char *file_name,
-                 const char *contents) {
-  // error header
-  fprintf(stderr, "%serror%s: ", ANSI_COLOR_RED, ANSI_COLOR_RESET);
-
-  switch (error.kind) {
-  case ERR_SYNTAX:
-    if (error.as.syntax.expected) {
-      fprintf(stderr, "%sexpected %s, found %s%s\n", ANSI_COLOR_BOLD,
-              error.as.syntax.expected, error.as.syntax.found,
-              ANSI_COLOR_RESET);
-    } else {
-      fprintf(stderr, "%sunexpected %s%s\n", ANSI_COLOR_BOLD,
-              error.as.syntax.found, ANSI_COLOR_RESET);
-    }
-    break;
+static const char *error_fmt(enum ErrorKind kind) {
+  switch (kind) {
+  case ERR_EXPECTED_FOUND:
+    return "expected '%s', found '%s'";
+  case ERR_UNEXPECTED:
+    return "unexpected '%s'";
   case ERR_TYPE_MISMATCH:
-    fprintf(stderr, "%stype mismatch in %s: expected %s, found %s%s\n",
-            ANSI_COLOR_BOLD, error.as.type_mismatch.context,
-            error.as.type_mismatch.expected, error.as.type_mismatch.found,
-            ANSI_COLOR_RESET);
-    break;
+    return "type mismatch: expected '%s', found '%s'";
+  case ERR_TYPE_MISMATCH_CONTEXT:
+    return "type mismatch: expected '%s', found '%s' in %s";
   case ERR_MISSING_RETURN:
-    fprintf(stderr,
-            "%sfunction '%s' must return '%s' but has no return "
-            "statement%s\n",
-            ANSI_COLOR_BOLD, error.as.missing_return.fn_name,
-            error.as.missing_return.expected, ANSI_COLOR_RESET);
-    break;
+    return "function '%s' must return '%s' but has no return statement";
   case ERR_CODEGEN:
-    fprintf(stderr, "%scodegen: %s%s\n", ANSI_COLOR_BOLD,
-            error.as.codegen.message, ANSI_COLOR_RESET);
-    break;
+    return "codegen: %s";
   case ERR_MEMORY:
-    fprintf(stderr, "%smemory: %s%s\n", ANSI_COLOR_BOLD,
-            error.as.memory.message, ANSI_COLOR_RESET);
-    break;
+    return "memory: %s";
   case ERR_UNDEFINED_IDENTIFIER:
-    fprintf(stderr, "%scannot find '%s' in this scope%s\n", ANSI_COLOR_BOLD,
-            error.as.undefined_identifier.name, ANSI_COLOR_RESET);
-    break;
+    return "cannot find '%s' in this scope";
   case ERR_UNUSED_IDENTIFIER:
-    fprintf(stderr, "%s'%s' is defined but never used%s\n", ANSI_COLOR_BOLD,
-            error.as.unused_identifier.name, ANSI_COLOR_RESET);
-    break;
+    return "'%s' is defined but never used";
   case ERR_REDECLARATION:
-    fprintf(stderr, "%s'%s' already defined in this scope%s\n", ANSI_COLOR_BOLD,
-            error.as.redeclaration.name, ANSI_COLOR_RESET);
-    break;
-
+    return "'%s' already defined in this scope";
   case ERR_INVALID_LVALUE:
-    fprintf(stderr, "%sexpression is not assignable%s\n", ANSI_COLOR_BOLD,
-            ANSI_COLOR_RESET);
-    break;
+    return "expression is not assignable";
   case ERR_UNRESOLVED_TYPE:
-    fprintf(stderr, "%sICE: unresolved types before codegen%s\n", ANSI_COLOR_BOLD,
-            ANSI_COLOR_RESET);
-    break;
+    return "ICE: unresolved types before codegen";
+  case ERR_FILE:
+    return "file error: %s";
+  }
+}
+
+void emit_error(struct ErrorCtx *err, struct Span span, enum ErrorKind kind,
+                ...) {
+  if (err) {
+    err->count++;
   }
 
-  print_error_body(file_name, contents, error.span);
+  const char *fmt = error_fmt(kind);
+
+  // error header
+  fprintf(stderr, "%serror%s: %s", ANSI_COLOR_RED, ANSI_COLOR_RESET,
+          ANSI_COLOR_BOLD);
+
+  // take the variable len of args i.e. '...' after 'kind'
+  va_list args;
+  va_start(args, kind);
+  vfprintf(stderr, fmt, args);
+  va_end(args);
+
+  fprintf(stderr, "%s\n", ANSI_COLOR_RESET);
+
+  if (err && span.start_line != 0) {
+    print_error_body(err->file_name, err->content, span);
+  }
 }

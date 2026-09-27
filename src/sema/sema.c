@@ -3,13 +3,11 @@
 #include <string.h>
 
 struct SemaCtx sema_new(struct ParserCtx *p) {
-  struct SemaCtx ctx;
+  struct SemaCtx ctx = {.err = p->err};
 
-  ctx.error_count = 0;
+  ctx.err->count = 0;
   ctx.current_return_type = &type_unknown;
   ctx.current_scope = scope_new(p->arena, NULL);
-  ctx.file_name = p->lexer->file_name;
-  ctx.contents = p->lexer->contents;
   ctx.arena = p->arena;
 
   return ctx;

@@ -16,9 +16,7 @@ static struct ArenaChunk *new_chunk(struct ArenaChunk *prev, size_t size) {
   struct ArenaChunk *chunk = malloc(total);
   // can't do anything if no memory
   if (!chunk) {
-    struct Error err = {.kind = ERR_MEMORY,
-                        .as.memory.message = "out of memory"};
-    print_error(err, "", "");
+    emit_error(NULL, NO_SPAN, ERR_MEMORY, "out of memory");
     exit(1);
   }
 
@@ -36,9 +34,7 @@ struct Arena *arena_new(void) {
   struct Arena *a = malloc(sizeof(struct Arena));
   // can't do anything if no memory
   if (!a) {
-    struct Error err = {.kind = ERR_MEMORY,
-                        .as.memory.message = "out of memory"};
-    print_error(err, "", "");
+    emit_error(NULL, NO_SPAN, ERR_MEMORY, "out of memory");
     exit(1);
   }
   a->head = chunk;

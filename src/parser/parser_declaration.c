@@ -17,14 +17,8 @@ struct AstNode *parse_declaration(struct ParserCtx *ctx) {
   }
 
   default: {
-    struct Error err = {
-        .kind = ERR_SYNTAX,
-        .span = ctx->current_token.span,
-        .as.syntax.found = token_kind_str(ctx->current_token.kind),
-    };
-
-    print_error(err, ctx->lexer->file_name, ctx->lexer->contents);
-    ctx->error_count++;
+    emit_error(ctx->err, ctx->current_token.span, ERR_UNEXPECTED,
+               token_kind_str(ctx->current_token.kind));
 
     parser_advance(ctx);
     return NULL;

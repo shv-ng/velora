@@ -1,17 +1,14 @@
 #include "codegen_internal.h"
 #include <llvm-c/Analysis.h>
 #include <llvm-c/Core.h>
+#include <unistd.h>
 
 // verify and create target machine
 LLVMTargetMachineRef codegen_create_machine(struct CodegenCtx *ctx) {
   // verify llvm mod
   char *err = NULL;
   if (LLVMVerifyModule(ctx->module, LLVMPrintMessageAction, &err)) {
-    ctx->error_count += 1;
-    struct Error error = {.kind = ERR_CODEGEN,
-                          .as.codegen = (struct ErrCodegen){.message = err}};
-
-    print_error(error, ctx->file_name, ctx->contents);
+    emit_error(ctx->err, NO_SPAN, ERR_CODEGEN, err);
     return NULL;
   }
 
@@ -35,12 +32,7 @@ LLVMTargetMachineRef codegen_create_machine(struct CodegenCtx *ctx) {
   char *target_err = NULL;
 
   if (LLVMGetTargetFromTriple(triple, &target, &target_err)) {
-    ctx->error_count += 1;
-    struct Error error = {.kind = ERR_CODEGEN,
-                          .as.codegen =
-                              (struct ErrCodegen){.message = target_err}};
-
-    print_error(error, ctx->file_name, ctx->contents);
+    emit_error(ctx->err, NO_SPAN, ERR_CODEGEN, target_err);
     return NULL;
   }
 

@@ -13,14 +13,9 @@ struct AstNode *parse_type(struct ParserCtx *ctx) {
   }
 
   if (type->kind == AST_TYPE_UNKNOWN) {
-    struct Error err = {
-        .kind = ERR_SYNTAX,
-        .span = ctx->current_token.span,
-        .as.syntax.found = token_kind_str(ctx->current_token.kind),
-    };
-    print_error(err, ctx->lexer->file_name, ctx->lexer->contents);
+    emit_error(ctx->err, ctx->current_token.span, ERR_UNEXPECTED,
+               token_kind_str(ctx->current_token.kind));
     parser_advance(ctx);
-    ctx->error_count++;
   }
   struct Span end = ctx->current_token.span;
   type->span = merge_span(start, end);

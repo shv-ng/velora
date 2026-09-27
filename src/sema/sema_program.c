@@ -13,11 +13,8 @@ void sema_program(struct SemaCtx *ctx, struct AstNode *root) {
           scope_define(ctx->current_scope, decl->as.function.name, sym);
 
       if (!exiting) {
-        ctx->error_count++;
-        struct Error err = {.kind = ERR_REDECLARATION,
-                            .span = decl->span,
-                            .as.redeclaration.name = decl->as.function.name};
-        print_error(err, ctx->file_name, ctx->contents);
+        emit_error(ctx->err, decl->span, ERR_REDECLARATION,
+                   decl->as.function.name);
       }
 
       decl->symbol = sym;
@@ -35,5 +32,6 @@ void sema_program(struct SemaCtx *ctx, struct AstNode *root) {
 
   root->resolved_type = &type_void;
 
-  sema_check_type_resolve(ctx, root);
+  if (ctx->err->count == 0)
+    sema_check_type_resolve(ctx, root);
 }

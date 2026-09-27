@@ -1,28 +1,20 @@
 #include "sema_internal.h"
 
-void sema_identifier(struct SemaCtx *ctx, struct AstNode *node, struct Type *hint) {
+void sema_identifier(struct SemaCtx *ctx, struct AstNode *node,
+                     struct Type *hint) {
   struct Symbol *sym =
       scope_lookup(ctx->current_scope, node->as.identifer.name);
 
   if (!sym) {
-    struct Error err = {
-        .kind = ERR_UNDEFINED_IDENTIFIER,
-        .span = node->span,
-        .as.undefined_identifier = {.name = node->as.identifer.name}};
-    ctx->error_count++;
-    print_error(err, ctx->file_name, ctx->contents);
+    emit_error(ctx->err, node->span, ERR_UNDEFINED_IDENTIFIER,
+               node->as.identifer.name);
     return;
   }
 
   if (hint && !type_equal(sym->type, hint)) {
-    struct Error err = {.kind = ERR_TYPE_MISMATCH,
-                        .span = node->span,
-                        .as.type_mismatch = {
-                            .expected = type_str(hint),
-                            .found = type_str(sym->type),
-                        }};
-    ctx->error_count++;
-    print_error(err, ctx->file_name, ctx->contents);
+
+    emit_error(ctx->err, node->span, ERR_TYPE_MISMATCH, type_str(hint),
+               type_str(sym->type));
   }
 
   node->resolved_type = sym->type;

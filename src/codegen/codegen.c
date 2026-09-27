@@ -3,14 +3,14 @@
 
 struct CodegenCtx codegen_new(struct SemaCtx *sema_ctx) {
 
-  struct CodegenCtx ctx = {.file_name = sema_ctx->file_name,
-                           .contents = sema_ctx->contents};
+  struct CodegenCtx ctx = {.err = sema_ctx->err};
 
   ctx.context = LLVMContextCreate();
-  ctx.module = LLVMModuleCreateWithNameInContext(ctx.file_name, ctx.context);
+  ctx.module =
+      LLVMModuleCreateWithNameInContext(ctx.err->file_name, ctx.context);
   ctx.builder = LLVMCreateBuilderInContext(ctx.context);
 
-  ctx.error_count = 0;
+  ctx.err->count = 0;
 
   return ctx;
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../error/error.h"
 #include "../sema/sema.h"
 #include <llvm-c/Types.h>
 
@@ -10,10 +11,7 @@ struct CodegenCtx {
 
   LLVMValueRef current_func;
 
-  int error_count;
-
-  char *contents;
-  char *file_name;
+  struct ErrorCtx *err;
 };
 
 // initialise CodegenCtx from SemaCtx that use everywhere by passing as ctx

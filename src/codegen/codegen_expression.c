@@ -15,13 +15,7 @@ LLVMValueRef codegen_expression(struct CodegenCtx *ctx, struct AstNode *node) {
     return codegen_identifier(ctx, node);
 
   default:
-    ctx->error_count += 1;
-
-    struct Error err = {.span = node->span,
-                        .kind = ERR_CODEGEN,
-                        .as.codegen.message = "unhandled node kind in expr"};
-
-    print_error(err, ctx->file_name, ctx->contents);
+    emit_error(ctx->err, NO_SPAN, ERR_CODEGEN, "unhandled node kind in expr");
     break;
   }
   return NULL;

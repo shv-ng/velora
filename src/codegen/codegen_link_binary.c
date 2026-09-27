@@ -12,16 +12,6 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-static void print_codegen_err(struct CodegenCtx *ctx, const char *msg) {
-  ctx->error_count++;
-  print_error(
-      (struct Error){
-          .kind = ERR_CODEGEN,
-          .as.codegen.message = msg,
-      },
-      ctx->file_name, ctx->contents);
-}
-
 bool codegen_link_binary(struct CodegenCtx *ctx, const char *obj_path,
                          const char *out_path) {
   // find available linkers
@@ -38,7 +28,7 @@ bool codegen_link_binary(struct CodegenCtx *ctx, const char *obj_path,
 
     if (pid == -1) {
       // errno tells exactly why fork failed
-      print_codegen_err(ctx, strerror(errno));
+      emit_error(ctx->err, NO_SPAN, ERR_CODEGEN, strerror(errno));
       return false;
     }
 
@@ -63,7 +53,7 @@ bool codegen_link_binary(struct CodegenCtx *ctx, const char *obj_path,
 
     // check result, isn't it fails
     if (!WIFEXITED(wstatus)) {
-      print_codegen_err(ctx, "linker crashed");
+      emit_error(ctx->err, NO_SPAN, ERR_CODEGEN, "linker crashed");
       return false;
     }
 
@@ -78,25 +68,22 @@ bool codegen_link_binary(struct CodegenCtx *ctx, const char *obj_path,
     }
 
     if (code == 127) {
-      print_codegen_err(ctx, "no linker found: install clang or gcc");
+      emit_error(ctx->err, NO_SPAN, ERR_CODEGEN,
+                 "no linker found: install clang or gcc");
       return false;
     }
 
     if (code == 126) {
-      char msg[256];
-      snprintf(msg, sizeof(msg),
-               "permission error: '%s' doesn't have execute permission",
-               linker);
-      print_codegen_err(ctx, msg);
+      emit_error(ctx->err, NO_SPAN, ERR_CODEGEN,
+                 "permission error: '%s' doesn't have execute permission",
+                 linker);
       return false;
     }
 
     // for error like file not found, invalid .o file etc etc,
     // linker already say what's wrong
-    char msg[256];
-    snprintf(msg, sizeof(msg),
-             "linking failed (exit code %d) — see above for details", code);
-    print_codegen_err(ctx, msg);
+    emit_error(ctx->err, NO_SPAN, ERR_CODEGEN,
+               "linking failed (exit code %d) — see above for details", code);
     return false;
   }
 
