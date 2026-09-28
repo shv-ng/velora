@@ -1,5 +1,4 @@
 #include "codegen.h"
-#include <asm-generic/errno-base.h>
 #include <errno.h>
 #include <llvm-c/Analysis.h>
 #include <llvm-c/Core.h>
