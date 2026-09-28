@@ -5,19 +5,20 @@ A programming language.
 > - Linux x86_64 — supported
 > - Linux arm64 — supported  
 > - macOS — untested
-> - Windows — not supported
+> - Windows — supported via WSL
 
 ## Requirements
 
-- [clang](https://clang.llvm.org/) or [gcc](https://gcc.gnu.org/) for linking
+- [clang](https://clang.llvm.org/) or [gcc](https://gcc.gnu.org/) required for linking output binaries"
 
 ## Install
 
 Download the latest binary from [releases](https://github.com/shv-ng/velora/releases). 
 
-### Linux
+### Linux or Windows (WSL)
+
 ```bash
-curl https://raw.githubusercontent.com/shv-ng/velora/refs/heads/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/shv-ng/velora/refs/heads/main/install.sh | bash
 ```
 
 ## Usage
