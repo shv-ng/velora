@@ -18,7 +18,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install dependencies
-        run: sudo apt-get install -y llvm-dev clang libzstd-dev libstdc++-14-dev
+        run: sudo apt-get install -y llvm-dev clang libzstd-dev libstdc++-14-dev libtinfo-dev
 
       - name: Build
         run: |
@@ -28,7 +28,7 @@ jobs:
             -DCOMMIT=\"$(git rev-parse --short HEAD)\" \
             -DDATE=\"$(date +%Y-%m-%d)\" \
             $(llvm-config --cflags --ldflags --libs core analysis native --link-static) \
-            -lpthread -ldl -static-libgcc -static-libsan \
+            -lpthread -ldl -ltinfo -static-libgcc -static-libsan \
             -Wl,-Bstatic -lzstd -lz -lstdc++ \
             -Wl,-Bdynamic -lm -lc -lgcc_s
 
@@ -46,7 +46,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install dependencies
-        run: sudo apt-get install -y llvm-dev clang libzstd-dev libstdc++-14-dev
+        run: sudo apt-get install -y llvm-dev clang libzstd-dev libstdc++-14-dev libtinfo-dev
 
       - name: Build
         run: |
@@ -56,7 +56,7 @@ jobs:
             -DCOMMIT=\"$(git rev-parse --short HEAD)\" \
             -DDATE=\"$(date +%Y-%m-%d)\" \
             $(llvm-config --cflags --ldflags --libs core analysis native --link-static) \
-            -lpthread -ldl -static-libgcc -static-libsan \
+            -lpthread -ldl -ltinfo -static-libgcc -static-libsan \
             -Wl,-Bstatic -lzstd -lz -lstdc++ \
             -Wl,-Bdynamic -lm -lc -lgcc_s
 
