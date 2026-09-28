@@ -85,7 +85,7 @@ jobs:
             -DCOMMIT=\"$(git rev-parse --short HEAD)\" \
             -DDATE=\"$(date +%Y-%m-%d)\" \
             $(llvm-config --cflags --ldflags --libs core analysis native) \
-            -lpthread -lzstd -lz -lc++
+            -lpthread -L$(brew --prefix zstd)/lib -lzstd -lz -lc++
 
       - uses: actions/upload-artifact@v7
         with:
