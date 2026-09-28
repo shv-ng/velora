@@ -1,7 +1,8 @@
 #include "parser_internal.h"
 
 struct AstNode *parse_variable_declaration(struct ParserCtx *ctx, char *name,
-                               struct AstNode *type, struct Span start) {
+                                           struct AstNode *type,
+                                           struct Span start) {
 
   parser_expect(ctx, TOK_EQUAL);
 

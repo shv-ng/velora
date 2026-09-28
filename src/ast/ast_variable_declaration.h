@@ -2,6 +2,6 @@
 
 struct AstVariableDeclaration {
   char *name;
-  struct AstNode *type; 
+  struct AstNode *type;
   struct AstNode *expression;
 };

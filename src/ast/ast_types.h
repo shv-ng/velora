@@ -3,4 +3,3 @@
 struct AstTypeNamed {
   char *name;
 };
-

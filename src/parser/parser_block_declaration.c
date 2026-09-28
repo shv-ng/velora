@@ -1,6 +1,6 @@
+#include "../utils/da.h"
 #include "parser_internal.h"
 #include <stddef.h>
-#include "../utils/da.h"
 
 struct AstNode *parse_block_declaration(struct ParserCtx *ctx, char *name) {
   struct Span start = ctx->current_token.span;

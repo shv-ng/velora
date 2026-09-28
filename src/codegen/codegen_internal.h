@@ -20,6 +20,7 @@ void codegen_node(struct CodegenCtx *ctx, struct AstNode *node);
 void codegen_program(struct CodegenCtx *ctx, struct AstNode *node);
 void codegen_return_statement(struct CodegenCtx *ctx, struct AstNode *node);
 void codegen_variable_declaration(struct CodegenCtx *ctx, struct AstNode *node);
+void codegen_assignment(struct CodegenCtx *ctx, struct AstNode *node);
 
 LLVMTargetMachineRef codegen_create_machine(struct CodegenCtx *ctx);
 void codegen_compile_binary(struct CodegenCtx *ctx);

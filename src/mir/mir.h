@@ -23,4 +23,3 @@ struct MirFunc {
   struct MirBlock *blocks;
   int count;
 };
-

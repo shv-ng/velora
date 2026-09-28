@@ -48,7 +48,7 @@ struct AstNode {
   struct Type *resolved_type;
 
   struct Span span;
-  
+
   // same, resolved after sema, use in codegen dropped the
   // use of lookup for symbol name in symbol table while codegen
   struct Symbol *symbol;

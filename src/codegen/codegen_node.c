@@ -22,6 +22,8 @@ void codegen_node(struct CodegenCtx *ctx, struct AstNode *node) {
     codegen_return_statement(ctx, node);
     break;
   case AST_ASSIGNMENT:
+    codegen_assignment(ctx, node);
+    break;
   case AST_TYPE_UNKNOWN:
   case AST_TYPE_NAMED:
   case AST_EXPRESSION_STATEMENT:

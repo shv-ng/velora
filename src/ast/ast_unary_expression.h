@@ -11,5 +11,6 @@ enum UnaryOperator {
 struct AstUnaryExpression {
   struct AstNode *expression;
   enum UnaryOperator op;
-  bool is_prefix; // it's for saying, is it is_prefix like -x or not maybe add later  
+  bool is_prefix; // it's for saying, is it is_prefix like -x or not maybe add
+                  // later
 };

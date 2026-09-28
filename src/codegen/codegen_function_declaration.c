@@ -1,7 +1,8 @@
 #include "codegen_internal.h"
 #include <llvm-c/Core.h>
 
-void codegen_function_declaration(struct CodegenCtx *ctx, struct AstNode *node) {
+void codegen_function_declaration(struct CodegenCtx *ctx,
+                                  struct AstNode *node) {
   LLVMTypeRef ret_type = type_to_llvm(ctx, node->resolved_type);
   LLVMTypeRef func_type = LLVMFunctionType(ret_type, NULL, 0, 0);
 

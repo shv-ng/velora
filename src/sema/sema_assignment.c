@@ -46,4 +46,5 @@ void sema_assignment(struct SemaCtx *ctx, struct AstNode *node) {
     return;
   }
   node->resolved_type = lvalue_type;
+  node->symbol = sym;
 }
