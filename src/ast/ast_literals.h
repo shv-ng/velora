@@ -1,5 +1,6 @@
 #pragma once
 
 struct AstIntLiteral {
-  long long value;
+  const char *raw;
+  unsigned long long value;
 };

@@ -106,6 +106,8 @@ static const char *error_fmt(enum ErrorKind kind) {
     return "ICE: unresolved types before codegen";
   case ERR_FILE:
     return "file error: %s";
+  case ERR_OVERFLOW:
+    return "value '%s' overflows type '%s'";
   }
 }
 

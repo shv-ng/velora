@@ -2,10 +2,15 @@
 #include <ctype.h>
 #include <string.h>
 
-static struct Keyword keywords[] = {
-    {"return", TOK_KW_RETURN},
-    {"fn", TOK_KW_FUNC},
-    {NULL, 0},
+struct Reserved {
+  const char *word;
+  enum TokenKind kind;
+};
+
+static struct Reserved reserved[] = {
+    {"return", TOK_KW_RETURN}, {"fn", TOK_KW_FUNC}, {"i8", TOK_I8},
+    {"i32", TOK_I32},          {"bool", TOK_BOOL},  {"true", TOK_TRUE},
+    {"false", TOK_FALSE},      {NULL, 0},
 };
 
 // return either identifier (it later could be any fn name, var name, type etc),
@@ -22,9 +27,9 @@ struct Token lexer_identifier(struct LexerCtx *ctx) {
   struct Token t = lexer_make_tok(ctx, TOK_IDENTIFIER);
   t.val = arena_strndup(ctx->arena, ctx->contents + start, length);
 
-  for (int k = 0; keywords[k].word; k++) {
-    if (strcmp(t.val, keywords[k].word) == 0) {
-      t.kind = keywords[k].kind;
+  for (int k = 0; reserved[k].word; k++) {
+    if (strcmp(t.val, reserved[k].word) == 0) {
+      t.kind = reserved[k].kind;
       break;
     }
   }

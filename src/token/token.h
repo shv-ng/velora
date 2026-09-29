@@ -16,6 +16,14 @@ enum TokenKind {
 
   TOK_IDENTIFIER,
 
+  // type
+  TOK_I8,
+  TOK_I32,
+  TOK_BOOL,
+
+  TOK_TRUE,
+  TOK_FALSE,
+
   TOK_STR_LITERAL, // string
   TOK_INT_LITERAL, // int cont
 
@@ -57,10 +65,6 @@ struct Token {
   enum TokenKind kind;
 };
 
-struct Keyword {
-  const char *word;
-  enum TokenKind kind;
-};
 
 char *token_kind_str(enum TokenKind kind);
 struct Span merge_span(struct Span s1, struct Span s2);

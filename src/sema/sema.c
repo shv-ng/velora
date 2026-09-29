@@ -28,7 +28,7 @@ void sema_node(struct SemaCtx *ctx, struct AstNode *node, struct Type *hint) {
     sema_return_statement(ctx, node);
     break;
   case AST_INT_LITERAL:
-    node->resolved_type = hint ? hint : &type_unknown;
+    sema_int_literal(ctx, node, hint);
     break;
   case AST_TYPE_NAMED:
     node->resolved_type = sema_resolve_type_node(node);

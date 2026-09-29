@@ -1,5 +1,7 @@
 #include "parser_internal.h"
 
+const int max_err_limit = 10;
+
 struct AstNode *astnode_new(struct ParserCtx *ctx, enum AstKind kind) {
   struct AstNode *node = arena_calloc(ctx->arena, 1, sizeof(struct AstNode));
   node->resolved_type = &type_unknown;
@@ -13,8 +15,13 @@ void parser_advance(struct ParserCtx *ctx) {
 }
 
 void parser_synchronise(struct ParserCtx *ctx) {
+
   // dumber error recovery
   while (ctx->current_token.kind != TOK_EOF) {
+    if (ctx->err->count > max_err_limit) {
+      ctx->current_token.kind = TOK_EOF;
+    };
+
     switch (ctx->current_token.kind) {
     case TOK_SEMICOLON:
       parser_advance(ctx);

@@ -8,7 +8,8 @@ struct AstNode *parse_primary(struct ParserCtx *ctx) {
     parser_expect(ctx, TOK_INT_LITERAL);
 
     struct AstNode *node = astnode_new(ctx, AST_INT_LITERAL);
-    node->as.int_literal.value = atoll(int_tok.val);
+
+    node->as.int_literal.raw = int_tok.val;
     node->span = int_tok.span;
 
     return node;

@@ -13,7 +13,7 @@ enum SymbolKind {
 };
 
 struct Symbol {
-  char *name;
+  const char *name;
   struct AstNode *decl;
   struct Type *type;
   enum SymbolKind kind;

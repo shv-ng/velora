@@ -58,6 +58,16 @@ char *token_kind_str(enum TokenKind kind) {
     return "'>' symbol";
   case TOK_EQUAL:
     return "'=' symbol";
+  case TOK_I8:
+    return "'i8' type";
+  case TOK_I32:
+    return "'i32' type";
+  case TOK_BOOL:
+    return "'bool' type";
+  case TOK_TRUE:
+    return "'true' literal";
+  case TOK_FALSE:
+    return "'false' literal";
   }
 }
 

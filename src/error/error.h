@@ -35,6 +35,8 @@ enum ErrorKind {
   ERR_MEMORY,
   // 0: msg
   ERR_FILE,
+  // 0: value; 1: type
+  ERR_OVERFLOW,
 };
 
 struct ErrorCtx {
