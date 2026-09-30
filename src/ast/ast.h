@@ -33,8 +33,9 @@ enum AstKind {
   AST_RETURN_STATEMENT,     // return ...;
   AST_EXPRESSION_STATEMENT, // expr ;
 
-  AST_INT_LITERAL, // 42
-  AST_IDENTIFIER,  // x
+  AST_INT_LITERAL,  // 42
+  AST_BOOL_LITERAL, // true/false
+  AST_IDENTIFIER,   // x
 
   AST_BINARY_EXPRESSION, // .. op ..
   AST_UNARY_EXPRESSION,  //  op ..   | .. op
@@ -81,6 +82,9 @@ struct AstNode {
     // just number
     struct AstIntLiteral int_literal;
 
+    // ast to store bool types i.e. true/false in
+    struct AstBoolLiteral bool_literal;
+
     // ast for expr contains recursive expr as rhs, and lhs and the op
     struct AstBinaryExpression binary_expression;
 
@@ -95,6 +99,7 @@ struct AstNode {
     // use for reassign value, not for declaration
     // `lvalue` must be any value assignable value
     struct AstAssignment assignment;
+
   } as;
 };
 

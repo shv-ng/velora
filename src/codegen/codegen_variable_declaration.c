@@ -24,7 +24,7 @@ void codegen_variable_declaration(struct CodegenCtx *ctx,
   LLVMPositionBuilderAtEnd(ctx->builder, prev_block);
 
   LLVMValueRef value =
-      codegen_expression(ctx, node->as.variable_declaration.expression);
+      codegen_node(ctx, node->as.variable_declaration.expression);
 
   LLVMBuildStore(ctx->builder, value, slot);
 }

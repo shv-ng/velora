@@ -1,15 +1,14 @@
 #include "codegen_internal.h"
 #include <llvm-c/Core.h>
 #include <llvm-c/Types.h>
+#include <stdlib.h>
 
 LLVMValueRef codegen_binary_expression(struct CodegenCtx *ctx,
                                        struct AstNode *node) {
 
-  LLVMValueRef left_val =
-      codegen_expression(ctx, node->as.binary_expression.left);
+  LLVMValueRef left_val = codegen_node(ctx, node->as.binary_expression.left);
 
-  LLVMValueRef right_val =
-      codegen_expression(ctx, node->as.binary_expression.right);
+  LLVMValueRef right_val = codegen_node(ctx, node->as.binary_expression.right);
 
   switch (node->as.binary_expression.op) {
   case OP_ADD:

@@ -9,6 +9,8 @@ LLVMTypeRef type_to_llvm(struct CodegenCtx *ctx, struct Type *type) {
     return LLVMInt32TypeInContext(ctx->context);
   case TYPE_VOID:
     return LLVMVoidTypeInContext(ctx->context);
+  case TYPE_BOOL:
+    return LLVMInt1TypeInContext(ctx->context);
   case TYPE_UNKNOWN:
   case TYPE_FUNC:
     return NULL;

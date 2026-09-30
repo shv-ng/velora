@@ -2,6 +2,10 @@
 #include <stddef.h>
 
 bool parser_is_valid_lvalue(struct AstNode *lhs) {
+  if (!lhs) {
+    return false;
+  }
+
   switch (lhs->kind) {
   case AST_IDENTIFIER:
     return true;

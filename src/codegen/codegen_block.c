@@ -9,7 +9,7 @@ void codegen_block(struct CodegenCtx *ctx, struct AstNode *node) {
   if (node->as.block.trailing_expression) {
     if (!LLVMGetBasicBlockTerminator(LLVMGetInsertBlock(ctx->builder))) {
       LLVMValueRef value =
-          codegen_expression(ctx, node->as.block.trailing_expression);
+          codegen_node(ctx, node->as.block.trailing_expression);
       LLVMBuildRet(ctx->builder, value);
     }
   } else {

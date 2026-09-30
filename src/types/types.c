@@ -4,6 +4,7 @@
 struct Type type_i8 = {TYPE_I8, {}};
 struct Type type_i32 = {TYPE_I32, {}};
 struct Type type_void = {TYPE_VOID, {}};
+struct Type type_bool = {TYPE_BOOL, {}};
 struct Type type_unknown = {TYPE_UNKNOWN, {}};
 
 bool type_equal(struct Type *a, struct Type *b) {
@@ -24,6 +25,8 @@ const char *type_str(struct Type *t) {
     return "i8";
   case TYPE_I32:
     return "i32";
+  case TYPE_BOOL:
+    return "bool";
   case TYPE_UNKNOWN:
     return "unknown_type";
   case TYPE_FUNC:

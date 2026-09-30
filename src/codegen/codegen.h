@@ -18,7 +18,9 @@ struct CodegenCtx {
 struct CodegenCtx codegen_new(struct SemaCtx *sema);
 
 // node dispatcher, for codegen recursively from a given node
-void codegen_node(struct CodegenCtx *ctx, struct AstNode *node);
+// return NULL or LLVMValueRef, use unifided dispatcher for both expr and other
+// kind
+LLVMValueRef codegen_node(struct CodegenCtx *ctx, struct AstNode *node);
 
 // clean up memory, and llvm stuffs
 void codegen_free(struct CodegenCtx *ctx);

@@ -9,6 +9,10 @@ struct AstNode *parse_declaration(struct ParserCtx *ctx) {
   switch (ctx->current_token.kind) {
   case TOK_KW_FUNC:
     return parse_function_declaration(ctx, name_tok.val);
+
+  case TOK_I8:
+  case TOK_I32:
+  case TOK_BOOL:
   case TOK_IDENTIFIER: {
     struct AstNode *type = parse_type(ctx);
     if (ctx->current_token.kind == TOK_EQUAL) {

@@ -16,7 +16,7 @@ LLVMValueRef codegen_unary_expression(struct CodegenCtx *ctx,
                                       struct AstNode *node);
 void codegen_block(struct CodegenCtx *ctx, struct AstNode *node);
 void codegen_function_declaration(struct CodegenCtx *ctx, struct AstNode *node);
-void codegen_node(struct CodegenCtx *ctx, struct AstNode *node);
+
 void codegen_program(struct CodegenCtx *ctx, struct AstNode *node);
 void codegen_return_statement(struct CodegenCtx *ctx, struct AstNode *node);
 void codegen_variable_declaration(struct CodegenCtx *ctx, struct AstNode *node);
@@ -29,3 +29,4 @@ bool codegen_emit_object(struct CodegenCtx *ctx, LLVMTargetMachineRef machine,
 
 bool codegen_link_binary(struct CodegenCtx *ctx, const char *obj_path,
                          const char *out_path);
+LLVMValueRef codegen_bool_literal(struct CodegenCtx *ctx, struct AstNode *node);

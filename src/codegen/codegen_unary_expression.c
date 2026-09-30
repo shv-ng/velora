@@ -1,10 +1,10 @@
 #include "codegen_internal.h"
 #include <llvm-c/Core.h>
+#include <stdlib.h>
 
 LLVMValueRef codegen_unary_expression(struct CodegenCtx *ctx,
                                       struct AstNode *node) {
-  LLVMValueRef val =
-      codegen_expression(ctx, node->as.unary_expression.expression);
+  LLVMValueRef val = codegen_node(ctx, node->as.unary_expression.expression);
   switch (node->as.unary_expression.op) {
   case OP_NEGATIVE:
     return LLVMBuildNeg(ctx->builder, val, "neg");

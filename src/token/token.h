@@ -65,6 +65,5 @@ struct Token {
   enum TokenKind kind;
 };
 
-
 char *token_kind_str(enum TokenKind kind);
 struct Span merge_span(struct Span s1, struct Span s2);

@@ -125,5 +125,10 @@ void ast_print_tree(struct AstNode *node, int indent) {
     ast_print_tree(node->as.assignment.lvalue, indent + 1);
     ast_print_tree(node->as.assignment.rvalue, indent + 1);
     break;
+  case AST_BOOL_LITERAL:
+    printf("AstBoolLiteral: (value: %s, resolved_type: %s)\n",
+           node->as.bool_literal.is_true ? "true" : "false",
+           type_str(node->resolved_type));
+    break;
   }
 }

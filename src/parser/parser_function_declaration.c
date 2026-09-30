@@ -1,6 +1,5 @@
 #include "parser_internal.h"
 
-
 struct AstNode *parse_function_declaration(struct ParserCtx *ctx, char *name) {
   struct Span start = ctx->current_token.span;
   parser_expect(ctx, TOK_KW_FUNC);

@@ -18,9 +18,11 @@ void sema_unary_expression(struct SemaCtx *ctx, struct AstNode *node,
                            struct Type *hint);
 
 void sema_variable_declaration(struct SemaCtx *ctx, struct AstNode *node);
+
 void sema_identifier(struct SemaCtx *ctx, struct AstNode *node,
                      struct Type *hint);
 void sema_assignment(struct SemaCtx *ctx, struct AstNode *node);
+
 void sema_int_literal(struct SemaCtx *ctx, struct AstNode *node,
                       struct Type *hint);
 

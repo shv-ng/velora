@@ -42,7 +42,6 @@ static int execute_build(int argc, char *argv[]) {
 
   struct AstNode *program_ast = parse_program(&parser);
 
-  ast_print_tree(program_ast, 2);
   if (parser.err->count != 0) {
     err_count += parser.err->count;
     err_code = 1;
@@ -53,6 +52,7 @@ static int execute_build(int argc, char *argv[]) {
 
   sema_node(&sema, program_ast, NULL);
 
+  ast_print_tree(program_ast, 2);
   if (sema.err->count != 0) {
     err_count += sema.err->count;
     err_code = 1;

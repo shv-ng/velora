@@ -9,9 +9,12 @@ struct Type *sema_resolve_type_node(struct AstNode *node) {
       t = &type_i32;
     } else if (strcmp(node->as.type_named.name, "i8") == 0) {
       t = &type_i8;
+    } else if (strcmp(node->as.type_named.name, "bool") == 0) {
+      t = &type_bool;
     }
     break;
   }
+
   default:
     break;
   }
