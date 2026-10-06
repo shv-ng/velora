@@ -8,6 +8,7 @@
 #include "ast_expression_statement.h"
 #include "ast_function_declaration.h"
 #include "ast_identifier.h"
+#include "ast_if_else.h"
 #include "ast_literals.h"
 #include "ast_program.h"
 #include "ast_return_statement.h"
@@ -29,6 +30,7 @@ enum AstKind {
   AST_TYPE_NAMED, // i32, User
 
   AST_BLOCK_DECLARATION, // {...}
+  AST_IF_ELSE_EXPRESSION,           // if ... {...} else {...}
 
   AST_RETURN_STATEMENT,     // return ...;
   AST_EXPRESSION_STATEMENT, // expr ;
@@ -100,6 +102,8 @@ struct AstNode {
     // `lvalue` must be any value assignable value
     struct AstAssignment assignment;
 
+    // if else statement, the else if will be desugar
+    struct AstIfElseExpression if_else_expression;
   } as;
 };
 

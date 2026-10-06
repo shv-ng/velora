@@ -18,16 +18,12 @@ char *token_kind_str(enum TokenKind kind) {
     return "'{'";
   case TOK_RBRACE:
     return "'}'";
-  case TOK_STR_LITERAL:
-    return "str literal";
-  case TOK_IDENTIFIER:
-    return "identifier";
-  case TOK_INT_LITERAL:
-    return "int literal";
   case TOK_KW_RETURN:
     return "'return' keyword";
   case TOK_KW_FUNC:
     return "'fn' keyword";
+  case TOK_KW_IF:
+    return "'if' keyword";
   case TOK_PLUS:
     return "'+' symbol";
   case TOK_MINUS:
@@ -58,16 +54,16 @@ char *token_kind_str(enum TokenKind kind) {
     return "'>' symbol";
   case TOK_EQUAL:
     return "'=' symbol";
-  case TOK_I8:
-    return "'i8' type";
-  case TOK_I32:
-    return "'i32' type";
-  case TOK_BOOL:
-    return "'bool' type";
   case TOK_TRUE:
     return "'true' literal";
   case TOK_FALSE:
     return "'false' literal";
+  case TOK_STR_LITERAL:
+    return "str literal";
+  case TOK_IDENTIFIER:
+    return "identifier";
+  case TOK_INT_LITERAL:
+    return "int literal";
   }
 }
 

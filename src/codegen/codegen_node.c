@@ -34,6 +34,8 @@ LLVMValueRef codegen_node(struct CodegenCtx *ctx, struct AstNode *node) {
     return codegen_binary_expression(ctx, node);
   case AST_BOOL_LITERAL:
     return codegen_bool_literal(ctx, node);
+
+  case AST_IF_ELSE_EXPRESSION: // TODO: add this
   case AST_TYPE_UNKNOWN:
   case AST_TYPE_NAMED:
   case AST_EXPRESSION_STATEMENT:

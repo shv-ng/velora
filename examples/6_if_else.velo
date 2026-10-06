@@ -1,4 +1,7 @@
 main: fn() bool { 
    x: bool = false;
-   x 
+   if x {
+      return 1;
+   }
+   0
 }

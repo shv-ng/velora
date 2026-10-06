@@ -82,6 +82,8 @@ bool sema_check_type_resolve(struct SemaCtx *ctx, struct AstNode *node) {
     break;
   case AST_BOOL_LITERAL:
     break;
+  case AST_IF_ELSE_EXPRESSION: // TODO: add this
+    break;
   }
   return true;
 }

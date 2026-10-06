@@ -130,5 +130,12 @@ void ast_print_tree(struct AstNode *node, int indent) {
            node->as.bool_literal.is_true ? "true" : "false",
            type_str(node->resolved_type));
     break;
+  case AST_IF_ELSE_EXPRESSION:
+    printf("AstIfElseExpression: (resolved_type: %s)\n",
+           type_str(node->resolved_type));
+    ast_print_tree(node->as.if_else_expression.condition, indent + 1);
+    ast_print_tree(node->as.if_else_expression.if_block, indent + 1);
+    ast_print_tree(node->as.if_else_expression.else_block, indent + 1);
+    break;
   }
 }

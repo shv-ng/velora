@@ -16,19 +16,16 @@ enum TokenKind {
 
   TOK_IDENTIFIER,
 
-  // type
-  TOK_I8,
-  TOK_I32,
-  TOK_BOOL,
-
-  TOK_TRUE,
-  TOK_FALSE,
+  TOK_TRUE,  // "true"
+  TOK_FALSE, // "false"
 
   TOK_STR_LITERAL, // string
   TOK_INT_LITERAL, // int cont
 
+  // keywords
   TOK_KW_RETURN, // "return"
   TOK_KW_FUNC,   // "fn"
+  TOK_KW_IF,    // "if"
 
   TOK_EQUAL,  // =
   TOK_PLUS,   // +

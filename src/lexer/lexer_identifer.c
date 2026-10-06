@@ -8,9 +8,8 @@ struct Reserved {
 };
 
 static struct Reserved reserved[] = {
-    {"return", TOK_KW_RETURN}, {"fn", TOK_KW_FUNC}, {"i8", TOK_I8},
-    {"i32", TOK_I32},          {"bool", TOK_BOOL},  {"true", TOK_TRUE},
-    {"false", TOK_FALSE},      {NULL, 0},
+    {"return", TOK_KW_RETURN}, {"fn", TOK_KW_FUNC},  {"if", TOK_KW_IF},
+    {"true", TOK_TRUE},        {"false", TOK_FALSE}, {NULL, 0},
 };
 
 // return either identifier (it later could be any fn name, var name, type etc),
