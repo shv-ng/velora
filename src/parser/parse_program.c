@@ -1,5 +1,6 @@
 #include "../utils/da.h"
 #include "parser_internal.h"
+#include <stdio.h>
 
 struct AstNode *parse_program(struct ParserCtx *ctx) {
   size_t capacity = 10;
@@ -10,7 +11,6 @@ struct AstNode *parse_program(struct ParserCtx *ctx) {
 
   while (ctx->current_token.kind != TOK_EOF) {
     if (ctx->current_token.kind == TOK_IDENTIFIER) {
-
       struct AstNode *decl = parse_declaration(ctx);
 
       if (decl != NULL) {

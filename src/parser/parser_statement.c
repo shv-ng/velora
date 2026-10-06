@@ -25,6 +25,10 @@ struct AstNode *parse_statement(struct ParserCtx *ctx, struct AstNode *block) {
     }
   }
 
+  if (ctx->current_token.kind == TOK_KW_IF) {
+    return parse_if_else_expression(ctx);
+  }
+
   struct AstNode *expr = parse_expression(ctx, 0);
 
   // it's statement
