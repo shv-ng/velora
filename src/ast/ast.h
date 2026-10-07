@@ -29,8 +29,8 @@ enum AstKind {
   AST_TYPE_UNKNOWN,
   AST_TYPE_NAMED, // i32, User
 
-  AST_BLOCK_DECLARATION, // {...}
-  AST_IF_ELSE_EXPRESSION,           // if ... {...} else {...}
+  AST_BLOCK_DECLARATION,  // {...}
+  AST_IF_ELSE_EXPRESSION, // if ... {...} else {...}
 
   AST_RETURN_STATEMENT,     // return ...;
   AST_EXPRESSION_STATEMENT, // expr ;

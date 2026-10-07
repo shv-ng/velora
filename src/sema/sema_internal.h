@@ -11,11 +11,15 @@ void sema_block_declaration(struct SemaCtx *ctx, struct AstNode *node,
                             struct Type *hint);
 
 void sema_return_statement(struct SemaCtx *ctx, struct AstNode *node);
+void sema_expression_statement(struct SemaCtx *ctx, struct AstNode *node);
 
 void sema_binary_expression(struct SemaCtx *ctx, struct AstNode *node,
                             struct Type *hint);
 void sema_unary_expression(struct SemaCtx *ctx, struct AstNode *node,
                            struct Type *hint);
+
+void sema_if_else_expression(struct SemaCtx *ctx, struct AstNode *node,
+                             struct Type *hint);
 
 void sema_variable_declaration(struct SemaCtx *ctx, struct AstNode *node);
 
@@ -25,6 +29,9 @@ void sema_assignment(struct SemaCtx *ctx, struct AstNode *node);
 
 void sema_int_literal(struct SemaCtx *ctx, struct AstNode *node,
                       struct Type *hint);
+
+void sema_bool_literal(struct SemaCtx *ctx, struct AstNode *node,
+                       struct Type *hint);
 
 struct Type *sema_resolve_type_node(struct AstNode *node);
 

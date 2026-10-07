@@ -25,7 +25,8 @@ enum TokenKind {
   // keywords
   TOK_KW_RETURN, // "return"
   TOK_KW_FUNC,   // "fn"
-  TOK_KW_IF,    // "if"
+  TOK_KW_IF,     // "if"
+  TOK_KW_ELSE,   // "else"
 
   TOK_EQUAL,  // =
   TOK_PLUS,   // +

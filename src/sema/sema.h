@@ -17,4 +17,4 @@ struct SemaCtx {
 };
 
 struct SemaCtx sema_new(struct ParserCtx *p);
-void sema_node(struct SemaCtx *ctx, struct AstNode *root, struct Type *hint);
+void sema_node(struct SemaCtx *ctx, struct AstNode *node, struct Type *hint);

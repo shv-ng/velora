@@ -31,7 +31,7 @@ void sema_node(struct SemaCtx *ctx, struct AstNode *node, struct Type *hint) {
     sema_int_literal(ctx, node, hint);
     break;
   case AST_BOOL_LITERAL:
-    node->resolved_type = &type_bool;
+    sema_bool_literal(ctx, node, hint);
     break;
   case AST_TYPE_NAMED:
     node->resolved_type = sema_resolve_type_node(node);
@@ -51,8 +51,13 @@ void sema_node(struct SemaCtx *ctx, struct AstNode *node, struct Type *hint) {
   case AST_ASSIGNMENT:
     sema_assignment(ctx, node);
     break;
+  case AST_IF_ELSE_EXPRESSION:
+    sema_if_else_expression(ctx, node, hint);
     break;
-  default:
+  case AST_EXPRESSION_STATEMENT:
+    sema_expression_statement(ctx, node);
+    break;
+  case AST_TYPE_UNKNOWN:
     break;
   }
 }

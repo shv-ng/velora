@@ -8,8 +8,13 @@ struct Reserved {
 };
 
 static struct Reserved reserved[] = {
-    {"return", TOK_KW_RETURN}, {"fn", TOK_KW_FUNC},  {"if", TOK_KW_IF},
-    {"true", TOK_TRUE},        {"false", TOK_FALSE}, {NULL, 0},
+    {"return", TOK_KW_RETURN},
+    {"fn", TOK_KW_FUNC},
+    {"if", TOK_KW_IF},
+    {"else", TOK_KW_ELSE},
+    {"true", TOK_TRUE},
+    {"false", TOK_FALSE},
+    {NULL, 0},
 };
 
 // return either identifier (it later could be any fn name, var name, type etc),

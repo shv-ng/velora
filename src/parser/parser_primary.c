@@ -4,6 +4,10 @@
 struct AstNode *parse_primary(struct ParserCtx *ctx) {
   struct Token curr = ctx->current_token;
 
+  if (curr.kind == TOK_KW_IF) {
+    return parse_if_else_expression(ctx);
+  }
+
   if (curr.kind == TOK_TRUE || curr.kind == TOK_FALSE) {
     parser_advance(ctx);
     struct AstNode *node = astnode_new(ctx, AST_BOOL_LITERAL);

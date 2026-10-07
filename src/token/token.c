@@ -18,12 +18,16 @@ char *token_kind_str(enum TokenKind kind) {
     return "'{'";
   case TOK_RBRACE:
     return "'}'";
+
   case TOK_KW_RETURN:
     return "'return' keyword";
   case TOK_KW_FUNC:
     return "'fn' keyword";
   case TOK_KW_IF:
     return "'if' keyword";
+  case TOK_KW_ELSE:
+    return "'else' keyword";
+
   case TOK_PLUS:
     return "'+' symbol";
   case TOK_MINUS:

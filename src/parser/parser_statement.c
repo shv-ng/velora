@@ -1,5 +1,6 @@
 #include "parser_internal.h"
 #include <stddef.h>
+#include <stdio.h>
 
 bool parser_is_valid_lvalue(struct AstNode *lhs) {
   if (!lhs) {
@@ -25,26 +26,29 @@ struct AstNode *parse_statement(struct ParserCtx *ctx, struct AstNode *block) {
     }
   }
 
-  if (ctx->current_token.kind == TOK_KW_IF) {
-    return parse_if_else_expression(ctx);
-  }
-
+  enum TokenKind expr_kind = ctx->current_token.kind;
   struct AstNode *expr = parse_expression(ctx, 0);
-
-  // it's statement
-  if (ctx->current_token.kind == TOK_SEMICOLON) {
-    parser_advance(ctx);
-
-    struct AstNode *stmt = astnode_new(ctx, AST_EXPRESSION_STATEMENT);
-    stmt->as.expression_statement.expression = expr;
-
-    return stmt;
-  }
 
   // it's a trailing_expr
   if (ctx->current_token.kind == TOK_RBRACE) {
     block->as.block.trailing_expression = expr;
     return NULL;
+  }
+
+  // if else block have optional ';'
+  // there'll more will added here, like match case, etc
+  if (expr_kind == TOK_KW_IF ||
+      // it's statement
+      ctx->current_token.kind == TOK_SEMICOLON) {
+
+    if (ctx->current_token.kind == TOK_SEMICOLON) {
+      parser_advance(ctx);
+    }
+
+    struct AstNode *stmt = astnode_new(ctx, AST_EXPRESSION_STATEMENT);
+    stmt->as.expression_statement.expression = expr;
+
+    return stmt;
   }
 
   if (ctx->current_token.kind == TOK_EQUAL) {

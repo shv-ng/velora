@@ -20,6 +20,10 @@ bool type_equal(struct Type *a, struct Type *b) {
 }
 
 const char *type_str(struct Type *t) {
+  if (!t) {
+    return "void";
+  }
+
   switch (t->kind) {
   case TYPE_I8:
     return "i8";

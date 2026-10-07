@@ -7,7 +7,7 @@ struct AstNode *parse_type(struct ParserCtx *ctx) {
   struct AstNode *type = astnode_new(ctx, AST_TYPE_UNKNOWN);
 
   switch (curr.kind) {
- // all 'bool', 'i32', 'i8' etc cover here too
+    // all 'bool', 'i32', 'i8' etc cover here too
   case TOK_IDENTIFIER: {
     type->kind = AST_TYPE_NAMED;
     type->as.type_named.name = curr.val;
