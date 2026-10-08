@@ -4,6 +4,7 @@
 
 void sema_int_literal(struct SemaCtx *ctx, struct AstNode *node,
                       struct Type *hint) {
+  hint = type_equal(hint, &type_void) ? NULL : hint;
 
   node->resolved_type = hint ? hint : &type_i32; // default int will be i32
 

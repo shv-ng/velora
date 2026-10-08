@@ -21,8 +21,9 @@ struct AstNode *parse_if_else_expression(struct ParserCtx *ctx) {
     }
   }
 
-  struct Span end = node->as.if_else_expression.if_block->span;
-
+  struct Span end = node->as.if_else_expression.else_block
+                        ? node->as.if_else_expression.else_block->span
+                        : node->as.if_else_expression.if_block->span;
   node->span = merge_span(start, end);
 
   return node;

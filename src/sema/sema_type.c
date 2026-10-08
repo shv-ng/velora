@@ -11,6 +11,8 @@ struct Type *sema_resolve_type_node(struct AstNode *node) {
       t = &type_i8;
     } else if (strcmp(node->as.type_named.name, "bool") == 0) {
       t = &type_bool;
+    } else if (strcmp(node->as.type_named.name, "void") == 0) {
+      t = &type_void;
     }
     break;
   }

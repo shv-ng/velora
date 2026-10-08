@@ -10,7 +10,8 @@ void sema_if_else_expression(struct SemaCtx *ctx, struct AstNode *node,
   struct AstNode *if_block = node->as.if_else_expression.if_block;
   sema_node(ctx, if_block, hint);
 
-  if (!type_equal(hint, if_block->resolved_type)) {
+  if (if_block->as.block.trailing_expression &&
+      !type_equal(hint, if_block->resolved_type)) {
     emit_error(ctx->err, if_block->span, ERR_TYPE_MISMATCH, type_str(hint),
                if_block->resolved_type);
   }
@@ -18,8 +19,9 @@ void sema_if_else_expression(struct SemaCtx *ctx, struct AstNode *node,
   struct AstNode *else_block = node->as.if_else_expression.else_block;
   if (else_block) {
     sema_node(ctx, else_block, hint);
-    if (!type_equal(hint, else_block->resolved_type)) {
-      emit_error(ctx->err, if_block->span, ERR_TYPE_MISMATCH, type_str(hint),
+    if (else_block->as.block.trailing_expression &&
+        !type_equal(hint, else_block->resolved_type)) {
+      emit_error(ctx->err, else_block->span, ERR_TYPE_MISMATCH, type_str(hint),
                  else_block->resolved_type);
     }
   }

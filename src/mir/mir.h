@@ -1,3 +1,7 @@
+// when it'll intruduced, it'll do few things
+// - divergence : a block get break/continue/return/inf loop/panic
+// - const folding in frontend
+// - ownership etc
 #pragma once
 
 enum MirOp {
