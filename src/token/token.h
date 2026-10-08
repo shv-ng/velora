@@ -1,10 +1,12 @@
 #pragma once
+#include <stdbool.h>
 
 #define NO_SPAN (struct Span){0}
 
 enum TokenKind {
   TOK_EOF,
   TOK_ERROR,
+  TOK_COMMENT,
 
   TOK_SEMICOLON, // ;
   TOK_COLON,     // :
@@ -60,8 +62,11 @@ struct Token {
 
   char *file_name;
   char *val;
+  char *doc_comment;
+
   enum TokenKind kind;
 };
 
 char *token_kind_str(enum TokenKind kind);
 struct Span merge_span(struct Span s1, struct Span s2);
+bool comment_attacted(struct Token comment, struct Token next_token);

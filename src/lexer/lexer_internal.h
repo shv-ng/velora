@@ -13,3 +13,4 @@ struct Token lexer_make_tok(struct LexerCtx *ctx, enum TokenKind kind);
 
 struct Token lexer_number(struct LexerCtx *ctx);
 struct Token lexer_identifier(struct LexerCtx *ctx);
+struct Token lexer_comment(struct LexerCtx *ctx);

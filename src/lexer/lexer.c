@@ -54,6 +54,11 @@ struct Token lexer_next_token(struct LexerCtx *ctx) {
     return lexer_make_tok(ctx, TOK_STAR);
   case '/':
     lexer_advance(ctx);
+    c = lexer_peek(ctx);
+    if (c == '/') {
+      lexer_advance(ctx);
+      return lexer_comment(ctx);
+    }
     return lexer_make_tok(ctx, TOK_SLASH);
   case '%':
     lexer_advance(ctx);

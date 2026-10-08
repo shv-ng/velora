@@ -28,3 +28,6 @@ struct AstNode *parse_block_declaration(struct ParserCtx *ctx, char *name);
 struct AstNode *parse_type(struct ParserCtx *ctx);
 
 struct AstNode *parse_primary(struct ParserCtx *ctx);
+
+struct Token comment_merge(struct ParserCtx *ctx, struct Token comment1,
+                           struct Token comment2);

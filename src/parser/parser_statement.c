@@ -75,6 +75,23 @@ struct AstNode *parse_statement(struct ParserCtx *ctx, struct AstNode *block) {
     return stmt;
   }
 
+  if (ctx->current_token.kind == TOK_COMMENT) {
+    struct Token curr_comment = ctx->current_token;
+    parser_advance(ctx);
+
+    while (comment_attacted(curr_comment, ctx->current_token)) {
+      if (ctx->current_token.kind == TOK_COMMENT) {
+        curr_comment = comment_merge(ctx, curr_comment, ctx->current_token);
+        parser_advance(ctx);
+      } else {
+        ctx->current_token.doc_comment = curr_comment.val;
+        break;
+      }
+    }
+
+    return NULL;
+  }
+
   emit_error(ctx->err, ctx->current_token.span, ERR_UNEXPECTED,
              token_kind_str(ctx->current_token.kind));
 

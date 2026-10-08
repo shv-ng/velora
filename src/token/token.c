@@ -1,4 +1,5 @@
 #include "token.h"
+#include <stdbool.h>
 
 char *token_kind_str(enum TokenKind kind) {
   switch (kind) {
@@ -68,6 +69,8 @@ char *token_kind_str(enum TokenKind kind) {
     return "identifier";
   case TOK_INT_LITERAL:
     return "int literal";
+  case TOK_COMMENT:
+    return "comment";
   }
 }
 
@@ -81,4 +84,9 @@ struct Span merge_span(struct Span s1, struct Span s2) {
   span.end_line = s1.end_line > s2.end_line ? s1.end_line : s2.end_line;
 
   return span;
+}
+
+bool comment_attacted(struct Token comment, struct Token next_token) {
+  return comment.kind == TOK_COMMENT &&
+         next_token.span.start_line - comment.span.end_line == 1;
 }

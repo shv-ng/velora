@@ -85,6 +85,7 @@ char *arena_strndup(struct Arena *a, const char *s, size_t size) {
 
   return copy;
 }
+
 void arena_free(struct Arena *a) {
   struct ArenaChunk *chunk = a->head;
 
