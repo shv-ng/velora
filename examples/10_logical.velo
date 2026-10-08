@@ -1,0 +1,11 @@
+in_range: fn(x: i32) bool {
+    x >= 0 && x <= 100
+}
+
+main: fn() i32 {
+    if in_range(50) && !false {
+        1
+    } else {
+        0
+    }
+}

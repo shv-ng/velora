@@ -1,0 +1,6 @@
+SIZE: const i32 = 10;
+
+main: fn() i32 {
+    x: i32 = SIZE * 2;
+    x                   // 20
+}

@@ -1,0 +1,6 @@
+main: fn() i64 {
+    a: i64 = 10000000000;
+    b: u8  = 255;
+    c: i16 = 32000;
+    a + c                // i64 promoted? decide your rules
+}
